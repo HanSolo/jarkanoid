@@ -89,7 +89,7 @@ public class Main extends Application {
 
 
     @Override public void init() {
-        paddleState   = PaddleState.GUN;
+        paddleState   = PaddleState.STANDARD;
 
         lastTimerCall = System.nanoTime();
         timer         = new AnimationTimer() {
@@ -140,7 +140,7 @@ public class Main extends Application {
             switch (e.getCode()) {
                 case RIGHT -> movePaddleRight();
                 case LEFT  -> movePaddleLeft();
-                case SPACE -> fire(paddle.x);
+                case SPACE -> { if (PaddleState.GUN == paddleState) { fire(paddle.x); } }
             }
         });
         scene.setOnKeyReleased(e -> {
