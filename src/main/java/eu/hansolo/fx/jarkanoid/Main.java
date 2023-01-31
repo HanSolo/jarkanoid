@@ -60,8 +60,6 @@ public class Main extends Application {
     private static final double      BLOCK_HEIGHT    = 20;
     private static final double      BLOCK_STEP_X    = 40;
     private static final double      BLOCK_STEP_Y    = 22;
-    private static final Color[]     BLOCK_COLORS    = { Color.GRAY, Color.RED, Color.YELLOW, Color.BLUE, Color.MAGENTA, Color.LIME };
-    private static final InnerShadow BLOCK_SHADOW    = new InnerShadow(BlurType.TWO_PASS_BOX, Color.rgb(0, 0, 0, 0.65), 1, 0.0, 0, 0);
     private static final DropShadow  DROP_SHADOW     = new DropShadow(BlurType.TWO_PASS_BOX, Color.rgb(0, 0, 0, 0.65), 5, 0.0, 10, 10);
     private static final Font        SCORE_FONT      = Fonts.urwLinear(36);
 
@@ -88,6 +86,12 @@ public class Main extends Application {
     private Image                paddle_gun_Img;
     private Image                ballImg;
     private Image                torpedoImg;
+    private Image                grayBlockImg;
+    private Image                redBlockImg;
+    private Image                yellowBlockImg;
+    private Image                blueBlockImg;
+    private Image                magentaBlockImg;
+    private Image                limeBlockImg;
     //private Image                explosionImg;
     private Ball                 ball;
     private Paddle               paddle;
@@ -135,7 +139,16 @@ public class Main extends Application {
         for (int iy = 0 ; iy < 6 ; iy++) {
             for (int ix = 0 ; ix < 13 ; ix++) {
                 final int maxHits = iy == 0 ? 5 : 1;
-                Block block = new Block(BLOCK_COLORS[iy], INSET + ix * BLOCK_STEP_X, INSET + 155 + iy * BLOCK_STEP_Y, 70 - iy * 10, maxHits);
+                Block block;
+                switch (iy) {
+                    case 0 -> block = new Block(grayBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 155 + iy * BLOCK_STEP_Y, 70 - iy * 10, maxHits);
+                    case 1 -> block = new Block(redBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 155 + iy * BLOCK_STEP_Y, 70 - iy * 10, maxHits);
+                    case 2 -> block = new Block(yellowBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 155 + iy * BLOCK_STEP_Y, 70 - iy * 10, maxHits);
+                    case 3 -> block = new Block(blueBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 155 + iy * BLOCK_STEP_Y, 70 - iy * 10, maxHits);
+                    case 4 -> block = new Block(magentaBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 155 + iy * BLOCK_STEP_Y, 70 - iy * 10, maxHits);
+                    case 5 -> block = new Block(limeBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 155 + iy * BLOCK_STEP_Y, 70 - iy * 10, maxHits);
+                    default -> { continue; }
+                }
                 blocks.add(block);
             }
         }
@@ -194,6 +207,12 @@ public class Main extends Application {
         paddle_gun_Img   = new Image(getClass().getResourceAsStream("paddle_gun.png"), 80, 22, true, false);
         ballImg          = new Image(getClass().getResourceAsStream("ball.png"), 12, 12, true, false);
         torpedoImg       = new Image(getClass().getResourceAsStream("torpedo.png"), 41, 23, true, false);
+        grayBlockImg     = new Image(getClass().getResourceAsStream("grayBlock.png"), 38, 20, true, false);
+        redBlockImg      = new Image(getClass().getResourceAsStream("redBlock.png"), 38, 20, true, false);
+        yellowBlockImg   = new Image(getClass().getResourceAsStream("yellowBlock.png"), 38, 20, true, false);
+        blueBlockImg     = new Image(getClass().getResourceAsStream("blueBlock.png"), 38, 20, true, false);
+        magentaBlockImg  = new Image(getClass().getResourceAsStream("magentaBlock.png"), 38, 20, true, false);
+        limeBlockImg     = new Image(getClass().getResourceAsStream("greenBlock.png"), 38, 20, true, false);
         //explosionImg    = new Image(getClass().getResourceAsStream("explosion.png"), 39, 36, true, false);
     }
 
@@ -237,7 +256,16 @@ public class Main extends Application {
         for (int iy = 0 ; iy < 6 ; iy++) {
             for (int ix = 0 ; ix < 13 ; ix++) {
                 final int maxHits = iy == 0 ? 5 : 1;
-                Block block = new Block(BLOCK_COLORS[iy], INSET + ix * BLOCK_STEP_X, INSET + 155 + iy * BLOCK_STEP_Y, 70 - iy * 10, maxHits);
+                Block block;
+                switch (iy) {
+                    case 0 -> block = new Block(grayBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 155 + iy * BLOCK_STEP_Y, 70 - iy * 10, maxHits);
+                    case 1 -> block = new Block(redBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 155 + iy * BLOCK_STEP_Y, 70 - iy * 10, maxHits);
+                    case 2 -> block = new Block(yellowBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 155 + iy * BLOCK_STEP_Y, 70 - iy * 10, maxHits);
+                    case 3 -> block = new Block(blueBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 155 + iy * BLOCK_STEP_Y, 70 - iy * 10, maxHits);
+                    case 4 -> block = new Block(magentaBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 155 + iy * BLOCK_STEP_Y, 70 - iy * 10, maxHits);
+                    case 5 -> block = new Block(limeBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 155 + iy * BLOCK_STEP_Y, 70 - iy * 10, maxHits);
+                    default -> { continue; }
+                }
                 blocks.add(block);
             }
         }
@@ -338,11 +366,7 @@ public class Main extends Application {
 
         // Draw blocks
         ctx.setStroke(Color.TRANSPARENT);
-        blocks.forEach(block -> {
-            // Draw block
-            ctx.setFill(block.color);
-            ctx.fillRect(block.x, block.y, block.width, block.height);
-        });
+        blocks.forEach(block -> ctx.drawImage(block.image, block.x, block.y));
 
         // Draw ball
         ball.update();
@@ -527,15 +551,13 @@ public class Main extends Application {
 
     private class Block extends Sprite {
         public       int     value;
-        public       Color   color;
         public       int     hits;
         public final int     maxHits;
         public       boolean toBeRemoved;
 
 
-        public Block(final Color color, final double x, final double y, final int value, final int maxHits) {
-            super(null);
-            this.color         = color;
+        public Block(final Image image, final double x, final double y, final int value, final int maxHits) {
+            super(image);
             this.x             = x;
             this.y             = y;
             this.value         = value;
