@@ -1,7 +1,7 @@
 package eu.hansolo.fx.jarkanoid;
 
 import eu.hansolo.toolbox.Helper;
-import eu.hansolo.toolboxfx.geom.Rectangle;
+import eu.hansolo.toolbox.observables.ObservableMatrix;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -22,9 +22,15 @@ import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 
 public class Main extends Application {
@@ -40,22 +46,26 @@ public class Main extends Application {
         }
     }
 
-    private static final Random      RND            = new Random();
-    private static final double      WIDTH          = 560;
-    private static final double      HEIGHT         = 740;
-    private static final double      INSET          = 22;
-    private static final double      PADDLE_SPEED   = 8;
-    private static final double      TORPEDO_SPEED  = 12;
-    private static final double      BALL_SPEED     = 5;
-    private static final double      MAX_BALL_SPEED = 10;
-    private static final double      BLOCK_WIDTH    = 38;
-    private static final double      BLOCK_HEIGHT   = 20;
-    private static final double      BLOCK_STEP_X   = 40;
-    private static final double      BLOCK_STEP_Y   = 22;
-    private static final Color[]     BLOCK_COLORS   = { Color.GRAY, Color.RED, Color.YELLOW, Color.BLUE, Color.MAGENTA, Color.LIME };
-    private static final InnerShadow BLOCK_SHADOW   = new InnerShadow(BlurType.TWO_PASS_BOX, Color.rgb(0, 0, 0, 0.65), 1, 0.0, 0, 0);
-    private static final DropShadow  DROP_SHADOW    = new DropShadow(BlurType.TWO_PASS_BOX, Color.rgb(0, 0, 0, 0.65), 5, 0.0, 10, 10);
-    private static final Font        SCORE_FONT     = Fonts.urwLinear(36);
+    private static final Random      RND             = new Random();
+    private static final double      WIDTH           = 560;
+    private static final double      HEIGHT          = 740;
+    private static final double      INSET           = 22;
+    private static final double      UPPER_INSET     = 85;
+    private static final double      PADDLE_OFFSET_Y = 68;
+    private static final double      PADDLE_SPEED    = 8;
+    private static final double      TORPEDO_SPEED   = 12;
+    private static final double      BALL_SPEED      = 5;
+    private static final double      MAX_BALL_SPEED  = 10;
+    private static final double      BLOCK_WIDTH     = 38;
+    private static final double      BLOCK_HEIGHT    = 20;
+    private static final double      BLOCK_STEP_X    = 40;
+    private static final double      BLOCK_STEP_Y    = 22;
+    private static final Color[]     BLOCK_COLORS    = { Color.GRAY, Color.RED, Color.YELLOW, Color.BLUE, Color.MAGENTA, Color.LIME };
+    private static final InnerShadow BLOCK_SHADOW    = new InnerShadow(BlurType.TWO_PASS_BOX, Color.rgb(0, 0, 0, 0.65), 1, 0.0, 0, 0);
+    private static final DropShadow  DROP_SHADOW     = new DropShadow(BlurType.TWO_PASS_BOX, Color.rgb(0, 0, 0, 0.65), 5, 0.0, 10, 10);
+    private static final Font        SCORE_FONT      = Fonts.urwLinear(36);
+
+    private ScheduledExecutorService executor       = Executors.newSingleThreadScheduledExecutor();
 
     private AnimationTimer       timer;
     private long                 lastTimerCall;
@@ -82,6 +92,7 @@ public class Main extends Application {
     private Ball                 ball;
     private Paddle               paddle;
     private List<Block>          blocks;
+    private List<Block>          blocksToCheck;
     private List<Torpedo>        torpedoes;
     private int                  noOfLifes;
     private long                 score;
@@ -95,6 +106,7 @@ public class Main extends Application {
         timer         = new AnimationTimer() {
             @Override public void handle(final long now) {
                 if (now > lastTimerCall) {
+                    hitTests();
                     updateAndDraw();
                     lastTimerCall = now;
                 }
@@ -117,15 +129,18 @@ public class Main extends Application {
         // Initialize invaders, mothership and ship
         paddle = new Paddle(paddle_std_Img, paddle_wide_Img, paddle_gun_Img);
 
-        ball = new Ball(ballImg, WIDTH * 0.5, paddle.y, RND.nextDouble() * (BALL_SPEED - 1.0) + 1.0);
+        ball = new Ball(ballImg, WIDTH * 0.5, HEIGHT - PADDLE_OFFSET_Y - ballImg.getHeight() * 0.5, (RND.nextDouble() * (2 * BALL_SPEED) - BALL_SPEED));
 
         blocks = new ArrayList<>();
         for (int iy = 0 ; iy < 6 ; iy++) {
             for (int ix = 0 ; ix < 13 ; ix++) {
-                Block block = new Block(BLOCK_COLORS[iy], INSET + ix * BLOCK_STEP_X, INSET + 155 + iy * BLOCK_STEP_Y, 70 - iy * 10);
+                final int maxHits = iy == 0 ? 5 : 1;
+                Block block = new Block(BLOCK_COLORS[iy], INSET + ix * BLOCK_STEP_X, INSET + 155 + iy * BLOCK_STEP_Y, 70 - iy * 10, maxHits);
                 blocks.add(block);
             }
         }
+        blocksToCheck = blocks.stream().sorted((block1, block2) -> block2.bounds.maxY > block1.bounds.maxY ? 1 : -1).collect(Collectors.toList());
+
         torpedoes  = new ArrayList<>();
         noOfLifes  = 3;
         score      = 0;
@@ -186,11 +201,6 @@ public class Main extends Application {
         return String.format("%" + n + "s", text).replace(" ", filler);
     }
 
-    // Hit test
-    private static Optional<Block> isBlockHit(final List<Block> blocks, final Rectangle bounds) {
-        return blocks.parallelStream().filter(block -> collisionCheck(bounds, block.bounds)).findFirst();
-    }
-
 
     // ******************** Game control **************************************
     private void movePaddleRight() {
@@ -226,7 +236,8 @@ public class Main extends Application {
         blocks.clear();
         for (int iy = 0 ; iy < 6 ; iy++) {
             for (int ix = 0 ; ix < 13 ; ix++) {
-                Block block = new Block(BLOCK_COLORS[iy], INSET + ix * BLOCK_STEP_X, INSET + 155 + iy * BLOCK_STEP_Y, 70 - iy * 10);
+                final int maxHits = iy == 0 ? 5 : 1;
+                Block block = new Block(BLOCK_COLORS[iy], INSET + ix * BLOCK_STEP_X, INSET + 155 + iy * BLOCK_STEP_Y, 70 - iy * 10, maxHits);
                 blocks.add(block);
             }
         }
@@ -236,7 +247,7 @@ public class Main extends Application {
 
     // Re-Spawn Ball
     private void respawnBall() {
-        ball = new Ball(ballImg, WIDTH * 0.5, paddle.y, RND.nextDouble() * (BALL_SPEED - 1.0) + 1.0);
+        ball = new Ball(ballImg, paddle.bounds.centerX, HEIGHT - PADDLE_OFFSET_Y - ballImg.getHeight() * 0.5, (RND.nextDouble() * (2 * BALL_SPEED) - BALL_SPEED));
     }
 
     // Game Over
@@ -244,27 +255,47 @@ public class Main extends Application {
         System.exit(0);
     }
 
-    // Rectangle - Rectangle collision
-    private static boolean collisionCheck(final Rectangle rect1, final Rectangle rect2) {
-        return rectRectCollision(rect1.x, rect1.y, rect1.width, rect1.height, rect2.x, rect2.y, rect2.width, rect2.height);
-    }
-    private static boolean rectRectCollision(final double r1x, final double r1y, final double r1w, final double r1h, final double r2x, final double r2y, final double r2w, final double r2h) {
-        return (r1x + r1w >= r2x &&    // r1 right edge past r2 left
-                r1x <= r2x + r2w &&    // r1 left edge past r2 right
-                r1y + r1h >= r2y &&    // r1 top edge past r2 bottom
-                r1y <= r2y + r2h);     // r1 bottom edge past r2 top
+
+    // ******************** HitTests ******************************************
+    private void hitTests() {
+        // Sort list of blocks by maxY
+        blocksToCheck.clear();
+        blocksToCheck.addAll(blocks.stream().sorted((block1, block2) -> block2.bounds.maxY > block1.bounds.maxY ? 1 : -1).collect(Collectors.toList()));
+
+        for (Block block : blocksToCheck) {
+            if (PaddleState.GUN == paddleState) {
+                for (Torpedo torpedo : torpedoes) {
+                    // Torpedo - Block
+                    if (torpedo.bounds.maxX > block.bounds.minX && torpedo.bounds.minX < block.bounds.maxX && torpedo.bounds.maxY > block.bounds.minY && torpedo.bounds.minY < block.bounds.maxY) {
+                        block.hits++;
+                        if (block.hits == block.maxHits) {
+                            block.toBeRemoved = true;
+                            score += block.value;
+                        }
+                        torpedo.toBeRemoved = true;
+                        //playSound(explosionSnd);
+                        break;
+                    }
+                }
+            }
+            // Ball - Block
+            if(ball.bounds.maxX > block.bounds.minX && ball.bounds.minX < block.bounds.maxX && ball.bounds.maxY > block.bounds.minY && ball.bounds.minY < block.bounds.maxY) {
+                block.hits++;
+                if (block.hits == block.maxHits) {
+                    score += block.value;
+                    block.toBeRemoved = true;
+                }
+                ball.vY = -ball.vY;
+                break;
+            }
+        }
+
+        // Ball - Paddle
+        if(ball.bounds.maxX > paddle.bounds.minX && ball.bounds.minX < paddle.bounds.maxX && ball.bounds.maxY > paddle.bounds.minY && ball.bounds.minY < paddle.bounds.maxY) {
+            ball.vY = -ball.vY;
+        }
     }
 
-    // Border check
-    private static boolean borderCheck(final Rectangle rect1, final Rectangle rect2) {
-        if (rect1.x < rect2.x &&
-            rect1.x + rect1.width > rect1.x &&
-            rect1.y + rect1.height > rect2.y) { return true; }
-        if (rect1.x + rect1.width > rect2.x + rect2.width &&
-            rect1.x < rect2.x + rect2.width &&
-            rect1.y + rect1.height > rect2.y) { return true; }
-        return false;
-    }
 
     // ******************** Redraw ********************************************
     private void drawBackground() {
@@ -272,7 +303,7 @@ public class Main extends Application {
         bkgCtx.setFill(Color.BLACK);
         bkgCtx.fillRect(0, 0, WIDTH, HEIGHT);
         bkgCtx.setFill(bkgPatternFill);
-        bkgCtx.fillRect(0, 85, WIDTH, HEIGHT);
+        bkgCtx.fillRect(0, UPPER_INSET, WIDTH, HEIGHT);
 
         bkgCtx.save();
         bkgCtx.setEffect(DROP_SHADOW);
@@ -281,8 +312,8 @@ public class Main extends Application {
         bkgCtx.setFill(pipePatternFill);
         bkgCtx.fillRect(17, 68, WIDTH - 34, 17);
         bkgCtx.setFill(borderPatternFill);
-        bkgCtx.fillRect(0, 85, 20, HEIGHT);
-        bkgCtx.fillRect(WIDTH - 20, 85, 20, HEIGHT);
+        bkgCtx.fillRect(0, UPPER_INSET, 20, HEIGHT);
+        bkgCtx.fillRect(WIDTH - 20, UPPER_INSET, 20, HEIGHT);
         bkgCtx.restore();
 
         bkgCtx.restore();
@@ -312,18 +343,6 @@ public class Main extends Application {
             ctx.setFill(block.color);
             ctx.fillRect(block.x, block.y, block.width, block.height);
         });
-
-        // Check for torpedo hits
-        for (Torpedo torpedo : torpedoes) {
-            Optional<Block> optionalBlock = isBlockHit(blocks, torpedo.bounds);
-            if (optionalBlock.isPresent()) {
-                Block block = optionalBlock.get();
-                score += block.value;
-                block.toBeRemoved   = true;
-                torpedo.toBeRemoved = true;
-                //playSound(explosionSnd);
-            }
-        }
 
         // Draw ball
         ball.update();
@@ -366,7 +385,7 @@ public class Main extends Application {
     // ******************** Inner Classes *************************************
     private abstract class Sprite {
         public Image     image;
-        public Rectangle bounds;
+        public Bounds    bounds;
         public double    x; // Center of Sprite in x-direction
         public double    y; // Center of Sprite in y-direction
         public double    r;
@@ -408,7 +427,7 @@ public class Main extends Application {
             this.size        = this.width > this.height ? width : height;
             this.radius      = this.size * 0.5;
             this.toBeRemoved = false;
-            this.bounds      = null == image ? new Rectangle(0, 0, 0, 0) : new Rectangle(x - image.getWidth() * 0.5, y - image.getHeight() * 0.5, image.getWidth(), image.getHeight());
+            this.bounds      = null == image ? new Bounds(0, 0, 0, 0) : new Bounds(x - image.getWidth() * 0.5, y - image.getHeight() * 0.5, image.getWidth(), image.getHeight());
         }
 
 
@@ -477,19 +496,19 @@ public class Main extends Application {
 
         @Override protected void init() {
             this.x             = WIDTH * 0.5;
-            this.y             = HEIGHT - 68;
+            this.y             = HEIGHT - PADDLE_OFFSET_Y;
             this.width         = paddleState.width;
             this.height        = image.getHeight();
             this.size          = height;
             this.radius        = size * 0.5;
             this.vX            = 0;
             this.vY            = 0;
-            this.bounds.x      = x;
-            this.bounds.y      = y;
+            this.bounds.set(this.x - paddleState.width * 0.5, this.y - this.height * 0.5, paddleState.width, this.height);
         }
 
         @Override public void respawn() {
             this.x  = WIDTH * 0.5;
+            this.bounds.set(this.x - paddleState.width * 0.5, this.y - this.height * 0.5, paddleState.width, this.height);
             this.vX = 0;
             this.vY = 0;
         }
@@ -502,30 +521,30 @@ public class Main extends Application {
             if (x - paddleState.width * 0.5 < INSET) {
                 x = INSET + paddleState.width * 0.5;
             }
-            bounds.x = x - paddleState.width * 0.5;
+            this.bounds.set(this.x - paddleState.width * 0.5, this.y - this.height * 0.5, paddleState.width, this.height);
         }
     }
 
     private class Block extends Sprite {
-        public int     value;
-        public Color   color;
-        public long    lastShot;
-        public boolean toBeRemoved;
+        public       int     value;
+        public       Color   color;
+        public       int     hits;
+        public final int     maxHits;
+        public       boolean toBeRemoved;
 
 
-        public Block(final Color color, final double x, final double y, final int value) {
+        public Block(final Color color, final double x, final double y, final int value, final int maxHits) {
             super(null);
-            this.toBeRemoved   = false;
+            this.color         = color;
             this.x             = x;
             this.y             = y;
             this.value         = value;
-            this.color         = color;
+            this.maxHits       = maxHits;
+            this.toBeRemoved   = false;
+            this.hits          = 0;
             this.width         = BLOCK_WIDTH;
             this.height        = BLOCK_HEIGHT;
-            this.bounds.x      = x;
-            this.bounds.y      = y;
-            this.bounds.width  = width;
-            this.bounds.height = height;
+            this.bounds.set(x, y, width, height);
             init();
         }
 
@@ -539,11 +558,7 @@ public class Main extends Application {
             vY = 0;
         }
 
-        @Override public void update() {
-            if (toBeRemoved) { return; }
-            //x += vX;
-            //y += vY;
-        }
+        @Override public void update() { }
     }
 
     private class Ball extends Sprite {
@@ -555,48 +570,34 @@ public class Main extends Application {
         }
 
         @Override public void update() {
-            x += vX;
-            y += vY;
+            this.x += this.vX;
+            this.y += this.vY;
 
-            if (x + width * 0.5 > WIDTH - INSET) {
-                x  = WIDTH - INSET - width * 0.5;
-                vX = -BALL_SPEED;
+            if (bounds.maxX > WIDTH - INSET) {
+                this.x  = WIDTH - INSET - this.width * 0.5;
+                this.vX = -BALL_SPEED;
             }
-            if (x - width * 0.5 < INSET) {
-                x  = INSET + width * 0.5;
-                vX = BALL_SPEED;
+            if (bounds.minX < INSET) {
+                this.x  = INSET + this.width * 0.5;
+                this.vX = BALL_SPEED;
             }
-            if (y - height * 0.5 < INSET) {
-                y  = INSET + height * 0.5;
-                vY = BALL_SPEED;
+            if (bounds.minY < UPPER_INSET) {
+                this.y  = UPPER_INSET + this.radius;
+                this.vY = BALL_SPEED;
             }
 
-            this.bounds.x = x - width * 0.5;
-            this.bounds.y = y - height * 0.5;
+            this.bounds.set(this.x - this.width * 0.5, this.y - this.height * 0.5, this.width, this.height);
 
-            if (y > HEIGHT) {
+            if (this.y > HEIGHT && !toBeRemoved) {
                 toBeRemoved = true;
                 noOfLifes -= 1;
                 if (noOfLifes == 0) { gameOver(); }
-                respawnBall();
+                executor.schedule(() -> respawnBall(), 2, TimeUnit.SECONDS);
                 return;
             }
 
-            // Check for block hit
-            Optional<Block> optionalBlock = isBlockHit(blocks, bounds);
-            if (optionalBlock.isPresent()) {
-                Block block = optionalBlock.get();
-                score += block.value;
-                block.toBeRemoved = true;
-                vY = -vY;
-            }
-
-            // Check for paddle hit
-            if (collisionCheck(bounds, paddle.bounds)) { vY = -vY; }
-            if (borderCheck(bounds, paddle.bounds)) { vX = -vX; }
-
-            vX = Helper.clamp(-BALL_SPEED, BALL_SPEED, vX);
-            vY = Helper.clamp(-BALL_SPEED, BALL_SPEED, vY);
+            this.vX = Helper.clamp(-BALL_SPEED, BALL_SPEED, this.vX);
+            this.vY = Helper.clamp(-BALL_SPEED, BALL_SPEED, this.vY);
         }
     }
 
@@ -608,7 +609,7 @@ public class Main extends Application {
 
         @Override public void update() {
             y -= vY;
-            bounds.y = y - height * 0.5;
+            this.bounds.set(this.x - this.width * 0.5, this.y - this.height * 0.5, this.width, this.height);
             if (y < -size) {
                 toBeRemoved = true;
             }
@@ -625,6 +626,61 @@ public class Main extends Application {
             if (y < -size) {
                 toBeRemoved = true;
             }
+        }
+    }
+
+    public class Bounds {
+        public double x;
+        public double y;
+        public double width;
+        public double height;
+        public double minX;
+        public double minY;
+        public double maxX;
+        public double maxY;
+        public double centerX;
+        public double centerY;
+
+
+
+        // ******************** Constructors **************************************
+        public Bounds() {
+            this(0, 0, 0, 0);
+        }
+        public Bounds(final double width, final double height) {
+            this(0, 0, width, height);
+        }
+        public Bounds(final double x, final double y, final double width, final double height) {
+            set(x, y, width, height);
+        }
+
+
+        // ******************** Methods *******************************************
+        public void set(final Bounds bounds) {
+            set(bounds.x, bounds.y, bounds.width, bounds.height);
+        }
+        public void set(final double x, final double y, final double width, final double height) {
+            this.x       = x;
+            this.y       = y;
+            this.width   = width;
+            this.height  = height;
+            this.minX    = x;
+            this.minY    = y;
+            this.maxX    = x + width;
+            this.maxY    = y + height;
+            this.centerX = x + width * 0.5;
+            this.centerY = y + height * 0.5;
+        }
+
+        public boolean contains(final double x, final double y) {
+            return (Double.compare(x, minX) >= 0 && Double.compare(x, maxX) <= 0 && Double.compare(y, minY) >= 0 && Double.compare(y, maxY) <= 0);
+        }
+
+        public boolean intersects(final Bounds other) {
+            return (other.maxX >= minX && other.maxY >= minY && other.minX <= maxX && other.minY <= maxY);
+        }
+        public boolean intersects(final double x, final double y, final double width, final double height) {
+            return (x + width >= minX && y + height >= minY && x <= maxX && y <= maxY);
         }
     }
 

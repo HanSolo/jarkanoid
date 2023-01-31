@@ -12,7 +12,7 @@ public class Fonts {
 
     static {
         try {
-            urwLinearName   = Font.loadFont(eu.hansolo.toolboxfx.font.Fonts.class.getResourceAsStream("/eu/hansolo/fx/jarkanoid/URWLinearTExtBolWid.ttf"), 10).getName();
+            urwLinearName   = Font.loadFont(Fonts.class.getResourceAsStream("/eu/hansolo/fx/jarkanoid/URWLinearTExtBolWid.ttf"), 10).getName();
         } catch (Exception exception) {
             exception.printStackTrace();
         }

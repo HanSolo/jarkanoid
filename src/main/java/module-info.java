@@ -9,7 +9,6 @@ module eu.hansolo.fx.jarkanoid {
 
     // 3rd party
     requires transitive eu.hansolo.toolbox;
-    requires transitive eu.hansolo.toolboxfx;
 
     opens eu.hansolo.fx.jarkanoid to eu.hansolo.toolbox, eu.hansolo.toolboxfx;
 
