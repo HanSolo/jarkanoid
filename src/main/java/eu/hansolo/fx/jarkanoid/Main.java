@@ -22,8 +22,11 @@ import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -119,10 +122,9 @@ public class Main extends Application {
     private AudioClip            ballBlockSnd;
     private AudioClip            ballHardBlockSnd;
     private AudioClip            gunSnd;
-    private Ball                 ball;
     private Paddle               paddle;
+    private List<Ball>           balls;
     private List<Block>          blocks;
-    private List<Block>          blocksToCheck;
     private List<Torpedo>        torpedoes;
     private int                  noOfLifes;
     private long                 score;
@@ -179,8 +181,9 @@ public class Main extends Application {
         paddle = new Paddle();
 
         // Initialize level
-        blocks    = new ArrayList<>();
-        torpedoes = new ArrayList<>();
+        balls     = new CopyOnWriteArrayList<>();
+        blocks    = new CopyOnWriteArrayList<>();
+        torpedoes = new CopyOnWriteArrayList<>();
         noOfLifes = 3;
         score     = 0;
     }
@@ -196,10 +199,11 @@ public class Main extends Application {
                     case RIGHT -> movePaddleRight();
                     case LEFT  -> movePaddleLeft();
                     case SPACE -> {
-                        if (ball.active) {
+                        final long activeBalls = balls.stream().filter(ball -> ball.active).count();
+                        if (activeBalls > 0) {
                             if (PaddleState.GUN == paddleState) { fire(paddle.x); }
                         } else {
-                            ball.active = true;
+                            balls.forEach(ball -> ball.active = true);
                         }
                     }
                 }
@@ -265,11 +269,11 @@ public class Main extends Application {
     }
 
     private void loadSounds() {
-        startLevelSnd    = new AudioClip(getClass().getResource("Level_Ready.mp3").toExternalForm());
-        ballPaddleSnd    = new AudioClip(getClass().getResource("Ball_Paddle.mp3").toExternalForm());
-        ballBlockSnd     = new AudioClip(getClass().getResource("Ball_Block.mp3").toExternalForm());
-        ballHardBlockSnd = new AudioClip(getClass().getResource("Ball_Hard_Block.mp3").toExternalForm());
-        gunSnd           = new AudioClip(getClass().getResource("Gun.mp3").toExternalForm());
+        startLevelSnd    = new AudioClip(getClass().getResource("level_ready.wav").toExternalForm());
+        ballPaddleSnd    = new AudioClip(getClass().getResource("ball_paddle.wav").toExternalForm());
+        ballBlockSnd     = new AudioClip(getClass().getResource("ball_block.wav").toExternalForm());
+        ballHardBlockSnd = new AudioClip(getClass().getResource("ball_hard_block.wav").toExternalForm());
+        gunSnd           = new AudioClip(getClass().getResource("gun.wav").toExternalForm());
     }
 
     private static String padLeft(final String text, final String filler, final int n) {
@@ -302,7 +306,8 @@ public class Main extends Application {
         paddle = new Paddle();
 
         // Initialize ball
-        ball = new Ball(ballImg, WIDTH * 0.5, paddle.bounds.y, RND.nextDouble() * (BALL_SPEED - 1.0) + 1.0);
+        balls.clear();
+        balls.add(new Ball(ballImg, WIDTH * 0.5, paddle.bounds.y, RND.nextDouble() * (BALL_SPEED - 1.0) + 1.0));
 
         setupBlocks(1);
 
@@ -312,7 +317,7 @@ public class Main extends Application {
 
     // Re-Spawn Ball
     private void spawnBall() {
-        ball = new Ball(ballImg, paddle.bounds.centerX, paddle.bounds.y, (RND.nextDouble() * (2 * BALL_SPEED) - BALL_SPEED));
+        balls.add(new Ball(ballImg, paddle.bounds.centerX, paddle.bounds.y, (RND.nextDouble() * (2 * BALL_SPEED) - BALL_SPEED)));
     }
 
     // Start Screen
@@ -373,22 +378,20 @@ public class Main extends Application {
                 blocks.add(block);
             }
         }
-        blocksToCheck = blocks.stream().sorted((block1, block2) -> block2.bounds.maxY > block1.bounds.maxY ? 1 : -1).collect(Collectors.toList());
+        //Collections.sort(blocks, (block1, block2) -> block2.bounds.maxY > block1.bounds.maxY ? 1 : -1);
     }
 
 
     // ******************** HitTests ******************************************
     private void hitTests() {
-        if (null == ball) { return; }
         // Sort list of blocks by maxY
-        blocksToCheck.clear();
-        blocksToCheck.addAll(blocks.stream().sorted((block1, block2) -> block2.bounds.maxY > block1.bounds.maxY ? 1 : -1).collect(Collectors.toList()));
+        //Collections.sort(blocks, (block1, block2) -> block2.bounds.maxY > block1.bounds.maxY ? 1 : -1);
 
-        for (Block block : blocksToCheck) {
+        for (Block block : blocks) {
             if (PaddleState.GUN == paddleState) {
                 for (Torpedo torpedo : torpedoes) {
                     // Torpedo - Block
-                    if (torpedo.bounds.maxX > block.bounds.minX && torpedo.bounds.minX < block.bounds.maxX && torpedo.bounds.maxY > block.bounds.minY && torpedo.bounds.minY < block.bounds.maxY) {
+                    if (block.bounds.intersects(torpedo.bounds)) {
                         block.hits++;
                         if (block.hits == block.maxHits) {
                             block.toBeRemoved = true;
@@ -401,32 +404,36 @@ public class Main extends Application {
                 }
             }
             // Ball - Block
-            if(ball.bounds.maxX > block.bounds.minX && ball.bounds.minX < block.bounds.maxX && ball.bounds.maxY > block.bounds.minY && ball.bounds.minY < block.bounds.maxY) {
-                block.hits++;
-                if (block.maxHits > 0) { // Blocks (Gold) that will never be removed have maxHits = -1
-                    if (block.hits == block.maxHits) {
-                        score += block.value;
-                        block.toBeRemoved = true;
-                        playSound(ballBlockSnd);
+            balls.forEach(ball -> {
+                boolean ballHitsBlock = block.bounds.intersects(ball.bounds);
+                if (ballHitsBlock) {
+                    block.hits++;
+                    if (block.maxHits > 0) { // Blocks (Gold) that will never be removed have maxHits = -1
+                        if (block.hits == block.maxHits) {
+                            score += block.value;
+                            block.toBeRemoved = true;
+                            playSound(ballBlockSnd);
+                        } else {
+                            playSound(ballHardBlockSnd);
+                            blinks.add(new Blink(block.bounds.minX, block.bounds.minY));
+                        }
                     } else {
                         playSound(ballHardBlockSnd);
                         blinks.add(new Blink(block.bounds.minX, block.bounds.minY));
                     }
-                } else {
-                    playSound(ballHardBlockSnd);
-                    blinks.add(new Blink(block.bounds.minX, block.bounds.minY));
+                    ball.vY = -ball.vY;
                 }
-                ball.vY = -ball.vY;
-                break;
-            }
+            });
         }
 
-        //TODO: change ball angle if ball hits paddle on the sides and only check from incoming side
+        //TODO: change ball angle if ball hits paddle on the sides
         // Ball - Paddle
-        if(ball.bounds.maxX > paddle.bounds.minX && ball.bounds.minX < paddle.bounds.maxX && ball.bounds.maxY > paddle.bounds.minY && ball.bounds.minY < paddle.bounds.maxY) {
-            ball.vY = -ball.vY;
-            playSound(ballPaddleSnd);
-        }
+        balls.forEach(ball -> {
+            if (ball.bounds.intersects(paddle.bounds)) {
+                ball.vY = -ball.vY;
+                playSound(ballPaddleSnd);
+            }
+        });
     }
 
 
@@ -499,9 +506,7 @@ public class Main extends Application {
             }
         }
         // Draw ball shadow
-        if (null != ball) {
-            ctx.drawImage(ballShadowImg, ball.bounds.minX, ball.bounds.minY);
-        }
+        balls.forEach(ball -> ctx.drawImage(ballShadowImg, ball.bounds.minX, ball.bounds.minY));
         ctx.restore();
 
         // Draw blocks
@@ -511,10 +516,10 @@ public class Main extends Application {
         blinks.forEach(blink -> ctx.drawImage(blinkMapImg, blink.countX * BLOCK_WIDTH, blink.countY * BLOCK_HEIGHT, BLOCK_WIDTH, BLOCK_HEIGHT, blink.x, blink.y, BLOCK_WIDTH, BLOCK_HEIGHT));
 
         // Draw ball
-        if (null != ball) {
+        balls.forEach(ball -> {
             ball.update();
             ctx.drawImage(ballImg, ball.bounds.x, ball.bounds.y);
-        }
+        });
 
         // Draw paddle
         if (noOfLifes > 0) {
@@ -816,7 +821,7 @@ public class Main extends Application {
 
             this.bounds.set(this.x - this.width * 0.5, this.y - this.height * 0.5, this.width, this.height);
 
-            if (this.y > HEIGHT && !toBeRemoved) {
+            if (this.y > paddle.bounds.maxY && !toBeRemoved) {
                 toBeRemoved = true;
                 noOfLifes -= 1;
                 if (noOfLifes == 0) { gameOver(); }
