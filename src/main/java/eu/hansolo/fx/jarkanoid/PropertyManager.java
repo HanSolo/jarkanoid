@@ -90,7 +90,8 @@ public enum PropertyManager {
     private void createProperties(Properties properties) {
         final String propFilePath = new StringBuilder(Constants.HOME_FOLDER).append(Constants.PROPERTIES_FILE_NAME).toString();
         try (OutputStream output = new FileOutputStream(propFilePath)) {
-            properties.put(Constants.HIGHSCORE, Integer.toString(0));
+            properties.put(Constants.HIGHSCORE_KEY, Integer.toString(0));
+            properties.put(Constants.BALL_SPEED_KEY, Double.toString(2));
             properties.store(output, null);
         } catch (IOException ex) {
             ex.printStackTrace();

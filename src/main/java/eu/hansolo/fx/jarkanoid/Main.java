@@ -62,7 +62,7 @@ public class Main extends Application {
     private static final double      PADDLE_OFFSET_Y = 68;
     private static final double      PADDLE_SPEED    = 8;
     private static final double      TORPEDO_SPEED   = 12;
-    private static final double      BALL_SPEED      = 2;
+    private static final double      BALL_SPEED      = Helper.clamp(1, 5, PropertyManager.INSTANCE.getDouble(Constants.BALL_SPEED_KEY, 2));
     private static final double      BLOCK_WIDTH     = 38;
     private static final double      BLOCK_HEIGHT    = 20;
     private static final double      BLOCK_STEP_X    = 40;
@@ -138,7 +138,7 @@ public class Main extends Application {
     @Override public void init() {
         running     = false;
         paddleState = PaddleState.STANDARD;
-        highscore     = PropertyManager.INSTANCE.getLong(Constants.HIGHSCORE, 0);
+        highscore     = PropertyManager.INSTANCE.getLong(Constants.HIGHSCORE_KEY, 0);
         level         = 1;
         blinks        = new ArrayList<>();
 
@@ -149,7 +149,6 @@ public class Main extends Application {
                 // Animation of paddle glow
                 if (now > lastAnimCall + 5_000_000) {
                     animateInc++;
-                    blinks.forEach(blink -> blink.update());
                     lastAnimCall = now;
                 }
                 // Main loop
@@ -244,7 +243,7 @@ public class Main extends Application {
         urCornerImg            = new Image(getClass().getResourceAsStream("upperRightCorner.png"), 15, 20, true, false);
         pipeImg                = new Image(getClass().getResourceAsStream("pipe.png"), 5, 17, true, false);
         paddleMapStdImg        = new Image(getClass().getResourceAsStream("paddlemap_std.png"), 640, 176, false, false);
-        blinkMapImg            = new Image(getClass().getResourceAsStream("blink_map.png"), 304, 200, false, false);
+        blinkMapImg            = new Image(getClass().getResourceAsStream("blink_map.png"), 304, 80, false, false);
         paddleMiniImg          = new Image(getClass().getResourceAsStream("paddle_std.png"), 40, 11, true, false);
         paddleWideImg          = new Image(getClass().getResourceAsStream("paddle_wide.png"), 121, 22, true, false);
         paddleGunImg           = new Image(getClass().getResourceAsStream("paddle_gun.png"), 80, 22, true, false);
@@ -307,7 +306,7 @@ public class Main extends Application {
 
         // Initialize ball
         balls.clear();
-        balls.add(new Ball(ballImg, WIDTH * 0.5, paddle.bounds.y, RND.nextDouble() * (BALL_SPEED - 1.0) + 1.0));
+        spawnBall();
 
         setupBlocks(1);
 
@@ -317,7 +316,7 @@ public class Main extends Application {
 
     // Re-Spawn Ball
     private void spawnBall() {
-        balls.add(new Ball(ballImg, paddle.bounds.centerX, paddle.bounds.y, (RND.nextDouble() * (2 * BALL_SPEED) - BALL_SPEED)));
+        balls.add(new Ball(ballImg, paddle.bounds.centerX, paddle.bounds.minY - ballImg.getHeight() * 0.5 - 1, (RND.nextDouble() * (2 * BALL_SPEED) - BALL_SPEED)));
     }
 
     // Start Screen
@@ -343,7 +342,7 @@ public class Main extends Application {
         updateAndDraw();
 
         if (score > highscore) {
-            PropertyManager.INSTANCE.setLong(Constants.HIGHSCORE, score);
+            PropertyManager.INSTANCE.setLong(Constants.HIGHSCORE_KEY, score);
             highscore = score;
         }
         PropertyManager.INSTANCE.storeProperties();
@@ -421,7 +420,10 @@ public class Main extends Application {
                         playSound(ballHardBlockSnd);
                         blinks.add(new Blink(block.bounds.minX, block.bounds.minY));
                     }
-                    ball.vY = -ball.vY;
+                    if (!ball.lastHit.equals(block)) {
+                        ball.vY = -ball.vY;
+                    }
+                    ball.lastHit = block;
                 }
             });
         }
@@ -430,8 +432,11 @@ public class Main extends Application {
         // Ball - Paddle
         balls.forEach(ball -> {
             if (ball.bounds.intersects(paddle.bounds)) {
-                ball.vY = -ball.vY;
+                if (!ball.lastHit.equals(paddle)) {
+                    ball.vY = -ball.vY;
+                }
                 playSound(ballPaddleSnd);
+                ball.lastHit = paddle;
             }
         });
     }
@@ -556,9 +561,13 @@ public class Main extends Application {
         }
 
         // Remove sprites
+        balls.removeIf(ball -> ball.toBeRemoved);
         blinks.removeIf(blink -> blink.toBeRemoved);
         blocks.removeIf(block -> block.toBeRemoved);
         torpedoes.removeIf(torpedo -> torpedo.toBeRemoved);
+
+        // Update blinks
+        blinks.forEach(blink -> blink.update());
 
         // Check for level completeness
         if (blocks.isEmpty() || blocks.stream().filter(block -> block.maxHits > -1).count() == 0) {
@@ -716,7 +725,7 @@ public class Main extends Application {
     private class Blink extends AnimatedSprite {
 
         public Blink(final double x, final double y) {
-            super(x, y, 0, 0, 7, 1, 1.0);
+            super(x, y, 0, 0, 7, 3, 1.0);
         }
 
         @Override public void update() {
@@ -789,13 +798,17 @@ public class Main extends Application {
 
     private class Ball extends Sprite {
         public boolean active;
+        public Sprite  lastHit;
+
 
         public Ball(final Image image, final double x, final double y, final double vX) {
-            super(image, paddle.bounds.centerX, paddle.bounds.minY - image.getHeight() * 0.5, 0, BALL_SPEED);
-            this.vX     = vX;
-            this.vY     = -BALL_SPEED;
-            this.active = false;
+            super(image, paddle.bounds.centerX, paddle.bounds.minY - image.getHeight() * 0.5 - 1, 0, -BALL_SPEED);
+            this.vX      = vX;
+            this.vY      = -BALL_SPEED;
+            this.active  = false;
+            this.lastHit = this;
         }
+
 
         @Override public void update() {
             if (active) {
@@ -803,7 +816,7 @@ public class Main extends Application {
                 this.y += this.vY;
             } else {
                 this.x = paddle.bounds.centerX;
-                this.y = paddle.bounds.minY - image.getHeight() * 0.5;
+                this.y = paddle.bounds.minY - image.getHeight() * 0.5 - 1;
             }
 
             if (bounds.maxX > WIDTH - INSET) {
@@ -821,8 +834,8 @@ public class Main extends Application {
 
             this.bounds.set(this.x - this.width * 0.5, this.y - this.height * 0.5, this.width, this.height);
 
-            if (this.y > paddle.bounds.maxY && !toBeRemoved) {
-                toBeRemoved = true;
+            if (this.y > paddle.bounds.maxY && !this.toBeRemoved) {
+                this.toBeRemoved = true;
                 noOfLifes -= 1;
                 if (noOfLifes == 0) { gameOver(); }
                 executor.schedule(() -> spawnBall(), 2, TimeUnit.SECONDS);

@@ -8,7 +8,8 @@ import java.util.Map;
 public class Constants {
     public static final String HOME_FOLDER          = new StringBuilder(System.getProperty("user.home")).append(File.separator).toString();
     public static final String PROPERTIES_FILE_NAME = "jarkanoid.properties";
-    public static final String HIGHSCORE            = "highscore";
+    public static final String HIGHSCORE_KEY        = "highscore";
+    public static final String BALL_SPEED_KEY       = "ball_speed";
 
     public enum BlockType {
         NONE(0),
