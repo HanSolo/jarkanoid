@@ -46,33 +46,39 @@ public class Main extends Application {
     private enum BonusType {
         // L (laser) rot, S (slow) orange-gelb, D 3-balls cyan, C lime, F (wide) dunkelblau
         NONE,
-        ONE_UP,
-        WIDE,
-        SLOW,
-        LASER
+        BONUS_C,   // Addition life
+        BONUS_D,  // 3-Balls
+        BONUS_F,  // Wide
+        BONUS_L,  // Laser
+        BONUS_S   // Slow
     }
 
 
-    private static final Random     RND                = new Random();
-    private static final double     WIDTH              = 560;
-    private static final double     HEIGHT             = 740;
-    private static final double     INSET              = 22;
-    private static final double     UPPER_INSET        = 85;
-    private static final double     PADDLE_OFFSET_Y    = 68;
-    private static final double     PADDLE_SPEED       = 8;
-    private static final double     TORPEDO_SPEED      = 12;
-    private static final double     BALL_SPEED         = Helper.clamp(1, 5, PropertyManager.INSTANCE.getDouble(Constants.BALL_SPEED_KEY, 2));
-    private static final double     BLOCK_WIDTH        = 38;
-    private static final double     BLOCK_HEIGHT       = 20;
-    private static final double     BLOCK_STEP_X       = 40;
-    private static final double     BLOCK_STEP_Y       = 22;
-    private static final double     BONUS_BLOCK_WIDTH  = 38;
-    private static final double     BONUS_BLOCK_HEIGHT = 18;
-    private static final DropShadow DROP_SHADOW        = new DropShadow(BlurType.TWO_PASS_BOX, Color.rgb(0, 0, 0, 0.65), 5, 0.0, 10, 10);
-    private static final Font       SCORE_FONT         = Fonts.emulogic(20);
-    private static final Color      HIGH_SCORE_RED     = Color.rgb(229, 2, 1);
-    private static final Color      SCORE_WHITE        = Color.WHITE;
-    private static final Color      TEXT_GRAY          = Color.rgb(216, 216, 216);
+    private static final Random      RND                = new Random();
+    private static final double      WIDTH              = 560;
+    private static final double      HEIGHT             = 740;
+    private static final double      INSET              = 22;
+    private static final double      UPPER_INSET        = 85;
+    private static final double      PADDLE_OFFSET_Y    = 68;
+    private static final double      PADDLE_SPEED       = 8;
+    private static final double      TORPEDO_SPEED      = 12;
+    private static final double      BALL_SPEED         = Helper.clamp(1, 5, PropertyManager.INSTANCE.getDouble(Constants.BALL_SPEED_KEY, 2));
+    private static final double      BLOCK_WIDTH        = 38;
+    private static final double      BLOCK_HEIGHT       = 20;
+    private static final double      BLOCK_STEP_X       = 40;
+    private static final double      BLOCK_STEP_Y       = 22;
+    private static final double      BONUS_BLOCK_WIDTH  = 38;
+    private static final double      BONUS_BLOCK_HEIGHT = 18;
+    private static final DropShadow  DROP_SHADOW        = new DropShadow(BlurType.TWO_PASS_BOX, Color.rgb(0, 0, 0, 0.65), 5, 0.0, 10, 10);
+    private static final Font        SCORE_FONT         = Fonts.emulogic(20);
+    private static final Color       HIGH_SCORE_RED     = Color.rgb(229, 2, 1);
+    private static final Color       SCORE_WHITE        = Color.WHITE;
+    private static final Color       TEXT_GRAY          = Color.rgb(216, 216, 216);
+    private static final BonusType[] BONUS_TYPE_LOOKUP  = { BonusType.NONE, BonusType.NONE, BonusType.NONE, BonusType.NONE, BonusType.BONUS_C,
+                                                            BonusType.NONE, BonusType.NONE, BonusType.NONE, BonusType.NONE, BonusType.BONUS_D,
+                                                            BonusType.NONE, BonusType.NONE, BonusType.NONE, BonusType.NONE, BonusType.BONUS_F,
+                                                            BonusType.NONE, BonusType.NONE, BonusType.NONE, BonusType.NONE, BonusType.BONUS_L,
+                                                            BonusType.NONE, BonusType.NONE, BonusType.NONE, BonusType.NONE, BonusType.BONUS_S };
 
     private ScheduledExecutorService executor        = Executors.newSingleThreadScheduledExecutor();
 
@@ -118,7 +124,12 @@ public class Main extends Application {
     private Image                magentaBlockImg;
     private Image                yellowBlockImg;
     private Image                bonusBlockCMapImg;
+    private Image                bonusBlockFMapImg;
+    private Image                bonusBlockDMapImg;
+    private Image                bonusBlockSMapImg;
+    private Image                bonusBlockLMapImg;
     private Image                blockShadowImg;
+    private Image                bonusBlockShadowImg;
     //private Image                explosionImg;
     private AudioClip            startLevelSnd;
     private AudioClip            ballPaddleSnd;
@@ -152,7 +163,7 @@ public class Main extends Application {
         timer             = new AnimationTimer() {
             @Override public void handle(final long now) {
                 // Animate bonus blocks
-                if (now > lastBonusAnimCall + 20_000_000) {
+                if (now > lastBonusAnimCall + 50_000_000) {
                     bonusBlocks.forEach(bonusBlock -> bonusBlock.update());
                     lastBonusAnimCall = now;
                 }
@@ -162,6 +173,7 @@ public class Main extends Application {
                     animateInc++;
                     lastAnimCall = now;
                 }
+
                 // Main loop
                 if (now > lastTimerCall) {
                     hitTests();
@@ -255,7 +267,7 @@ public class Main extends Application {
         urCornerImg            = new Image(getClass().getResourceAsStream("upperRightCorner.png"), 15, 20, true, false);
         pipeImg                = new Image(getClass().getResourceAsStream("pipe.png"), 5, 17, true, false);
         paddleMapStdImg        = new Image(getClass().getResourceAsStream("paddlemap_std.png"), 640, 176, false, false);
-        blinkMapImg            = new Image(getClass().getResourceAsStream("blink_map.png"), 304, 80, false, false);
+        blinkMapImg            = new Image(getClass().getResourceAsStream("blink_map.png"), 304, 60, false, false);
         paddleMiniImg          = new Image(getClass().getResourceAsStream("paddle_std.png"), 40, 11, true, false);
         paddleWideImg          = new Image(getClass().getResourceAsStream("paddle_wide.png"), 121, 22, true, false);
         paddleGunImg           = new Image(getClass().getResourceAsStream("paddle_gun.png"), 80, 22, true, false);
@@ -277,6 +289,11 @@ public class Main extends Application {
         yellowBlockImg         = new Image(getClass().getResourceAsStream("yellowBlock.png"), 38, 20, true, false);
         blockShadowImg         = new Image(getClass().getResourceAsStream("block_shadow.png"), 38, 20, true, false);
         bonusBlockCMapImg      = new Image(getClass().getResourceAsStream("block_map_bonus_c.png"), 190, 72, true, false);
+        bonusBlockFMapImg      = new Image(getClass().getResourceAsStream("block_map_bonus_f.png"), 190, 72, true, false);
+        bonusBlockDMapImg      = new Image(getClass().getResourceAsStream("block_map_bonus_d.png"), 190, 72, true, false);
+        bonusBlockSMapImg      = new Image(getClass().getResourceAsStream("block_map_bonus_s.png"), 190, 72, true, false);
+        bonusBlockLMapImg      = new Image(getClass().getResourceAsStream("block_map_bonus_l.png"), 190, 72, true, false);
+        bonusBlockShadowImg    = new Image(getClass().getResourceAsStream("bonus_block_shadow.png"), 38, 18, true, false);
         //explosionImg    = new Image(getClass().getResourceAsStream("explosion.png"), 39, 36, true, false);
     }
 
@@ -372,18 +389,19 @@ public class Main extends Application {
         for (int iy = 0 ; iy < level2.length ; iy++) {
             for (int ix = 0 ; ix < level2[iy].length ; ix++) {
                 Block block;
-                BlockType blockType = level2[iy][ix];
+                final BlockType blockType = level2[iy][ix];
+                final BonusType bonusType = BONUS_TYPE_LOOKUP[RND.nextInt(25)];
                 switch (blockType) {
                     case GOLD    -> block = new Block(goldBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 0, blockType.maxHits, BonusType.NONE);
                     case GRAY    -> block = new Block(grayBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 20, blockType.maxHits, BonusType.NONE);
-                    case WHITE   -> block = new Block(whiteBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, BonusType.NONE);
-                    case ORANGE  -> block = new Block(orangeBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, BonusType.NONE);
-                    case CYAN    -> block = new Block(cyanBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, BonusType.NONE);
-                    case LIME    -> block = new Block(limeBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, BonusType.WIDE);
-                    case RED     -> block = new Block(redBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, BonusType.NONE);
-                    case BLUE    -> block = new Block(blueBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, BonusType.NONE);
-                    case MAGENTA -> block = new Block(magentaBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, BonusType.NONE);
-                    case YELLOW  -> block = new Block(yellowBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, BonusType.NONE);
+                    case WHITE   -> block = new Block(whiteBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType);
+                    case ORANGE  -> block = new Block(orangeBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType);
+                    case CYAN    -> block = new Block(cyanBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType);
+                    case LIME    -> block = new Block(limeBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType);
+                    case RED     -> block = new Block(redBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType);
+                    case BLUE    -> block = new Block(blueBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType);
+                    case MAGENTA -> block = new Block(magentaBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType);
+                    case YELLOW  -> block = new Block(yellowBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType);
                     default      -> block = null;
                 }
                 if (null == block) { continue; }
@@ -426,7 +444,7 @@ public class Main extends Application {
                             block.toBeRemoved = true;
                             playSound(ballBlockSnd);
                             if (block.bonusType != BonusType.NONE) {
-                                bonusBlocks.add(new BonusBlock(block.x, block.y, BonusType.WIDE));
+                                bonusBlocks.add(new BonusBlock(block.x, block.y, block.bonusType));
                             }
                         } else {
                             playSound(ballHardBlockSnd);
@@ -524,6 +542,8 @@ public class Main extends Application {
         ctx.translate(10, 10);
         // Draw block shadows
         blocks.forEach(block -> ctx.drawImage(blockShadowImg, block.x, block.y));
+        // Draw bonus block shadows
+        bonusBlocks.forEach(bonusBlock -> ctx.drawImage(bonusBlockShadowImg, bonusBlock.x, bonusBlock.y));
         // Draw paddle shadow
         if (noOfLifes > 0) {
             switch (paddleState) {
@@ -542,9 +562,11 @@ public class Main extends Application {
         // Draw bonus blocks
         bonusBlocks.forEach(bonusBlock -> {
             switch(bonusBlock.bonusType) {
-                case LASER -> { return; }
-                case WIDE   -> ctx.drawImage(bonusBlockCMapImg, bonusBlock.countX * BONUS_BLOCK_WIDTH, bonusBlock.countY * BONUS_BLOCK_HEIGHT, BONUS_BLOCK_WIDTH, BONUS_BLOCK_HEIGHT, bonusBlock.x, bonusBlock.y, BONUS_BLOCK_WIDTH, BONUS_BLOCK_HEIGHT);
-                case ONE_UP -> { return; }
+                case BONUS_C -> ctx.drawImage(bonusBlockCMapImg, bonusBlock.countX * BONUS_BLOCK_WIDTH, bonusBlock.countY * BONUS_BLOCK_HEIGHT, BONUS_BLOCK_WIDTH, BONUS_BLOCK_HEIGHT, bonusBlock.x, bonusBlock.y, BONUS_BLOCK_WIDTH, BONUS_BLOCK_HEIGHT);
+                case BONUS_F -> ctx.drawImage(bonusBlockFMapImg, bonusBlock.countX * BONUS_BLOCK_WIDTH, bonusBlock.countY * BONUS_BLOCK_HEIGHT, BONUS_BLOCK_WIDTH, BONUS_BLOCK_HEIGHT, bonusBlock.x, bonusBlock.y, BONUS_BLOCK_WIDTH, BONUS_BLOCK_HEIGHT);
+                case BONUS_D -> ctx.drawImage(bonusBlockDMapImg, bonusBlock.countX * BONUS_BLOCK_WIDTH, bonusBlock.countY * BONUS_BLOCK_HEIGHT, BONUS_BLOCK_WIDTH, BONUS_BLOCK_HEIGHT, bonusBlock.x, bonusBlock.y, BONUS_BLOCK_WIDTH, BONUS_BLOCK_HEIGHT);
+                case BONUS_L -> ctx.drawImage(bonusBlockLMapImg, bonusBlock.countX * BONUS_BLOCK_WIDTH, bonusBlock.countY * BONUS_BLOCK_HEIGHT, BONUS_BLOCK_WIDTH, BONUS_BLOCK_HEIGHT, bonusBlock.x, bonusBlock.y, BONUS_BLOCK_WIDTH, BONUS_BLOCK_HEIGHT);
+                case BONUS_S -> ctx.drawImage(bonusBlockSMapImg, bonusBlock.countX * BONUS_BLOCK_WIDTH, bonusBlock.countY * BONUS_BLOCK_HEIGHT, BONUS_BLOCK_WIDTH, BONUS_BLOCK_HEIGHT, bonusBlock.x, bonusBlock.y, BONUS_BLOCK_WIDTH, BONUS_BLOCK_HEIGHT);
             }
         });
 
@@ -757,7 +779,7 @@ public class Main extends Application {
     private class Blink extends AnimatedSprite {
 
         public Blink(final double x, final double y) {
-            super(x, y, 0, 0, 7, 3, 1.0);
+            super(x, y, 0, 0, 7, 2, 1.0);
         }
 
         @Override public void update() {
@@ -813,11 +835,11 @@ public class Main extends Application {
 
     private class BonusBlock extends AnimatedSprite {
         public BonusType bonusType;
-        public boolean toBeRemoved;
+        public boolean   toBeRemoved;
 
 
         public BonusBlock(final double x, final double y, final BonusType bonusType) {
-            super(x, y, 0, 2, 4, 3, 1.0);
+            super(x, y, 0, 2 * BALL_SPEED, 4, 3, 1.0);
             this.bonusType   = bonusType;
             this.toBeRemoved = false;
             this.width       = BLOCK_WIDTH;
