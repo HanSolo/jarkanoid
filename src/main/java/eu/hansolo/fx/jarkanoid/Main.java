@@ -32,8 +32,8 @@ import java.util.concurrent.TimeUnit;
 public class Main extends Application {
     private enum PaddleState {
         STANDARD(80, 22),
-        WIDE(121, 22),
-        GUN(80, 22);
+        WIDE(120, 22),
+        LASER(80, 22);
 
         public final double width;
         public final double height;
@@ -44,13 +44,12 @@ public class Main extends Application {
         }
     }
     private enum BonusType {
-        // L (laser) rot, S (slow) orange-gelb, D 3-balls cyan, C lime, F (wide) dunkelblau
         NONE,
-        BONUS_C,   // Addition life
-        BONUS_D,  // 3-Balls
-        BONUS_F,  // Wide
-        BONUS_L,  // Laser
-        BONUS_S   // Slow
+        BONUS_C,  // Additional life (lime)
+        BONUS_D,  // 3-Balls         (cyan)
+        BONUS_F,  // Wide            (dark blue)
+        BONUS_L,  // Laser           (red)
+        BONUS_S   // Slow            (dark yellow)
     }
 
 
@@ -69,6 +68,7 @@ public class Main extends Application {
     private static final double      BLOCK_STEP_Y       = 22;
     private static final double      BONUS_BLOCK_WIDTH  = 38;
     private static final double      BONUS_BLOCK_HEIGHT = 18;
+    private static final long        BONUS_TIMEOUT      = 30_000;
     private static final DropShadow  DROP_SHADOW        = new DropShadow(BlurType.TWO_PASS_BOX, Color.rgb(0, 0, 0, 0.65), 5, 0.0, 10, 10);
     private static final Font        SCORE_FONT         = Fonts.emulogic(20);
     private static final Color       HIGH_SCORE_RED     = Color.rgb(229, 2, 1);
@@ -80,7 +80,7 @@ public class Main extends Application {
                                                             BonusType.NONE, BonusType.NONE, BonusType.NONE, BonusType.NONE, BonusType.BONUS_L,
                                                             BonusType.NONE, BonusType.NONE, BonusType.NONE, BonusType.NONE, BonusType.BONUS_S };
 
-    private ScheduledExecutorService executor        = Executors.newSingleThreadScheduledExecutor();
+    private ScheduledExecutorService executor           = Executors.newSingleThreadScheduledExecutor();
 
     private boolean              running;
     private AnimationTimer       timer;
@@ -106,9 +106,9 @@ public class Main extends Application {
     private Image                paddleStdShadowImg;
     private Image                paddleWideShadowImg;
     private Image                paddleGunShadowImg;
-    private Image                paddleWideImg;
-    private Image                paddleGunImg;
     private Image                paddleMapStdImg;
+    private Image                paddleMapWideImg;
+    private Image                paddleMapGunImg;
     private Image                blinkMapImg;
     private Image                ballImg;
     private Image                ballShadowImg;
@@ -135,7 +135,7 @@ public class Main extends Application {
     private AudioClip            ballPaddleSnd;
     private AudioClip            ballBlockSnd;
     private AudioClip            ballHardBlockSnd;
-    private AudioClip            gunSnd;
+    private AudioClip            laserSnd;
     private Paddle               paddle;
     private List<Ball>           balls;
     private List<Block>          blocks;
@@ -148,6 +148,7 @@ public class Main extends Application {
     private int                  level;
     private int                  animateInc;
     private List<Blink>          blinks;
+    private double               ballSpeed;
 
 
     @Override public void init() {
@@ -156,29 +157,32 @@ public class Main extends Application {
         highscore         = PropertyManager.INSTANCE.getLong(Constants.HIGHSCORE_KEY, 0);
         level             = 1;
         blinks            = new ArrayList<>();
+        ballSpeed         = BALL_SPEED;
 
         lastTimerCall     = System.nanoTime();
         lastAnimCall      = System.nanoTime();
         lastBonusAnimCall = System.nanoTime();
         timer             = new AnimationTimer() {
             @Override public void handle(final long now) {
-                // Animate bonus blocks
-                if (now > lastBonusAnimCall + 50_000_000) {
-                    bonusBlocks.forEach(bonusBlock -> bonusBlock.update());
-                    lastBonusAnimCall = now;
-                }
+                if (running) {
+                    // Animate bonus blocks
+                    if (now > lastBonusAnimCall + 50_000_000) {
+                        bonusBlocks.forEach(bonusBlock -> bonusBlock.update());
+                        lastBonusAnimCall = now;
+                    }
 
-                // Animation of paddle glow
-                if (now > lastAnimCall + 5_000_000) {
-                    animateInc++;
-                    lastAnimCall = now;
-                }
+                    // Animation of paddle glow
+                    if (now > lastAnimCall + 5_000_000) {
+                        animateInc++;
+                        lastAnimCall = now;
+                    }
 
-                // Main loop
-                if (now > lastTimerCall) {
-                    hitTests();
-                    updateAndDraw();
-                    lastTimerCall = now;
+                    // Main loop
+                    if (now > lastTimerCall) {
+                        hitTests();
+                        updateAndDraw();
+                        lastTimerCall = now;
+                    }
                 }
             }
         };
@@ -224,7 +228,7 @@ public class Main extends Application {
                     case SPACE -> {
                         final long activeBalls = balls.stream().filter(ball -> ball.active).count();
                         if (activeBalls > 0) {
-                            if (PaddleState.GUN == paddleState) { fire(paddle.x); }
+                            if (PaddleState.LASER == paddleState) { fire(paddle.bounds.centerX); }
                         } else {
                             balls.forEach(ball -> ball.active = true);
                         }
@@ -248,6 +252,8 @@ public class Main extends Application {
         stage.setResizable(false);
 
         startScreen();
+
+        timer.start();
     }
 
     @Override public void stop() {
@@ -267,10 +273,10 @@ public class Main extends Application {
         urCornerImg            = new Image(getClass().getResourceAsStream("upperRightCorner.png"), 15, 20, true, false);
         pipeImg                = new Image(getClass().getResourceAsStream("pipe.png"), 5, 17, true, false);
         paddleMapStdImg        = new Image(getClass().getResourceAsStream("paddlemap_std.png"), 640, 176, false, false);
+        paddleMapWideImg       = new Image(getClass().getResourceAsStream("paddlemap_wide.png"), 960, 176, false, false);
+        paddleMapGunImg        = new Image(getClass().getResourceAsStream("paddlemap_gun.png"), 640, 176, false, false);
         blinkMapImg            = new Image(getClass().getResourceAsStream("blink_map.png"), 304, 60, false, false);
         paddleMiniImg          = new Image(getClass().getResourceAsStream("paddle_std.png"), 40, 11, true, false);
-        paddleWideImg          = new Image(getClass().getResourceAsStream("paddle_wide.png"), 121, 22, true, false);
-        paddleGunImg           = new Image(getClass().getResourceAsStream("paddle_gun.png"), 80, 22, true, false);
         paddleStdShadowImg     = new Image(getClass().getResourceAsStream("paddle_std_shadow.png"), 80, 22, true, false);
         paddleWideShadowImg    = new Image(getClass().getResourceAsStream("paddle_wide_shadow.png"), 121, 22, true, false);
         paddleGunShadowImg     = new Image(getClass().getResourceAsStream("paddle_gun_shadow.png"), 80, 22, true, false);
@@ -302,7 +308,7 @@ public class Main extends Application {
         ballPaddleSnd    = new AudioClip(getClass().getResource("ball_paddle.wav").toExternalForm());
         ballBlockSnd     = new AudioClip(getClass().getResource("ball_block.wav").toExternalForm());
         ballHardBlockSnd = new AudioClip(getClass().getResource("ball_hard_block.wav").toExternalForm());
-        gunSnd           = new AudioClip(getClass().getResource("gun.wav").toExternalForm());
+        laserSnd         = new AudioClip(getClass().getResource("gun.wav").toExternalForm());
     }
 
     private static String padLeft(final String text, final String filler, final int n) {
@@ -320,33 +326,17 @@ public class Main extends Application {
     private void fire(final double x) {
         if (torpedoes.size() > 0) { return; }
         torpedoes.add(new Torpedo(torpedoImg, x, HEIGHT - 50));
+        playSound(laserSnd);
     }
 
 
     // Play audio clips
     private void playSound(final AudioClip audioClip) { audioClip.play(); }
 
-
-    // Restart
-    private void restart() {
-        lastTimerCall = System.nanoTime();
-
-        // Initialize blocks and paddle
-        paddle = new Paddle();
-
-        // Initialize ball
-        balls.clear();
-        spawnBall();
-
-        setupBlocks(1);
-
-        torpedoes.clear();
-        noOfLifes = 3;
-    }
-
     // Re-Spawn Ball
     private void spawnBall() {
-        balls.add(new Ball(ballImg, paddle.bounds.centerX, paddle.bounds.minY - ballImg.getHeight() * 0.5 - 1, (RND.nextDouble() * (2 * BALL_SPEED) - BALL_SPEED)));
+        if (balls.size() > 0) { return; }
+        balls.add(new Ball(ballImg, paddle.bounds.centerX, paddle.bounds.minY - ballImg.getHeight() * 0.5 - 1, (RND.nextDouble() * (2 * ballSpeed) - ballSpeed)));
     }
 
     // Start Screen
@@ -359,16 +349,20 @@ public class Main extends Application {
     private void startLevel(final int level) {
         playSound(startLevelSnd);
         setupBlocks(level);
-        if (!running) {
-            running = true;
-            timer.start();
-        }
+        balls.clear();
+        spawnBall();
+        if (!running) { running = true; }
         drawBackground(level);
-        executor.schedule(() -> spawnBall(), 1, TimeUnit.SECONDS);
     }
 
     // Game Over
     private void gameOver() {
+        executor.schedule(() -> startScreen(), 5, TimeUnit.SECONDS);
+
+        running = false;
+        balls.clear();
+        torpedoes.clear();
+
         updateAndDraw();
 
         if (score > highscore) {
@@ -376,11 +370,9 @@ public class Main extends Application {
             highscore = score;
         }
         PropertyManager.INSTANCE.storeProperties();
-        score = 0;
-
-        timer.stop();
-        running = false;
-        executor.schedule(() -> startScreen(), 5, TimeUnit.SECONDS);
+        score       = 0;
+        noOfLifes   = 3;
+        paddleState = PaddleState.STANDARD;
     }
 
     private void setupBlocks(final int level) {
@@ -392,16 +384,16 @@ public class Main extends Application {
                 final BlockType blockType = level2[iy][ix];
                 final BonusType bonusType = BONUS_TYPE_LOOKUP[RND.nextInt(25)];
                 switch (blockType) {
-                    case GOLD    -> block = new Block(goldBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 0, blockType.maxHits, BonusType.NONE);
-                    case GRAY    -> block = new Block(grayBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 20, blockType.maxHits, BonusType.NONE);
-                    case WHITE   -> block = new Block(whiteBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType);
-                    case ORANGE  -> block = new Block(orangeBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType);
-                    case CYAN    -> block = new Block(cyanBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType);
-                    case LIME    -> block = new Block(limeBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType);
-                    case RED     -> block = new Block(redBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType);
-                    case BLUE    -> block = new Block(blueBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType);
-                    case MAGENTA -> block = new Block(magentaBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType);
-                    case YELLOW  -> block = new Block(yellowBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType);
+                    case GOLD    -> block = new Block(goldBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 0, blockType.maxHits, BonusType.NONE, blockType);
+                    case GRAY    -> block = new Block(grayBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 20, blockType.maxHits, BonusType.NONE, blockType);
+                    case WHITE   -> block = new Block(whiteBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType, blockType);
+                    case ORANGE  -> block = new Block(orangeBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType, blockType);
+                    case CYAN    -> block = new Block(cyanBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType, blockType);
+                    case LIME    -> block = new Block(limeBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType, blockType);
+                    case RED     -> block = new Block(redBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType, blockType);
+                    case BLUE    -> block = new Block(blueBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType, blockType);
+                    case MAGENTA -> block = new Block(magentaBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType, blockType);
+                    case YELLOW  -> block = new Block(yellowBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType, blockType);
                     default      -> block = null;
                 }
                 if (null == block) { continue; }
@@ -418,7 +410,7 @@ public class Main extends Application {
         //Collections.sort(blocks, (block1, block2) -> block2.bounds.maxY > block1.bounds.maxY ? 1 : -1);
 
         for (Block block : blocks) {
-            if (PaddleState.GUN == paddleState) {
+            if (PaddleState.LASER == paddleState) {
                 for (Torpedo torpedo : torpedoes) {
                     // Torpedo - Block
                     if (block.bounds.intersects(torpedo.bounds)) {
@@ -435,24 +427,38 @@ public class Main extends Application {
             }
             // Ball - Block
             balls.forEach(ball -> {
-                boolean ballHitsBlock = block.bounds.intersects(ball.bounds);
+                boolean ballHitsBlock = ball.bounds.intersects(block.bounds);
                 if (ballHitsBlock) {
-                    block.hits++;
-                    if (block.maxHits > 0) { // Blocks (Gold) that will never be removed have maxHits = -1
-                        if (block.hits == block.maxHits) {
-                            score += block.value;
-                            block.toBeRemoved = true;
-                            playSound(ballBlockSnd);
-                            if (block.bonusType != BonusType.NONE) {
-                                bonusBlocks.add(new BonusBlock(block.x, block.y, block.bonusType));
-                            }
-                        } else {
+                    switch (block.blockType) {
+                        case GOLD -> {
                             playSound(ballHardBlockSnd);
                             blinks.add(new Blink(block.bounds.minX, block.bounds.minY));
                         }
-                    } else {
-                        playSound(ballHardBlockSnd);
-                        blinks.add(new Blink(block.bounds.minX, block.bounds.minY));
+                        case GRAY -> {
+                            block.hits++;
+                            if (block.hits == block.maxHits) {
+                                score += block.value;
+                                block.toBeRemoved = true;
+                                playSound(ballBlockSnd);
+                                if (block.bonusType != BonusType.NONE) {
+                                    bonusBlocks.add(new BonusBlock(block.x, block.y, block.bonusType));
+                                }
+                            } else {
+                                playSound(ballHardBlockSnd);
+                                blinks.add(new Blink(block.bounds.minX, block.bounds.minY));
+                            }
+                        }
+                        default -> {
+                            block.hits++;
+                            if (block.hits == block.maxHits) {
+                                score += block.value;
+                                block.toBeRemoved = true;
+                                playSound(ballBlockSnd);
+                                if (block.bonusType != BonusType.NONE) {
+                                    bonusBlocks.add(new BonusBlock(block.x, block.y, block.bonusType));
+                                }
+                            }
+                        }
                     }
                     if (!ball.lastHit.equals(block)) {
                         ball.vY = -ball.vY;
@@ -464,7 +470,27 @@ public class Main extends Application {
 
         for (BonusBlock bonusBlock : bonusBlocks) {
             if (bonusBlock.bounds.intersects(paddle.bounds)) {
-                System.out.println("Bonus Block Hit");
+                bonusBlock.toBeRemoved = true;
+                switch(bonusBlock.bonusType) {
+                    case BONUS_C -> noOfLifes = Helper.clamp(2, 4, noOfLifes + 1);
+                    case BONUS_D -> {
+                        for (int i = 0 ; i < 3 - balls.size() ; i++) {
+                            balls.add(new Ball(ballImg, paddle.bounds.centerX, paddle.bounds.minY - ballImg.getHeight() * 0.5 - 1, (RND.nextDouble() * (2 * ballSpeed) - ballSpeed), true));
+                        }
+                    }
+                    case BONUS_F -> {
+                        paddleState = PaddleState.WIDE;
+                        executor.schedule(() -> { paddleState = PaddleState.STANDARD; }, BONUS_TIMEOUT, TimeUnit.MILLISECONDS);
+                    }
+                    case BONUS_L -> {
+                        paddleState = PaddleState.LASER;
+                        executor.schedule(() -> { paddleState = PaddleState.STANDARD; }, BONUS_TIMEOUT, TimeUnit.MILLISECONDS);
+                    }
+                    case BONUS_S -> {
+                        ballSpeed = BALL_SPEED * 0.5;
+                        executor.schedule(() -> { ballSpeed = BALL_SPEED; }, BONUS_TIMEOUT, TimeUnit.MILLISECONDS);
+                    }
+                }
             }
         }
 
@@ -473,6 +499,9 @@ public class Main extends Application {
         balls.forEach(ball -> {
             if (ball.bounds.intersects(paddle.bounds)) {
                 if (!ball.lastHit.equals(paddle)) {
+                    if (ball.bounds.centerX < paddle.bounds.minX ||ball.bounds.centerX > paddle.bounds.maxX) {
+                        ball.vX = -ball.vX;
+                    }
                     ball.vY = -ball.vY;
                 }
                 playSound(ballPaddleSnd);
@@ -549,7 +578,7 @@ public class Main extends Application {
             switch (paddleState) {
                 case STANDARD -> ctx.drawImage(paddleStdShadowImg, paddle.bounds.minX, paddle.bounds.minY);
                 case WIDE -> ctx.drawImage(paddleWideShadowImg, paddle.bounds.minX, paddle.bounds.minY);
-                case GUN -> ctx.drawImage(paddleGunShadowImg, paddle.bounds.minX, paddle.bounds.minY);
+                case LASER -> ctx.drawImage(paddleGunShadowImg, paddle.bounds.minX, paddle.bounds.minY);
             }
         }
         // Draw ball shadow
@@ -583,12 +612,10 @@ public class Main extends Application {
         if (noOfLifes > 0) {
             paddle.update();
             switch (paddleState) {
-                //case STANDARD -> ctx.drawImage(paddleMap_std_Img, 80, 22, 80, 22, paddle.bounds.x, paddle.bounds.y, 80, 22);
-                case WIDE     -> ctx.drawImage(paddleWideImg, paddle.bounds.x, paddle.bounds.y);
-                case GUN      -> ctx.drawImage(paddleGunImg, paddle.bounds.x, paddle.bounds.y);
+                case STANDARD -> ctx.drawImage(paddleMapStdImg, paddle.countX * paddleState.width, paddle.countY * paddleState.height, paddleState.width, paddleState.height, paddle.x, paddle.y, paddleState.width, paddleState.height);
+                case WIDE     -> ctx.drawImage(paddleMapWideImg, paddle.countX * paddleState.width, paddle.countY * paddleState.height, paddleState.width, paddleState.height, paddle.x, paddle.y, paddleState.width, paddleState.height);
+                case LASER    -> ctx.drawImage(paddleMapGunImg, paddle.countX * paddleState.width, paddle.countY * paddleState.height, paddleState.width, paddleState.height, paddle.x, paddle.y, paddleState.width, paddleState.height);
             }
-
-            ctx.drawImage(paddleMapStdImg, paddle.countX * paddleState.width, paddle.countY * paddleState.height, paddleState.width, paddleState.height, paddle.x, paddle.y, paddleState.width, paddleState.height);
         } else {
             ctx.setFill(TEXT_GRAY);
             ctx.setTextAlign(TextAlignment.CENTER);
@@ -619,6 +646,13 @@ public class Main extends Application {
         blocks.removeIf(block -> block.toBeRemoved);
         bonusBlocks.removeIf(bonusBlock -> bonusBlock.toBeRemoved);
         torpedoes.removeIf(torpedo -> torpedo.toBeRemoved);
+
+        // Respawn ball and check for game over
+        if (balls.isEmpty() && noOfLifes > 0) {
+            noOfLifes -= 1;
+            if (noOfLifes == 0) { gameOver(); }
+            spawnBall();
+        }
 
         // Update blinks
         blinks.forEach(blink -> blink.update());
@@ -731,6 +765,7 @@ public class Main extends Application {
     }
 
     private class Paddle extends AnimatedSprite {
+
         public Paddle() {
             super(WIDTH * 0.5 - paddleState.width * 0.5, HEIGHT - PADDLE_OFFSET_Y, 0, 0, 7, 7, 1.0);
             init();
@@ -802,16 +837,18 @@ public class Main extends Application {
         public       int       hits;
         public final int       maxHits;
         public final BonusType bonusType;
+        public final BlockType blockType;
         public       boolean   toBeRemoved;
 
 
-        public Block(final Image image, final double x, final double y, final int value, final int maxHits, final BonusType bonusType) {
+        public Block(final Image image, final double x, final double y, final int value, final int maxHits, final BonusType bonusType, final BlockType blockType) {
             super(image);
             this.x           = x;
             this.y           = y;
             this.value       = value;
             this.maxHits     = maxHits;
             this.bonusType   = bonusType;
+            this.blockType   = blockType;
             this.toBeRemoved = false;
             this.hits        = 0;
             this.width       = BLOCK_WIDTH;
@@ -860,6 +897,7 @@ public class Main extends Application {
                     countY = 0;
                 }
             }
+            this.bounds.set(this.x, this.y, paddleState.width, this.height);
         }
     }
 
@@ -869,10 +907,13 @@ public class Main extends Application {
 
 
         public Ball(final Image image, final double x, final double y, final double vX) {
-            super(image, paddle.bounds.centerX, paddle.bounds.minY - image.getHeight() * 0.5 - 1, 0, -BALL_SPEED);
+            this(image, x, y, vX, false);
+        }
+        public Ball(final Image image, final double x, final double y, final double vX, final boolean active) {
+            super(image, paddle.bounds.centerX, paddle.bounds.minY - image.getHeight() * 0.5 - 1, 0, -ballSpeed);
             this.vX      = vX;
-            this.vY      = -BALL_SPEED;
-            this.active  = false;
+            this.vY      = -ballSpeed;
+            this.active  = active;
             this.lastHit = this;
         }
 
@@ -887,30 +928,23 @@ public class Main extends Application {
             }
 
             if (bounds.maxX > WIDTH - INSET) {
-                this.x  = WIDTH - INSET - this.width * 0.5;
-                this.vX = -BALL_SPEED;
+                this.x  = WIDTH - INSET - this.radius;
+                this.vX = -ballSpeed;
             }
             if (bounds.minX < INSET) {
-                this.x  = INSET + this.width * 0.5;
-                this.vX = BALL_SPEED;
+                this.x  = INSET + this.radius;
+                this.vX = ballSpeed;
             }
             if (bounds.minY < UPPER_INSET) {
                 this.y  = UPPER_INSET + this.radius;
-                this.vY = BALL_SPEED;
+                this.vY = ballSpeed;
             }
 
-            this.bounds.set(this.x - this.width * 0.5, this.y - this.height * 0.5, this.width, this.height);
+            this.bounds.set(this.x - this.radius, this.y - this.radius, this.width, this.height);
 
             if (this.y > paddle.bounds.maxY && !this.toBeRemoved) {
                 this.toBeRemoved = true;
-                noOfLifes -= 1;
-                if (noOfLifes == 0) { gameOver(); }
-                executor.schedule(() -> spawnBall(), 2, TimeUnit.SECONDS);
-                return;
             }
-
-            this.vX = Helper.clamp(-BALL_SPEED, BALL_SPEED, this.vX);
-            this.vY = Helper.clamp(-BALL_SPEED, BALL_SPEED, this.vY);
         }
     }
 
@@ -923,7 +957,7 @@ public class Main extends Application {
         @Override public void update() {
             y -= vY;
             this.bounds.set(this.x - this.width * 0.5, this.y - this.height * 0.5, this.width, this.height);
-            if (y < -size) {
+            if (bounds.minY < UPPER_INSET) {
                 toBeRemoved = true;
             }
         }
