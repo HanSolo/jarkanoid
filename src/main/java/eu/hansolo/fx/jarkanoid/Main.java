@@ -43,7 +43,8 @@ public class Main extends Application {
         }
     }
     protected enum BonusType {
-        NONE, BONUS_C,  // Additional life (lime)
+        NONE,
+        BONUS_C,  // Additional life (lime)
         BONUS_D,  // 3-Balls         (cyan)
         BONUS_F,  // Wide            (dark blue)
         BONUS_L,  // Laser           (red)
@@ -128,6 +129,7 @@ public class Main extends Application {
     private Image                blockShadowImg;
     private Image                bonusBlockShadowImg;
     //private Image                explosionImg;
+    private AudioClip            gameStartSnd;
     private AudioClip            startLevelSnd;
     private AudioClip            ballPaddleSnd;
     private AudioClip            ballBlockSnd;
@@ -251,6 +253,8 @@ public class Main extends Application {
         stage.show();
         stage.setResizable(false);
 
+        playSound(gameStartSnd);
+
         startScreen();
 
         timer.start();
@@ -304,6 +308,7 @@ public class Main extends Application {
     }
 
     private void loadSounds() {
+        gameStartSnd     = new AudioClip(getClass().getResource("game_start.wav").toExternalForm());
         startLevelSnd    = new AudioClip(getClass().getResource("level_ready.wav").toExternalForm());
         ballPaddleSnd    = new AudioClip(getClass().getResource("ball_paddle.wav").toExternalForm());
         ballBlockSnd     = new AudioClip(getClass().getResource("ball_block.wav").toExternalForm());
@@ -1064,10 +1069,10 @@ public class Main extends Application {
         }
 
         public boolean intersects(final Bounds other) {
-            return (other.maxX >= minX && other.maxY >= minY && other.minX <= maxX && other.minY <= maxY);
+            return (other.maxX > minX && other.maxY > minY && other.minX < maxX && other.minY < maxY);
         }
         public boolean intersects(final double x, final double y, final double width, final double height) {
-            return (x + width >= minX && y + height >= minY && x <= maxX && y <= maxY);
+            return (x + width > minX && y + height > minY && x < maxX && y < maxY);
         }
     }
 
