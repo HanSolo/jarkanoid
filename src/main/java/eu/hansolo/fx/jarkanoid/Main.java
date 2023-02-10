@@ -66,7 +66,6 @@ public class Main extends Application {
     protected static final double      BLOCK_STEP_Y        = 22;
     protected static final double      BONUS_BLOCK_WIDTH   = 38;
     protected static final double      BONUS_BLOCK_HEIGHT  = 18;
-    protected static final long        BONUS_TIMEOUT       = 30_000;
     protected static final DropShadow  DROP_SHADOW         = new DropShadow(BlurType.TWO_PASS_BOX, Color.rgb(0, 0, 0, 0.65), 5, 0.0, 10, 10);
     protected static final Font        SCORE_FONT          = Fonts.emulogic(20);
     protected static final Color       HIGH_SCORE_RED      = Color.rgb(229, 2, 1);
@@ -85,6 +84,7 @@ public class Main extends Application {
     private long                 lastTimerCall;
     private long                 lastAnimCall;
     private long                 lastBonusAnimCall;
+    private long                 lastResetCounterCall;
     private Canvas               bkgCanvas;
     private GraphicsContext      bkgCtx;
     private Canvas               canvas;
@@ -149,26 +149,47 @@ public class Main extends Application {
     private List<Blink>          blinks;
     private double               ballSpeed;
     private boolean              readyLevelVisible;
-    private boolean              nonStandardPaddle;
+    private int                  paddleResetCounter;
+    private int                  speedResetCounter;
 
 
     // ******************** Methods *******************************************
     @Override public void init() {
-        running           = false;
-        paddleState       = PaddleState.STANDARD;
-        highscore         = PropertyManager.INSTANCE.getLong(Constants.HIGHSCORE_KEY, 0);
-        level             = 1;
-        blinks            = new ArrayList<>();
-        ballSpeed         = BALL_SPEED;
-        readyLevelVisible = false;
-        nonStandardPaddle = false;
+        running              = false;
+        paddleState          = PaddleState.STANDARD;
+        highscore            = PropertyManager.INSTANCE.getLong(Constants.HIGHSCORE_KEY, 0);
+        level                = 1;
+        blinks               = new ArrayList<>();
+        ballSpeed            = BALL_SPEED;
+        readyLevelVisible    = false;
+        paddleResetCounter   = 0;
+        speedResetCounter    = 0;
 
-        lastTimerCall     = System.nanoTime();
-        lastAnimCall      = System.nanoTime();
-        lastBonusAnimCall = System.nanoTime();
-        timer             = new AnimationTimer() {
+        lastTimerCall        = System.nanoTime();
+        lastAnimCall         = System.nanoTime();
+        lastBonusAnimCall    = System.nanoTime();
+        lastResetCounterCall = System.nanoTime();
+        timer                = new AnimationTimer() {
             @Override public void handle(final long now) {
                 if (running) {
+                    // Decrease reset counter
+                    if (now > lastResetCounterCall + 1_000_000_000) {
+                        if (paddleResetCounter > 0) {
+                            paddleResetCounter--;
+                            lastResetCounterCall = now;
+                            if (paddleResetCounter == 0) {
+                                paddleState = PaddleState.STANDARD;
+                            }
+                        }
+                        if (speedResetCounter > 0) {
+                            speedResetCounter--;
+                            lastResetCounterCall = now;
+                            if (speedResetCounter == 0) {
+                                ballSpeed = BALL_SPEED;
+                            }
+                        }
+                    }
+
                     // Animate bonus blocks
                     if (now > lastBonusAnimCall + 50_000_000) {
                         bonusBlocks.forEach(bonusBlock -> bonusBlock.update());
@@ -499,17 +520,16 @@ public class Main extends Application {
                         }
                     }
                     case BONUS_F -> {
-                        nonStandardPaddle = true;
-                        paddleState       = PaddleState.WIDE;
-                        executor.schedule(() -> paddleState = PaddleState.STANDARD, BONUS_TIMEOUT, TimeUnit.MILLISECONDS);
+                        paddleResetCounter = 30;
+                        paddleState  = PaddleState.WIDE;
                     }
                     case BONUS_L -> {
-                        paddleState = PaddleState.LASER;
-                        executor.schedule(() -> paddleState = PaddleState.STANDARD, BONUS_TIMEOUT, TimeUnit.MILLISECONDS);
+                        paddleResetCounter = 30;
+                        paddleState  = PaddleState.LASER;
                     }
                     case BONUS_S -> {
+                        speedResetCounter = 30;
                         ballSpeed = BALL_SPEED * 0.5;
-                        executor.schedule(() -> ballSpeed = BALL_SPEED, BONUS_TIMEOUT, TimeUnit.MILLISECONDS);
                     }
                 }
             }
