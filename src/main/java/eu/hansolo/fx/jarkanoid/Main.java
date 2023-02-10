@@ -27,8 +27,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import static eu.hansolo.fx.jarkanoid.Helper.clamp;
-
 
 public class Main extends Application {
     protected enum PaddleState {
@@ -151,6 +149,7 @@ public class Main extends Application {
     private boolean              readyLevelVisible;
 
 
+    // ******************** Methods *******************************************
     @Override public void init() {
         running           = false;
         paddleState       = PaddleState.STANDARD;
@@ -342,17 +341,20 @@ public class Main extends Application {
     // Play audio clips
     private void playSound(final AudioClip audioClip) { audioClip.play(); }
 
+
     // Re-Spawn Ball
     private void spawnBall() {
         if (balls.size() > 0) { return; }
         balls.add(new Ball(ballImg, paddle.bounds.centerX, paddle.bounds.minY - ballImg.getHeight() * 0.5 - 1, (RND.nextDouble() * (2 * ballSpeed) - ballSpeed)));
     }
 
+
     // Start Screen
     private void startScreen() {
         ctx.clearRect(0, 0, WIDTH, HEIGHT);
         drawBackground(1);
     }
+
 
     // Start Level
     private void startLevel(final int level) {
@@ -365,6 +367,7 @@ public class Main extends Application {
         drawBackground(level);
         executor.schedule(() -> { readyLevelVisible = false; }, 2, TimeUnit.SECONDS);
     }
+
 
     // Game Over
     private void gameOver() {
@@ -417,9 +420,6 @@ public class Main extends Application {
 
     // ******************** HitTests ******************************************
     private void hitTests() {
-        // Sort list of blocks by maxY
-        //Collections.sort(blocks, (block1, block2) -> block2.bounds.maxY > block1.bounds.maxY ? 1 : -1);
-
         for (Block block : blocks) {
             if (PaddleState.LASER == paddleState) {
                 for (Torpedo torpedo : torpedoes) {
@@ -485,7 +485,7 @@ public class Main extends Application {
                 switch(bonusBlock.bonusType) {
                     case BONUS_C -> noOfLifes = clamp(2, 5, noOfLifes + 1);
                     case BONUS_D -> {
-                        for (int i = 0 ; i < 3 - balls.size() ; i++) {
+                        for (int i = 0 ; i <= 3 - balls.size() ; i++) {
                             balls.add(new Ball(ballImg, paddle.bounds.centerX, paddle.bounds.minY - ballImg.getHeight() * 0.5 - 1, (RND.nextDouble() * (2 * ballSpeed) - ballSpeed), true));
                         }
                     }
@@ -505,8 +505,6 @@ public class Main extends Application {
             }
         }
 
-        //TODO: change ball angle if ball hits paddle on the sides
-        // Ball - Paddle
         balls.forEach(ball -> {
             if (ball.bounds.intersects(paddle.bounds)) {
                 if (!ball.lastHit.equals(paddle)) {
@@ -702,6 +700,7 @@ public class Main extends Application {
         public boolean   toBeRemoved;
 
 
+        // ******************** Constructors **************************************
         public Sprite() {
             this(null, 0, 0, 0, 0, 0, 0);
         }
@@ -734,6 +733,7 @@ public class Main extends Application {
         }
 
 
+        // ******************** Methods *******************************************
         protected void init() {}
 
         public void respawn() {}
@@ -749,6 +749,7 @@ public class Main extends Application {
         protected       int    countY;
 
 
+        // ******************** Constructors **************************************
         public AnimatedSprite(final int maxFrameX, final int maxFrameY, final double scale) {
             this(0, 0, 0, 0, 0, 0, maxFrameX, maxFrameY, scale);
         }
@@ -765,6 +766,7 @@ public class Main extends Application {
         }
 
 
+        // ******************** Methods *******************************************
         @Override public void update() {
             x += vX;
             y += vY;
@@ -785,11 +787,14 @@ public class Main extends Application {
 
     private class Paddle extends AnimatedSprite {
 
+        // ******************** Constructors **************************************
         public Paddle() {
             super(WIDTH * 0.5 - paddleState.width * 0.5, HEIGHT - PADDLE_OFFSET_Y, 0, 0, 7, 7, 1.0);
             init();
         }
 
+
+        // ******************** Methods *******************************************
         @Override protected void init() {
             this.width  = paddleState.width;
             this.height = paddleState.height;
@@ -832,10 +837,13 @@ public class Main extends Application {
 
     private class Blink extends AnimatedSprite {
 
+        // ******************** Constructors **************************************
         public Blink(final double x, final double y) {
             super(x, y, 0, 0, 7, 2, 1.0);
         }
 
+
+        // ******************** Methods *******************************************
         @Override public void update() {
             countX++;
             if (countX == maxFrameX) {
@@ -860,6 +868,7 @@ public class Main extends Application {
         public       boolean   toBeRemoved;
 
 
+        // ******************** Constructors **************************************
         public Block(final Image image, final double x, final double y, final int value, final int maxHits, final BonusType bonusType, final BlockType blockType) {
             super(image);
             this.x           = x;
@@ -877,6 +886,7 @@ public class Main extends Application {
         }
 
 
+        // ******************** Methods *******************************************
         @Override protected void init() {
             size   = width > height ? width : height;
             radius = size * 0.5;
@@ -894,6 +904,7 @@ public class Main extends Application {
         public boolean   toBeRemoved;
 
 
+        // ******************** Constructors **************************************
         public BonusBlock(final double x, final double y, final BonusType bonusType) {
             super(x, y, 0, 2 * BALL_SPEED, 4, 3, 1.0);
             this.bonusType   = bonusType;
@@ -903,6 +914,8 @@ public class Main extends Application {
             this.bounds.set(x, y, width, height);
         }
 
+
+        // ******************** Methods *******************************************
         @Override public void update() {
             y += vY;
             if (y > HEIGHT) {
@@ -925,6 +938,7 @@ public class Main extends Application {
         public Sprite  lastHit;
 
 
+        // ******************** Constructors **************************************
         public Ball(final Image image, final double x, final double y, final double vX) {
             this(image, x, y, vX, false);
         }
@@ -937,6 +951,7 @@ public class Main extends Application {
         }
 
 
+        // ******************** Methods *******************************************
         @Override public void update() {
             if (active) {
                 this.x += this.vX;
@@ -969,10 +984,13 @@ public class Main extends Application {
 
     private class Torpedo extends Sprite {
 
+        // ******************** Constructors **************************************
         public Torpedo(final Image image, final double x, final double y) {
             super(image, x, y - image.getHeight(), 0, TORPEDO_SPEED);
         }
 
+
+        // ******************** Methods *******************************************
         @Override public void update() {
             y -= vY;
             this.bounds.set(this.x - this.width * 0.5, this.y - this.height * 0.5, this.width, this.height);
@@ -983,10 +1001,14 @@ public class Main extends Application {
     }
 
     private class Explosion extends Sprite {
+
+        // ******************** Constructors **************************************
         public Explosion(final Image image, final double x, final double y) {
             super(image, x, y - image.getHeight(), 0, 0);
         }
 
+
+        // ******************** Methods *******************************************
         @Override public void update() {
             y -= vY;
             if (y < -size) {
@@ -1006,7 +1028,6 @@ public class Main extends Application {
         public double maxY;
         public double centerX;
         public double centerY;
-
 
 
         // ******************** Constructors **************************************
