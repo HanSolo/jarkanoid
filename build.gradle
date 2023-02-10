@@ -50,7 +50,6 @@ ext {
 dependencies {
     implementation fileTree(dir: 'libs', include: '*.jar')
     implementation 'com.google.gradle:osdetector-gradle-plugin:1.7.1'
-    implementation "eu.hansolo:toolbox:17.0.35"
     implementation "org.openjfx:javafx-base:${javafxVersion}:${platform}"
     implementation "org.openjfx:javafx-graphics:${javafxVersion}:${platform}"
     implementation "org.openjfx:javafx-controls:${javafxVersion}:${platform}"

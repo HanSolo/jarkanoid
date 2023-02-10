@@ -1,7 +1,6 @@
 package eu.hansolo.fx.jarkanoid;
 
 import eu.hansolo.fx.jarkanoid.Constants.BlockType;
-import eu.hansolo.toolbox.Helper;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -28,59 +27,59 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import static eu.hansolo.fx.jarkanoid.Helper.clamp;
+
 
 public class Main extends Application {
-    private enum PaddleState {
+    protected enum PaddleState {
         STANDARD(80, 22),
         WIDE(120, 22),
         LASER(80, 22);
 
-        public final double width;
-        public final double height;
+        protected final double width;
+        protected final double height;
 
         PaddleState(final double width, final double height) {
             this.width  = width;
             this.height = height;
         }
     }
-    private enum BonusType {
-        NONE,
-        BONUS_C,  // Additional life (lime)
+    protected enum BonusType {
+        NONE, BONUS_C,  // Additional life (lime)
         BONUS_D,  // 3-Balls         (cyan)
         BONUS_F,  // Wide            (dark blue)
         BONUS_L,  // Laser           (red)
         BONUS_S   // Slow            (dark yellow)
     }
 
+    protected static final Random      RND                 = new Random();
+    protected static final double      WIDTH               = 560;
+    protected static final double      HEIGHT              = 740;
+    protected static final double      INSET               = 22;
+    protected static final double      UPPER_INSET         = 85;
+    protected static final double      PADDLE_OFFSET_Y     = 68;
+    protected static final double      PADDLE_SPEED        = 8;
+    protected static final double      TORPEDO_SPEED       = 12;
+    protected static final double      BALL_SPEED          = clamp(1, 5, PropertyManager.INSTANCE.getDouble(Constants.BALL_SPEED_KEY, 2));
+    protected static final double      BLOCK_WIDTH         = 38;
+    protected static final double      BLOCK_HEIGHT        = 20;
+    protected static final double      BLOCK_STEP_X        = 40;
+    protected static final double      BLOCK_STEP_Y        = 22;
+    protected static final double      BONUS_BLOCK_WIDTH   = 38;
+    protected static final double      BONUS_BLOCK_HEIGHT  = 18;
+    protected static final long        BONUS_TIMEOUT       = 30_000;
+    protected static final DropShadow  DROP_SHADOW         = new DropShadow(BlurType.TWO_PASS_BOX, Color.rgb(0, 0, 0, 0.65), 5, 0.0, 10, 10);
+    protected static final Font        SCORE_FONT          = Fonts.emulogic(20);
+    protected static final Color       HIGH_SCORE_RED      = Color.rgb(229, 2, 1);
+    protected static final Color       SCORE_WHITE         = Color.WHITE;
+    protected static final Color       TEXT_GRAY           = Color.rgb(216, 216, 216);
+    protected static final BonusType[] BONUS_TYPE_LOOKUP   = { BonusType.NONE, BonusType.NONE, BonusType.NONE, BonusType.NONE, BonusType.BONUS_C,
+                                                               BonusType.NONE, BonusType.NONE, BonusType.NONE, BonusType.NONE, BonusType.BONUS_D,
+                                                               BonusType.NONE, BonusType.NONE, BonusType.NONE, BonusType.NONE, BonusType.BONUS_F,
+                                                               BonusType.NONE, BonusType.NONE, BonusType.NONE, BonusType.NONE, BonusType.BONUS_L ,
+                                                               BonusType.NONE, BonusType.NONE, BonusType.NONE, BonusType.NONE, BonusType.BONUS_S };
 
-    private static final Random      RND                = new Random();
-    private static final double      WIDTH              = 560;
-    private static final double      HEIGHT             = 740;
-    private static final double      INSET              = 22;
-    private static final double      UPPER_INSET        = 85;
-    private static final double      PADDLE_OFFSET_Y    = 68;
-    private static final double      PADDLE_SPEED       = 8;
-    private static final double      TORPEDO_SPEED      = 12;
-    private static final double      BALL_SPEED         = Helper.clamp(1, 5, PropertyManager.INSTANCE.getDouble(Constants.BALL_SPEED_KEY, 2));
-    private static final double      BLOCK_WIDTH        = 38;
-    private static final double      BLOCK_HEIGHT       = 20;
-    private static final double      BLOCK_STEP_X       = 40;
-    private static final double      BLOCK_STEP_Y       = 22;
-    private static final double      BONUS_BLOCK_WIDTH  = 38;
-    private static final double      BONUS_BLOCK_HEIGHT = 18;
-    private static final long        BONUS_TIMEOUT      = 30_000;
-    private static final DropShadow  DROP_SHADOW        = new DropShadow(BlurType.TWO_PASS_BOX, Color.rgb(0, 0, 0, 0.65), 5, 0.0, 10, 10);
-    private static final Font        SCORE_FONT         = Fonts.emulogic(20);
-    private static final Color       HIGH_SCORE_RED     = Color.rgb(229, 2, 1);
-    private static final Color       SCORE_WHITE        = Color.WHITE;
-    private static final Color       TEXT_GRAY          = Color.rgb(216, 216, 216);
-    private static final BonusType[] BONUS_TYPE_LOOKUP  = { BonusType.NONE, BonusType.NONE, BonusType.NONE, BonusType.NONE, BonusType.BONUS_C,
-                                                            BonusType.NONE, BonusType.NONE, BonusType.NONE, BonusType.NONE, BonusType.BONUS_D,
-                                                            BonusType.NONE, BonusType.NONE, BonusType.NONE, BonusType.NONE, BonusType.BONUS_F,
-                                                            BonusType.NONE, BonusType.NONE, BonusType.NONE, BonusType.NONE, BonusType.BONUS_L,
-                                                            BonusType.NONE, BonusType.NONE, BonusType.NONE, BonusType.NONE, BonusType.BONUS_S };
-
-    private ScheduledExecutorService executor           = Executors.newSingleThreadScheduledExecutor();
+    private ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
     private boolean              running;
     private AnimationTimer       timer;
@@ -149,6 +148,7 @@ public class Main extends Application {
     private int                  animateInc;
     private List<Blink>          blinks;
     private double               ballSpeed;
+    private boolean              readyLevelVisible;
 
 
     @Override public void init() {
@@ -158,6 +158,7 @@ public class Main extends Application {
         level             = 1;
         blinks            = new ArrayList<>();
         ballSpeed         = BALL_SPEED;
+        readyLevelVisible = false;
 
         lastTimerCall     = System.nanoTime();
         lastAnimCall      = System.nanoTime();
@@ -311,8 +312,16 @@ public class Main extends Application {
         laserSnd         = new AudioClip(getClass().getResource("gun.wav").toExternalForm());
     }
 
-    private static String padLeft(final String text, final String filler, final int n) {
-        return String.format("%" + n + "s", text).replace(" ", filler);
+    private static double clamp(final double min, final double max, final double value) {
+        if (value < min) { return min; }
+        if (value > max) { return max; }
+        return value;
+    }
+
+    private static int clamp(final int min, final int max, final int value) {
+        if (value < min) { return min; }
+        if (value > max) { return max; }
+        return value;
     }
 
 
@@ -347,12 +356,14 @@ public class Main extends Application {
 
     // Start Level
     private void startLevel(final int level) {
+        readyLevelVisible = true;
         playSound(startLevelSnd);
         setupBlocks(level);
         balls.clear();
         spawnBall();
         if (!running) { running = true; }
         drawBackground(level);
+        executor.schedule(() -> { readyLevelVisible = false; }, 2, TimeUnit.SECONDS);
     }
 
     // Game Over
@@ -472,7 +483,7 @@ public class Main extends Application {
             if (bonusBlock.bounds.intersects(paddle.bounds)) {
                 bonusBlock.toBeRemoved = true;
                 switch(bonusBlock.bonusType) {
-                    case BONUS_C -> noOfLifes = Helper.clamp(2, 4, noOfLifes + 1);
+                    case BONUS_C -> noOfLifes = clamp(2, 5, noOfLifes + 1);
                     case BONUS_D -> {
                         for (int i = 0 ; i < 3 - balls.size() ; i++) {
                             balls.add(new Ball(ballImg, paddle.bounds.centerX, paddle.bounds.minY - ballImg.getHeight() * 0.5 - 1, (RND.nextDouble() * (2 * ballSpeed) - ballSpeed), true));
@@ -559,6 +570,14 @@ public class Main extends Application {
 
     private void updateAndDraw() {
         ctx.clearRect(0, 0, WIDTH, HEIGHT);
+
+        if (readyLevelVisible) {
+            ctx.setFill(TEXT_GRAY);
+            ctx.setFont(SCORE_FONT);
+            ctx.setTextAlign(TextAlignment.CENTER);
+            ctx.fillText("ROUND " + level, WIDTH * 0.5, HEIGHT * 0.65);
+            ctx.fillText("READY", WIDTH * 0.5, HEIGHT * 0.65 + 2 * SCORE_FONT.getSize());
+        }
 
         // Draw Torpedos
         for (Torpedo torpedo : torpedoes) {
@@ -661,7 +680,7 @@ public class Main extends Application {
         if (blocks.isEmpty() || blocks.stream().filter(block -> block.maxHits > -1).count() == 0) {
             level++;
             if (level > Constants.LEVEL_MAP.size()) { level = 1; }
-            executor.schedule(() -> startLevel(level), 1, TimeUnit.SECONDS);
+            startLevel(level);
         }
     }
 
