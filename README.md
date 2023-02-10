@@ -6,6 +6,10 @@ It doesn't come with all the features of the original game yet but I may add the
 
 At the time of writing this you will find 13 levels.
 
+### Gameplay
+- Space key to start the game or shoot (when laser paddle)
+- Arrow left and right to move the paddle
+
 ### Paddles
 #### Standard
 ![STANDARD](https://raw.githubusercontent.com/HanSolo/jarkanoid/main/resources/standardPaddle.png?token=GHSAT0AAAAAAB5FZCZ6HKPSLIAJBT5IXNL2Y7GJWRA)
