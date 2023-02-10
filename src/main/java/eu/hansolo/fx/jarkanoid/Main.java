@@ -149,6 +149,7 @@ public class Main extends Application {
     private List<Blink>          blinks;
     private double               ballSpeed;
     private boolean              readyLevelVisible;
+    private boolean              nonStandardPaddle;
 
 
     // ******************** Methods *******************************************
@@ -160,6 +161,7 @@ public class Main extends Application {
         blinks            = new ArrayList<>();
         ballSpeed         = BALL_SPEED;
         readyLevelVisible = false;
+        nonStandardPaddle = false;
 
         lastTimerCall     = System.nanoTime();
         lastAnimCall      = System.nanoTime();
@@ -425,6 +427,7 @@ public class Main extends Application {
 
     // ******************** HitTests ******************************************
     private void hitTests() {
+        // ball or torpedo hits blocks
         for (Block block : blocks) {
             if (PaddleState.LASER == paddleState) {
                 for (Torpedo torpedo : torpedoes) {
@@ -484,6 +487,7 @@ public class Main extends Application {
             });
         }
 
+        // paddle hits bonus blocks
         for (BonusBlock bonusBlock : bonusBlocks) {
             if (bonusBlock.bounds.intersects(paddle.bounds)) {
                 bonusBlock.toBeRemoved = true;
@@ -495,21 +499,23 @@ public class Main extends Application {
                         }
                     }
                     case BONUS_F -> {
-                        paddleState = PaddleState.WIDE;
-                        executor.schedule(() -> { paddleState = PaddleState.STANDARD; }, BONUS_TIMEOUT, TimeUnit.MILLISECONDS);
+                        nonStandardPaddle = true;
+                        paddleState       = PaddleState.WIDE;
+                        executor.schedule(() -> paddleState = PaddleState.STANDARD, BONUS_TIMEOUT, TimeUnit.MILLISECONDS);
                     }
                     case BONUS_L -> {
                         paddleState = PaddleState.LASER;
-                        executor.schedule(() -> { paddleState = PaddleState.STANDARD; }, BONUS_TIMEOUT, TimeUnit.MILLISECONDS);
+                        executor.schedule(() -> paddleState = PaddleState.STANDARD, BONUS_TIMEOUT, TimeUnit.MILLISECONDS);
                     }
                     case BONUS_S -> {
                         ballSpeed = BALL_SPEED * 0.5;
-                        executor.schedule(() -> { ballSpeed = BALL_SPEED; }, BONUS_TIMEOUT, TimeUnit.MILLISECONDS);
+                        executor.schedule(() -> ballSpeed = BALL_SPEED, BONUS_TIMEOUT, TimeUnit.MILLISECONDS);
                     }
                 }
             }
         }
 
+        // ball hits paddle
         balls.forEach(ball -> {
             if (ball.bounds.intersects(paddle.bounds)) {
                 if (!ball.lastHit.equals(paddle)) {
