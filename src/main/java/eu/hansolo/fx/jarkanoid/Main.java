@@ -67,6 +67,7 @@ public class Main extends Application {
     protected static final double      BLOCK_STEP_Y        = 22;
     protected static final double      BONUS_BLOCK_WIDTH   = 38;
     protected static final double      BONUS_BLOCK_HEIGHT  = 18;
+    protected static final int         MAX_BONUS_BLOCKS    = 5;
     protected static final DropShadow  DROP_SHADOW         = new DropShadow(BlurType.TWO_PASS_BOX, Color.rgb(0, 0, 0, 0.65), 5, 0.0, 10, 10);
     protected static final Font        SCORE_FONT          = Fonts.emulogic(20);
     protected static final Color       HIGH_SCORE_RED      = Color.rgb(229, 2, 1);
@@ -263,7 +264,7 @@ public class Main extends Application {
             } else {
                 // Block for the first 8 seconds to give it some time to play the game start song
                 if (Instant.now().getEpochSecond() - startTime.getEpochSecond() > 10) {
-                    level = 4;
+                    level = 1;
                     startLevel(level);
                 }
             }
@@ -425,11 +426,14 @@ public class Main extends Application {
     private void setupBlocks(final int level) {
         blocks.clear();
         BlockType[][] level2 = Constants.LEVEL_MAP.get(level);
+        int noOfBonusBlocks = 0;
         for (int iy = 0 ; iy < level2.length ; iy++) {
             for (int ix = 0 ; ix < level2[iy].length ; ix++) {
                 Block block;
                 final BlockType blockType = level2[iy][ix];
-                final BonusType bonusType = BONUS_TYPE_LOOKUP[RND.nextInt(25)];
+                // Randomly add bonus blocks to each level
+                final BonusType bonusType = noOfBonusBlocks == MAX_BONUS_BLOCKS ? BonusType.NONE : BONUS_TYPE_LOOKUP[RND.nextInt(25)];
+                if (noOfBonusBlocks < MAX_BONUS_BLOCKS && BonusType.NONE != bonusType) { noOfBonusBlocks++; }
                 switch (blockType) {
                     case GOLD    -> block = new Block(goldBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 0, blockType.maxHits, BonusType.NONE, blockType);
                     case GRAY    -> block = new Block(grayBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 20, blockType.maxHits, BonusType.NONE, blockType);
@@ -447,7 +451,6 @@ public class Main extends Application {
                 blocks.add(block);
             }
         }
-        //Collections.sort(blocks, (block1, block2) -> block2.bounds.maxY > block1.bounds.maxY ? 1 : -1);
     }
 
 

@@ -12,13 +12,13 @@ At the time of writing this you will find 13 levels.
 
 ### Paddles
 #### Standard
-![STANDARD](https://raw.githubusercontent.com/HanSolo/jarkanoid/main/resources/standardPaddle.png?token=GHSAT0AAAAAAB5FZCZ6HKPSLIAJBT5IXNL2Y7GJWRA)
+![STANDARD](https://github.com/HanSolo/jarkanoid/blob/main/resources/standardPaddle.png?raw=true)
 
 #### Wide
-![WIDE](https://raw.githubusercontent.com/HanSolo/jarkanoid/main/resources/widePaddle.png?token=GHSAT0AAAAAAB5FZCZ6AHMEKIWSEMQMFNAWY7GJXEA)
+![WIDE](https://github.com/HanSolo/jarkanoid/blob/main/resources/widePaddle.png?raw=true)
 
 #### Laser
-![LASER](https://raw.githubusercontent.com/HanSolo/jarkanoid/main/resources/laserPaddle.png?token=GHSAT0AAAAAAB5FZCZ72FI3QIGD4UR4C6LEY7GJXUQ)
+![LASER](https://github.com/HanSolo/jarkanoid/blob/main/resources/laserPaddle.png?raw=true)
 
 
 ### Bonus Blocks
@@ -37,69 +37,69 @@ At the time of writing this you will find 13 levels.
 
 ##### Start screen
 
-![Start screen](https://raw.githubusercontent.com/HanSolo/jarkanoid/main/resources/startscreen.png?token=GHSAT0AAAAAAB5FZCZ6ACZZDXIDQY3M6BHGY7GJUVA)
+![Start screen](https://github.com/HanSolo/jarkanoid/blob/main/resources/startscreen.png?raw=true)
 
 
 ##### Level 1
 
-![Level 1](https://raw.githubusercontent.com/HanSolo/jarkanoid/main/resources/level1.png?token=GHSAT0AAAAAAB5FZCZ7JITJQ7NHTAZHDOPCY7GJMMA)
+![Level 1](https://github.com/HanSolo/jarkanoid/blob/main/resources/level1.png?raw=true)
 
 
 ##### Level 2
 
-![Level 2](https://raw.githubusercontent.com/HanSolo/jarkanoid/main/resources/level2.png?token=GHSAT0AAAAAAB5FZCZ6CBPLAFNYX24BXFXGY7GJNHQ)
+![Level 2](https://github.com/HanSolo/jarkanoid/blob/main/resources/level2.png?raw=true)
 
 
 ##### Level 3
 
-![Level 3](https://raw.githubusercontent.com/HanSolo/jarkanoid/main/resources/level3.png?token=GHSAT0AAAAAAB5FZCZ7WX4YRAJEOZJ3SHPWY7GJONQ)
+![Level 3](https://github.com/HanSolo/jarkanoid/blob/main/resources/level3.png?raw=true)
 
 
 ##### Level 4
 
-![Level 4](https://raw.githubusercontent.com/HanSolo/jarkanoid/main/resources/level4.png?token=GHSAT0AAAAAAB5FZCZ6GMC3MDFTIVP77NNMY7GJPVQ)
+![Level 4](https://github.com/HanSolo/jarkanoid/blob/main/resources/level4.png?raw=true)
 
 
 ##### Level 5
 
-![Level 5](https://raw.githubusercontent.com/HanSolo/jarkanoid/main/resources/level5.png?token=GHSAT0AAAAAAB5FZCZ72YANAZXL35HDZK42Y7GJQAA)
+![Level 5](https://github.com/HanSolo/jarkanoid/blob/main/resources/level5.png?raw=true)
 
 
 ##### Level 6
 
-![Level 6](https://raw.githubusercontent.com/HanSolo/jarkanoid/main/resources/level6.png?token=GHSAT0AAAAAAB5FZCZ6T4VISVRLCLLZ7DMYY7GJQLA)
+![Level 6](https://github.com/HanSolo/jarkanoid/blob/main/resources/level6.png?raw=true)
 
 
 ##### Level 7
 
-![Level 7](https://raw.githubusercontent.com/HanSolo/jarkanoid/main/resources/level7.png?token=GHSAT0AAAAAAB5FZCZ6LC7T56YYMRQKCJ4OY7GJQ4A)
+![Level 7](https://github.com/HanSolo/jarkanoid/blob/main/resources/level7.png?raw=true)
 
 
 ##### Level 8
 
-![Level 8](https://raw.githubusercontent.com/HanSolo/jarkanoid/main/resources/level8.png?token=GHSAT0AAAAAAB5FZCZ6T4RL7E4FCVB4L6LOY7GJRGQ)
+![Level 8](https://github.com/HanSolo/jarkanoid/blob/main/resources/level8.png?raw=true)
 
 
 ##### Level 9
 
-![Level 9](https://raw.githubusercontent.com/HanSolo/jarkanoid/main/resources/level9.png?token=GHSAT0AAAAAAB5FZCZ66IHKRW37VEDLW2WKY7GJRPQ)
+![Level 9](https://github.com/HanSolo/jarkanoid/blob/main/resources/level9.png?raw=true)
 
 
 ##### Level 10
 
-![Level 10](https://raw.githubusercontent.com/HanSolo/jarkanoid/main/resources/level10.png?token=GHSAT0AAAAAAB5FZCZ7SKC5Y7SUHLZZHR34Y7GJTEA)
+![Level 10](https://github.com/HanSolo/jarkanoid/blob/main/resources/level10.png?raw=true)
 
 
 ##### Level 11
 
-![Level 11](https://raw.githubusercontent.com/HanSolo/jarkanoid/main/resources/level11.png?token=GHSAT0AAAAAAB5FZCZ7F75A74KIFF7FRJDOY7GJTNQ)
+![Level 11](https://github.com/HanSolo/jarkanoid/blob/main/resources/level11.png?raw=true)
 
 
 ##### Level 12
 
-![Level 12](https://raw.githubusercontent.com/HanSolo/jarkanoid/main/resources/level12.png?token=GHSAT0AAAAAAB5FZCZ6EEWJWY2V5X7DUXH6Y7GJTWQ)
+![Level 12](https://github.com/HanSolo/jarkanoid/blob/main/resources/level12.png?raw=true)
 
 
 ##### Level 13
 
-![Level 13](https://raw.githubusercontent.com/HanSolo/jarkanoid/main/resources/level13.png?token=GHSAT0AAAAAAB5FZCZ6KR5KFPOUFQMMHDMEY7GJUAQ)
+![Level 13](https://github.com/HanSolo/jarkanoid/blob/main/resources/level13.png?raw=true)
