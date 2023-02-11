@@ -252,6 +252,7 @@ public class Main extends Application {
                 switch (e.getCode()) {
                     case RIGHT -> movePaddleRight();
                     case LEFT  -> movePaddleLeft();
+                    case S     -> { /* implement "shake" to get out of endless loops */ }
                     case SPACE -> {
                         final long activeBalls = balls.stream().filter(ball -> ball.active).count();
                         if (activeBalls > 0) {
@@ -263,7 +264,7 @@ public class Main extends Application {
                 }
             } else {
                 // Block for the first 8 seconds to give it some time to play the game start song
-                if (Instant.now().getEpochSecond() - startTime.getEpochSecond() > 10) {
+                if (Instant.now().getEpochSecond() - startTime.getEpochSecond() > 8) {
                     level = 1;
                     startLevel(level);
                 }
@@ -432,8 +433,9 @@ public class Main extends Application {
                 Block block;
                 final BlockType blockType = level2[iy][ix];
                 // Randomly add bonus blocks to each level
-                final BonusType bonusType = noOfBonusBlocks == MAX_BONUS_BLOCKS ? BonusType.NONE : BONUS_TYPE_LOOKUP[RND.nextInt(25)];
-                if (noOfBonusBlocks < MAX_BONUS_BLOCKS && BonusType.NONE != bonusType) { noOfBonusBlocks++; }
+                //final BonusType bonusType = noOfBonusBlocks == MAX_BONUS_BLOCKS ? BonusType.NONE : BONUS_TYPE_LOOKUP[RND.nextInt(25)];
+                //if (noOfBonusBlocks < MAX_BONUS_BLOCKS && BonusType.NONE != bonusType) { noOfBonusBlocks++; }
+                final BonusType bonusType = BONUS_TYPE_LOOKUP[RND.nextInt(25)];
                 switch (blockType) {
                     case GOLD    -> block = new Block(goldBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 0, blockType.maxHits, BonusType.NONE, blockType);
                     case GRAY    -> block = new Block(grayBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 20, blockType.maxHits, BonusType.NONE, blockType);
@@ -455,6 +457,11 @@ public class Main extends Application {
 
 
     // ******************** HitTests ******************************************
+    private boolean hit(final double r1x, final double r1y, final double r1w, final double r1h,
+                        final double r2x, final double r2y, final double r2w, final double r2h) {
+        return r2x <= r1x + r1w && r1x <= r2x + r2w && r2y <= r1y + r1h && r1y <= r2y + r2h;
+    }
+
     private void hitTests() {
         // ball or torpedo hits blocks
         for (Block block : blocks) {
@@ -475,8 +482,10 @@ public class Main extends Application {
             }
             // Ball - Block
             balls.forEach(ball -> {
+                //boolean ballHitsBlock = hit(ball, block.bounds);
                 boolean ballHitsBlock = ball.hitBounds.intersects(block.bounds);
-                if (ballHitsBlock) {
+                boolean ballInBlock   = block.bounds.contains(ball.x, ball.y);
+                if (ballHitsBlock && ballInBlock) {
                     switch (block.blockType) {
                         case GOLD -> {
                             playSound(ballHardBlockSnd);
@@ -899,7 +908,6 @@ public class Main extends Application {
         public final int       maxHits;
         public final BonusType bonusType;
         public final BlockType blockType;
-        public       boolean   toBeRemoved;
 
 
         // ******************** Constructors **************************************
@@ -1008,11 +1016,20 @@ public class Main extends Application {
             }
 
             this.bounds.set(this.x - this.radius, this.y - this.radius, this.width, this.height);
-            this.hitBounds.set(this.bounds.minX - BALL_SPEED, this.bounds.minY - BALL_SPEED, this.width + 2 * BALL_SPEED, this.height + 2 * BALL_SPEED);
+            this.hitBounds.set(this.bounds.minX - 1, this.bounds.minY - 1, this.width + 2, this.height + 2);
 
             if (this.bounds.maxY > HEIGHT) {
                 this.toBeRemoved = true;
             }
+        }
+
+        // Intersect based on circle hits rectangle
+        public boolean intersects(final Bounds bounds) {
+            final double closeX = clamp(bounds.minX, bounds.maxX, x);
+            final double closeY = clamp(bounds.minY, bounds.maxY, y);
+            final double dx     = x - closeX;
+            final double dy     = y - closeY;
+            return dx * dx + dy * dy <= radius * radius;
         }
     }
 
@@ -1094,14 +1111,11 @@ public class Main extends Application {
         }
 
         public boolean contains(final double x, final double y) {
-            return (Double.compare(x, minX) >= 0 && Double.compare(x, maxX) <= 0 && Double.compare(y, minY) >= 0 && Double.compare(y, maxY) <= 0);
+            return x >= minX && x <= maxX && y >= minY && y <= maxY;
         }
 
         public boolean intersects(final Bounds other) {
-            return (other.maxX > minX && other.maxY > minY && other.minX < maxX && other.minY < maxY);
-        }
-        public boolean intersects(final double x, final double y, final double width, final double height) {
-            return (x + width > minX && y + height > minY && x < maxX && y < maxY);
+            return other.minX <= maxX && minX <= other.maxX && other.minY <= maxY && minY <= other.maxY;
         }
 
         public Bounds copy() {
