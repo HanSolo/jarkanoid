@@ -68,6 +68,7 @@ public class Main extends Application {
     protected static final double      BONUS_BLOCK_WIDTH   = 38;
     protected static final double      BONUS_BLOCK_HEIGHT  = 18;
     protected static final int         MAX_BONUS_BLOCKS    = 5;
+    protected static final double      BALL_VX_INFLUENCE   = 0.75;
     protected static final DropShadow  DROP_SHADOW         = new DropShadow(BlurType.TWO_PASS_BOX, Color.rgb(0, 0, 0, 0.65), 5, 0.0, 10, 10);
     protected static final Font        SCORE_FONT          = Fonts.emulogic(20);
     protected static final Color       HIGH_SCORE_RED      = Color.rgb(229, 2, 1);
@@ -1016,6 +1017,14 @@ public class Main extends Application {
 
             // Hit test ball with paddle
             if (bounds.intersects(paddle.bounds)) {
+                // Influence vX of ball if vX of paddle != 0
+                if (paddle.vX > 0) {
+                    double speedXY = Math.sqrt(vX * vX + vY * vY);
+                    double posX    = (bounds.centerX - paddle.bounds.centerX) / (paddle.bounds.width * 0.5);
+                    double speedX  = speedXY * posX * BALL_VX_INFLUENCE;
+                    vX = speedX;
+                    vY = Math.sqrt(speedXY * speedXY - speedX * speedX) * (vY > 0 ? -1 : 1);
+                }
 
                 if (vX > 0 && bounds.centerX < paddle.bounds.minX) {
                     vX = -ballSpeed;
