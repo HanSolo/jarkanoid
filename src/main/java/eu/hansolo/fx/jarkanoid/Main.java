@@ -130,7 +130,6 @@ public class Main extends Application {
     private Image                bonusBlockLMapImg;
     private Image                blockShadowImg;
     private Image                bonusBlockShadowImg;
-    //private Image                explosionImg;
     private AudioClip            gameStartSnd;
     private AudioClip            startLevelSnd;
     private AudioClip            ballPaddleSnd;
@@ -297,43 +296,42 @@ public class Main extends Application {
 
     // Helper methods
     private void loadImages() {
-        logoImg                = new Image(getClass().getResourceAsStream("jarkanoid_logo.png"), 460, 118, true, false);
-        copyrightImg           = new Image(getClass().getResourceAsStream("copyright.png"), 458, 115, true, false);
-        bkgPatternImg          = new Image(getClass().getResourceAsStream("backgroundPattern.png"), 68, 117, true, false);
-        borderPatternImg       = new Image(getClass().getResourceAsStream("borderPattern.png"), 20, 113, true, false);
-        topPartImg             = new Image(getClass().getResourceAsStream("topPart.png"), 64, 23, true, false);
-        ulCornerImg            = new Image(getClass().getResourceAsStream("upperLeftCorner.png"), 15, 20, true, false);
-        urCornerImg            = new Image(getClass().getResourceAsStream("upperRightCorner.png"), 15, 20, true, false);
-        pipeImg                = new Image(getClass().getResourceAsStream("pipe.png"), 5, 17, true, false);
-        paddleMapStdImg        = new Image(getClass().getResourceAsStream("paddlemap_std.png"), 640, 176, false, false);
-        paddleMapWideImg       = new Image(getClass().getResourceAsStream("paddlemap_wide.png"), 960, 176, false, false);
-        paddleMapGunImg        = new Image(getClass().getResourceAsStream("paddlemap_gun.png"), 640, 176, false, false);
-        blinkMapImg            = new Image(getClass().getResourceAsStream("blink_map.png"), 304, 60, false, false);
-        paddleMiniImg          = new Image(getClass().getResourceAsStream("paddle_std.png"), 40, 11, true, false);
-        paddleStdShadowImg     = new Image(getClass().getResourceAsStream("paddle_std_shadow.png"), 80, 22, true, false);
-        paddleWideShadowImg    = new Image(getClass().getResourceAsStream("paddle_wide_shadow.png"), 121, 22, true, false);
-        paddleGunShadowImg     = new Image(getClass().getResourceAsStream("paddle_gun_shadow.png"), 80, 22, true, false);
-        ballImg                = new Image(getClass().getResourceAsStream("ball.png"), 12, 12, true, false);
-        ballShadowImg          = new Image(getClass().getResourceAsStream("ball_shadow.png"), 12, 12, true, false);
-        torpedoImg             = new Image(getClass().getResourceAsStream("torpedo.png"), 41, 23, true, false);
-        goldBlockImg           = new Image(getClass().getResourceAsStream("goldBlock.png"), 38, 20, true, false);
-        grayBlockImg           = new Image(getClass().getResourceAsStream("grayBlock.png"), 38, 20, true, false);
-        whiteBlockImg          = new Image(getClass().getResourceAsStream("whiteBlock.png"), 38, 20, true, false);
-        orangeBlockImg         = new Image(getClass().getResourceAsStream("orangeBlock.png"), 38, 20, true, false);
-        cyanBlockImg           = new Image(getClass().getResourceAsStream("cyanBlock.png"), 38, 20, true, false);
-        limeBlockImg           = new Image(getClass().getResourceAsStream("limeBlock.png"), 38, 20, true, false);
-        redBlockImg            = new Image(getClass().getResourceAsStream("redBlock.png"), 38, 20, true, false);
-        blueBlockImg           = new Image(getClass().getResourceAsStream("blueBlock.png"), 38, 20, true, false);
-        magentaBlockImg        = new Image(getClass().getResourceAsStream("magentaBlock.png"), 38, 20, true, false);
-        yellowBlockImg         = new Image(getClass().getResourceAsStream("yellowBlock.png"), 38, 20, true, false);
-        blockShadowImg         = new Image(getClass().getResourceAsStream("block_shadow.png"), 38, 20, true, false);
-        bonusBlockCMapImg      = new Image(getClass().getResourceAsStream("block_map_bonus_c.png"), 190, 72, true, false);
-        bonusBlockFMapImg      = new Image(getClass().getResourceAsStream("block_map_bonus_f.png"), 190, 72, true, false);
-        bonusBlockDMapImg      = new Image(getClass().getResourceAsStream("block_map_bonus_d.png"), 190, 72, true, false);
-        bonusBlockSMapImg      = new Image(getClass().getResourceAsStream("block_map_bonus_s.png"), 190, 72, true, false);
-        bonusBlockLMapImg      = new Image(getClass().getResourceAsStream("block_map_bonus_l.png"), 190, 72, true, false);
-        bonusBlockShadowImg    = new Image(getClass().getResourceAsStream("bonus_block_shadow.png"), 38, 18, true, false);
-        //explosionImg    = new Image(getClass().getResourceAsStream("explosion.png"), 39, 36, true, false);
+        logoImg             = new Image(getClass().getResourceAsStream("jarkanoid_logo.png"), 460, 118, true, false);
+        copyrightImg        = new Image(getClass().getResourceAsStream("copyright.png"), 458, 115, true, false);
+        bkgPatternImg       = new Image(getClass().getResourceAsStream("backgroundPattern.png"), 68, 117, true, false);
+        borderPatternImg    = new Image(getClass().getResourceAsStream("borderPattern.png"), 20, 113, true, false);
+        topPartImg          = new Image(getClass().getResourceAsStream("topPart.png"), 64, 23, true, false);
+        ulCornerImg         = new Image(getClass().getResourceAsStream("upperLeftCorner.png"), 15, 20, true, false);
+        urCornerImg         = new Image(getClass().getResourceAsStream("upperRightCorner.png"), 15, 20, true, false);
+        pipeImg             = new Image(getClass().getResourceAsStream("pipe.png"), 5, 17, true, false);
+        paddleMapStdImg     = new Image(getClass().getResourceAsStream("paddlemap_std.png"), 640, 176, false, false);
+        paddleMapWideImg    = new Image(getClass().getResourceAsStream("paddlemap_wide.png"), 960, 176, false, false);
+        paddleMapGunImg     = new Image(getClass().getResourceAsStream("paddlemap_gun.png"), 640, 176, false, false);
+        blinkMapImg         = new Image(getClass().getResourceAsStream("blink_map.png"), 304, 60, false, false);
+        paddleMiniImg       = new Image(getClass().getResourceAsStream("paddle_std.png"), 40, 11, true, false);
+        paddleStdShadowImg  = new Image(getClass().getResourceAsStream("paddle_std_shadow.png"), 80, 22, true, false);
+        paddleWideShadowImg = new Image(getClass().getResourceAsStream("paddle_wide_shadow.png"), 121, 22, true, false);
+        paddleGunShadowImg  = new Image(getClass().getResourceAsStream("paddle_gun_shadow.png"), 80, 22, true, false);
+        ballImg             = new Image(getClass().getResourceAsStream("ball.png"), 12, 12, true, false);
+        ballShadowImg       = new Image(getClass().getResourceAsStream("ball_shadow.png"), 12, 12, true, false);
+        torpedoImg          = new Image(getClass().getResourceAsStream("torpedo.png"), 41, 23, true, false);
+        goldBlockImg        = new Image(getClass().getResourceAsStream("goldBlock.png"), 38, 20, true, false);
+        grayBlockImg        = new Image(getClass().getResourceAsStream("grayBlock.png"), 38, 20, true, false);
+        whiteBlockImg       = new Image(getClass().getResourceAsStream("whiteBlock.png"), 38, 20, true, false);
+        orangeBlockImg      = new Image(getClass().getResourceAsStream("orangeBlock.png"), 38, 20, true, false);
+        cyanBlockImg        = new Image(getClass().getResourceAsStream("cyanBlock.png"), 38, 20, true, false);
+        limeBlockImg        = new Image(getClass().getResourceAsStream("limeBlock.png"), 38, 20, true, false);
+        redBlockImg         = new Image(getClass().getResourceAsStream("redBlock.png"), 38, 20, true, false);
+        blueBlockImg        = new Image(getClass().getResourceAsStream("blueBlock.png"), 38, 20, true, false);
+        magentaBlockImg     = new Image(getClass().getResourceAsStream("magentaBlock.png"), 38, 20, true, false);
+        yellowBlockImg      = new Image(getClass().getResourceAsStream("yellowBlock.png"), 38, 20, true, false);
+        blockShadowImg      = new Image(getClass().getResourceAsStream("block_shadow.png"), 38, 20, true, false);
+        bonusBlockCMapImg   = new Image(getClass().getResourceAsStream("block_map_bonus_c.png"), 190, 72, true, false);
+        bonusBlockFMapImg   = new Image(getClass().getResourceAsStream("block_map_bonus_f.png"), 190, 72, true, false);
+        bonusBlockDMapImg   = new Image(getClass().getResourceAsStream("block_map_bonus_d.png"), 190, 72, true, false);
+        bonusBlockSMapImg   = new Image(getClass().getResourceAsStream("block_map_bonus_s.png"), 190, 72, true, false);
+        bonusBlockLMapImg   = new Image(getClass().getResourceAsStream("block_map_bonus_l.png"), 190, 72, true, false);
+        bonusBlockShadowImg = new Image(getClass().getResourceAsStream("bonus_block_shadow.png"), 38, 18, true, false);
     }
 
     private void loadSounds() {
@@ -457,13 +455,8 @@ public class Main extends Application {
 
 
     // ******************** HitTests ******************************************
-    private boolean hit(final double r1x, final double r1y, final double r1w, final double r1h,
-                        final double r2x, final double r2y, final double r2w, final double r2h) {
-        return r2x <= r1x + r1w && r1x <= r2x + r2w && r2y <= r1y + r1h && r1y <= r2y + r2h;
-    }
-
     private void hitTests() {
-        // ball or torpedo hits blocks
+        // torpedo hits
         for (Block block : blocks) {
             if (PaddleState.LASER == paddleState) {
                 for (Torpedo torpedo : torpedoes) {
@@ -480,46 +473,6 @@ public class Main extends Application {
                     }
                 }
             }
-            // Ball - Block
-            balls.forEach(ball -> {
-                //boolean ballHitsBlock = hit(ball, block.bounds);
-                boolean ballHitsBlock = ball.hitBounds.intersects(block.bounds);
-                boolean ballInBlock   = block.bounds.contains(ball.x, ball.y);
-                if (ballHitsBlock && ballInBlock) {
-                    switch (block.blockType) {
-                        case GOLD -> {
-                            playSound(ballHardBlockSnd);
-                            blinks.add(new Blink(block.bounds.minX, block.bounds.minY));
-                        }
-                        case GRAY -> {
-                            block.hits++;
-                            if (block.hits == block.maxHits) {
-                                score += block.value;
-                                block.toBeRemoved = true;
-                                playSound(ballBlockSnd);
-                                if (block.bonusType != BonusType.NONE) {
-                                    bonusBlocks.add(new BonusBlock(block.x, block.y, block.bonusType));
-                                }
-                            } else {
-                                playSound(ballHardBlockSnd);
-                                blinks.add(new Blink(block.bounds.minX, block.bounds.minY));
-                            }
-                        }
-                        default -> {
-                            block.hits++;
-                            if (block.hits >= block.maxHits) {
-                                score += block.value;
-                                block.toBeRemoved = true;
-                                playSound(ballBlockSnd);
-                                if (block.bonusType != BonusType.NONE) {
-                                    bonusBlocks.add(new BonusBlock(block.x, block.y, block.bonusType));
-                                }
-                            }
-                        }
-                    }
-                    ball.vY = -ball.vY;
-                }
-            });
         }
 
         // paddle hits bonus blocks
@@ -548,17 +501,6 @@ public class Main extends Application {
                 }
             }
         }
-
-        // ball hits paddle
-        balls.forEach(ball -> {
-            if (ball.hitBounds.intersects(paddle.bounds)) {
-                if (ball.bounds.centerX < paddle.bounds.minX || ball.bounds.centerX > paddle.bounds.maxX) {
-                    ball.vX = -ball.vX;
-                }
-                ball.vY = -ballSpeed;
-                playSound(ballPaddleSnd);
-            }
-        });
     }
 
 
@@ -977,7 +919,6 @@ public class Main extends Application {
 
     private class Ball extends Sprite {
         public boolean active;
-        public Bounds  hitBounds;
 
 
         // ******************** Constructors **************************************
@@ -986,9 +927,8 @@ public class Main extends Application {
         }
         public Ball(final Image image, final double x, final double y, final double vX, final boolean active) {
             super(image, paddle.bounds.centerX, paddle.bounds.minY - image.getHeight() * 0.5 - BALL_SPEED - 1, 0, -ballSpeed);
-            this.vX        = vX;
-            this.active    = active;
-            this.hitBounds = super.bounds.copy();
+            this.vX     = vX;
+            this.active = active;
         }
 
 
@@ -1016,20 +956,80 @@ public class Main extends Application {
             }
 
             this.bounds.set(this.x - this.radius, this.y - this.radius, this.width, this.height);
-            this.hitBounds.set(this.bounds.minX - 1, this.bounds.minY - 1, this.width + 2, this.height + 2);
+
+            // Hit test ball with blocks
+            for (Block block : blocks) {
+                boolean ballHitsBlock = this.bounds.intersects(block.bounds);
+                if (ballHitsBlock) {
+                    switch (block.blockType) {
+                        case GOLD -> {
+                            playSound(ballHardBlockSnd);
+                            blinks.add(new Blink(block.bounds.minX, block.bounds.minY));
+                        }
+                        case GRAY -> {
+                            block.hits++;
+                            if (block.hits == block.maxHits) {
+                                score += block.value;
+                                block.toBeRemoved = true;
+                                playSound(ballBlockSnd);
+                                if (block.bonusType != BonusType.NONE) {
+                                    bonusBlocks.add(new BonusBlock(block.x, block.y, block.bonusType));
+                                }
+                            } else {
+                                playSound(ballHardBlockSnd);
+                                blinks.add(new Blink(block.bounds.minX, block.bounds.minY));
+                            }
+                        }
+                        default -> {
+                            block.hits++;
+                            if (block.hits >= block.maxHits) {
+                                score += block.value;
+                                block.toBeRemoved = true;
+                                playSound(ballBlockSnd);
+                                if (block.bonusType != BonusType.NONE) {
+                                    bonusBlocks.add(new BonusBlock(block.x, block.y, block.bonusType));
+                                }
+                            }
+                        }
+                    }
+
+                    if (bounds.centerX > block.bounds.minX && bounds.centerX < block.bounds.maxX) {
+                        // Top or Bottom hit
+                        vY = -vY;
+                    } else if (bounds.centerY > block.bounds.minY && bounds.centerY < block.bounds.maxY) {
+                        // Left or Right hit
+                        vX = -vX;
+                    } else {
+                        double dx = Math.abs(bounds.centerX - block.bounds.centerX) - block.bounds.width * 0.5;
+                        double dy = Math.abs(bounds.centerY - block.bounds.centerY) - block.bounds.height * 0.5;
+                        if (dx > dy) {
+                            // Left or Right hit
+                            vX = -vX;
+                        } else {
+                            // Top or Bottom hit
+                            vY = -vY;
+                        }
+                    }
+                    break;
+                }
+            }
+
+            // Hit test ball with paddle
+            if (bounds.intersects(paddle.bounds)) {
+
+                if (vX > 0 && bounds.centerX < paddle.bounds.minX) {
+                    vX = -ballSpeed;
+                } else if (vX < 0 && bounds.centerX > paddle.bounds.maxX) {
+                    vX = -ballSpeed;
+                }
+                vY = -ballSpeed;
+
+                playSound(ballPaddleSnd);
+            }
 
             if (this.bounds.maxY > HEIGHT) {
                 this.toBeRemoved = true;
             }
-        }
-
-        // Intersect based on circle hits rectangle
-        public boolean intersects(final Bounds bounds) {
-            final double closeX = clamp(bounds.minX, bounds.maxX, x);
-            final double closeY = clamp(bounds.minY, bounds.maxY, y);
-            final double dx     = x - closeX;
-            final double dy     = y - closeY;
-            return dx * dx + dy * dy <= radius * radius;
         }
     }
 
@@ -1046,23 +1046,6 @@ public class Main extends Application {
             y -= vY;
             this.bounds.set(this.x - this.width * 0.5, this.y - this.height * 0.5, this.width, this.height);
             if (bounds.minY < UPPER_INSET) {
-                toBeRemoved = true;
-            }
-        }
-    }
-
-    private class Explosion extends Sprite {
-
-        // ******************** Constructors **************************************
-        public Explosion(final Image image, final double x, final double y) {
-            super(image, x, y - image.getHeight(), 0, 0);
-        }
-
-
-        // ******************** Methods *******************************************
-        @Override public void update() {
-            y -= vY;
-            if (y < -size) {
                 toBeRemoved = true;
             }
         }
@@ -1116,10 +1099,6 @@ public class Main extends Application {
 
         public boolean intersects(final Bounds other) {
             return other.minX <= maxX && minX <= other.maxX && other.minY <= maxY && minY <= other.maxY;
-        }
-
-        public Bounds copy() {
-            return new Bounds(this.minX, this.minY, this.width, this.height);
         }
     }
 
