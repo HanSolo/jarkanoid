@@ -103,3 +103,63 @@ At the time of writing this you will find 13 levels.
 ##### Level 13
 
 ![Level 13](https://github.com/HanSolo/jarkanoid/blob/main/resources/level13.png?raw=true)
+
+
+##### Level 14
+
+![Level 14](https://github.com/HanSolo/jarkanoid/blob/main/resources/level14.png?raw=true)
+
+
+##### Level 15
+
+![Level 15](https://github.com/HanSolo/jarkanoid/blob/main/resources/level15.png?raw=true)
+
+
+##### Level 16
+
+![Level 16](https://github.com/HanSolo/jarkanoid/blob/main/resources/level16.png?raw=true)
+
+
+##### Level 17
+
+![Level 17](https://github.com/HanSolo/jarkanoid/blob/main/resources/level17.png?raw=true)
+
+
+##### Level 18
+
+![Level 18](https://github.com/HanSolo/jarkanoid/blob/main/resources/level18.png?raw=true)
+
+
+##### Level 19
+
+![Level 19](https://github.com/HanSolo/jarkanoid/blob/main/resources/level19.png?raw=true)
+
+
+##### Level 20
+
+![Level 20](https://github.com/HanSolo/jarkanoid/blob/main/resources/level20.png?raw=true)
+
+
+##### Level 21
+
+![Level 21](https://github.com/HanSolo/jarkanoid/blob/main/resources/level21.png?raw=true)
+
+
+##### Level 22
+
+![Level 22](https://github.com/HanSolo/jarkanoid/blob/main/resources/level22.png?raw=true)
+
+
+##### Level 23
+
+![Level 23](https://github.com/HanSolo/jarkanoid/blob/main/resources/level23.png?raw=true)
+
+
+##### Level 24
+
+![Level 24](https://github.com/HanSolo/jarkanoid/blob/main/resources/level24.png?raw=true)
+
+
+##### Level 25
+
+![Level 25](https://github.com/HanSolo/jarkanoid/blob/main/resources/level25.png?raw=true)

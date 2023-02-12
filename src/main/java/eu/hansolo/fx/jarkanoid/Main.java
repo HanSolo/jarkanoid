@@ -68,18 +68,11 @@ public class Main extends Application {
     protected static final double      BLOCK_STEP_Y        = 22;
     protected static final double      BONUS_BLOCK_WIDTH   = 38;
     protected static final double      BONUS_BLOCK_HEIGHT  = 18;
-    protected static final int         MAX_BONUS_BLOCKS    = 5;
     protected static final double      BALL_VX_INFLUENCE   = 0.75;
-    protected static final DropShadow  DROP_SHADOW         = new DropShadow(BlurType.TWO_PASS_BOX, Color.rgb(0, 0, 0, 0.65), 5, 0.0, 10, 10);
     protected static final Font        SCORE_FONT          = Fonts.emulogic(20);
     protected static final Color       HIGH_SCORE_RED      = Color.rgb(229, 2, 1);
     protected static final Color       SCORE_WHITE         = Color.WHITE;
     protected static final Color       TEXT_GRAY           = Color.rgb(216, 216, 216);
-    protected static final BonusType[] BONUS_TYPE_LOOKUP   = { BonusType.NONE, BonusType.NONE, BonusType.NONE, BonusType.NONE, BonusType.BONUS_C,
-                                                               BonusType.NONE, BonusType.NONE, BonusType.NONE, BonusType.NONE, BonusType.BONUS_D,
-                                                               BonusType.NONE, BonusType.NONE, BonusType.NONE, BonusType.NONE, BonusType.BONUS_F,
-                                                               BonusType.NONE, BonusType.NONE, BonusType.NONE, BonusType.NONE, BonusType.BONUS_L ,
-                                                               BonusType.NONE, BonusType.NONE, BonusType.NONE, BonusType.NONE, BonusType.BONUS_S };
 
     private ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
@@ -93,6 +86,8 @@ public class Main extends Application {
     private GraphicsContext      bkgCtx;
     private Canvas               canvas;
     private GraphicsContext      ctx;
+    private Canvas               brdrCanvas;
+    private GraphicsContext      brdrCtx;
     private Image                logoImg;
     private Image                copyrightImg;
     private Image                bkgPatternImgBlue;
@@ -103,6 +98,8 @@ public class Main extends Application {
     private ImagePattern         bkgPatternFillGreen;
     private Image                borderPatternImg;
     private ImagePattern         borderPatternFill;
+    private Image                borderVerticalImg;
+    private Image                borderPartVerticalImg;
     private Image                topPartImg;
     private Image                ulCornerImg;
     private Image                urCornerImg;
@@ -225,6 +222,10 @@ public class Main extends Application {
         canvas        = new Canvas(WIDTH, HEIGHT);
         ctx           = canvas.getGraphicsContext2D();
 
+        brdrCanvas    = new Canvas(WIDTH, HEIGHT);
+        brdrCtx       = brdrCanvas.getGraphicsContext2D();
+        brdrCanvas.setMouseTransparent(true);
+
         // Load all images
         loadImages();
 
@@ -234,7 +235,7 @@ public class Main extends Application {
         bkgPatternFillBlue  = new ImagePattern(bkgPatternImgBlue, 0, 0, 68, 117, false);
         bkgPatternFillRed   = new ImagePattern(bkgPatternImgRed, 0, 0, 68, 117, false);
         bkgPatternFillGreen = new ImagePattern(bkgPatternImgGreen, 0, 0, 68, 117, false);
-        borderPatternFill   = new ImagePattern(borderPatternImg, 0, 0, 20, 113, false);
+        borderPatternFill   = new ImagePattern(borderVerticalImg, 0, 0, 20, 113, false);
         pipePatternFill     = new ImagePattern(pipeImg, 0, 0, 5, 17, false);
 
 
@@ -252,7 +253,7 @@ public class Main extends Application {
 
     @Override public void start(final Stage stage) {
         final Instant   startTime = Instant.now();
-        final StackPane pane      = new StackPane(bkgCanvas, canvas);
+        final StackPane pane      = new StackPane(bkgCanvas, canvas, brdrCanvas);
         final Scene     scene     = new Scene(pane, WIDTH, HEIGHT);
 
         scene.setOnKeyPressed(e -> {
@@ -305,44 +306,46 @@ public class Main extends Application {
 
     // Helper methods
     private void loadImages() {
-        logoImg             = new Image(getClass().getResourceAsStream("jarkanoid_logo.png"), 460, 118, true, false);
-        copyrightImg        = new Image(getClass().getResourceAsStream("copyright.png"), 458, 115, true, false);
-        bkgPatternImgBlue   = new Image(getClass().getResourceAsStream("backgroundPattern_blue.png"), 68, 117, true, false);
-        bkgPatternImgRed    = new Image(getClass().getResourceAsStream("backgroundPattern_red.png"), 68, 117, true, false);
-        bkgPatternImgGreen  = new Image(getClass().getResourceAsStream("backgroundPattern_green.png"), 68, 117, true, false);
-        borderPatternImg    = new Image(getClass().getResourceAsStream("borderPattern.png"), 20, 113, true, false);
-        topPartImg          = new Image(getClass().getResourceAsStream("topPart.png"), 64, 23, true, false);
-        ulCornerImg         = new Image(getClass().getResourceAsStream("upperLeftCorner.png"), 15, 20, true, false);
-        urCornerImg         = new Image(getClass().getResourceAsStream("upperRightCorner.png"), 15, 20, true, false);
-        pipeImg             = new Image(getClass().getResourceAsStream("pipe.png"), 5, 17, true, false);
-        paddleMapStdImg     = new Image(getClass().getResourceAsStream("paddlemap_std.png"), 640, 176, false, false);
-        paddleMapWideImg    = new Image(getClass().getResourceAsStream("paddlemap_wide.png"), 960, 176, false, false);
-        paddleMapGunImg     = new Image(getClass().getResourceAsStream("paddlemap_gun.png"), 640, 176, false, false);
-        blinkMapImg         = new Image(getClass().getResourceAsStream("blink_map.png"), 304, 60, false, false);
-        paddleMiniImg       = new Image(getClass().getResourceAsStream("paddle_std.png"), 40, 11, true, false);
-        paddleStdShadowImg  = new Image(getClass().getResourceAsStream("paddle_std_shadow.png"), 80, 22, true, false);
-        paddleWideShadowImg = new Image(getClass().getResourceAsStream("paddle_wide_shadow.png"), 121, 22, true, false);
-        paddleGunShadowImg  = new Image(getClass().getResourceAsStream("paddle_gun_shadow.png"), 80, 22, true, false);
-        ballImg             = new Image(getClass().getResourceAsStream("ball.png"), 12, 12, true, false);
-        ballShadowImg       = new Image(getClass().getResourceAsStream("ball_shadow.png"), 12, 12, true, false);
-        torpedoImg          = new Image(getClass().getResourceAsStream("torpedo.png"), 41, 23, true, false);
-        goldBlockImg        = new Image(getClass().getResourceAsStream("goldBlock.png"), 38, 20, true, false);
-        grayBlockImg        = new Image(getClass().getResourceAsStream("grayBlock.png"), 38, 20, true, false);
-        whiteBlockImg       = new Image(getClass().getResourceAsStream("whiteBlock.png"), 38, 20, true, false);
-        orangeBlockImg      = new Image(getClass().getResourceAsStream("orangeBlock.png"), 38, 20, true, false);
-        cyanBlockImg        = new Image(getClass().getResourceAsStream("cyanBlock.png"), 38, 20, true, false);
-        limeBlockImg        = new Image(getClass().getResourceAsStream("limeBlock.png"), 38, 20, true, false);
-        redBlockImg         = new Image(getClass().getResourceAsStream("redBlock.png"), 38, 20, true, false);
-        blueBlockImg        = new Image(getClass().getResourceAsStream("blueBlock.png"), 38, 20, true, false);
-        magentaBlockImg     = new Image(getClass().getResourceAsStream("magentaBlock.png"), 38, 20, true, false);
-        yellowBlockImg      = new Image(getClass().getResourceAsStream("yellowBlock.png"), 38, 20, true, false);
-        blockShadowImg      = new Image(getClass().getResourceAsStream("block_shadow.png"), 38, 20, true, false);
-        bonusBlockCMapImg   = new Image(getClass().getResourceAsStream("block_map_bonus_c.png"), 190, 72, true, false);
-        bonusBlockFMapImg   = new Image(getClass().getResourceAsStream("block_map_bonus_f.png"), 190, 72, true, false);
-        bonusBlockDMapImg   = new Image(getClass().getResourceAsStream("block_map_bonus_d.png"), 190, 72, true, false);
-        bonusBlockSMapImg   = new Image(getClass().getResourceAsStream("block_map_bonus_s.png"), 190, 72, true, false);
-        bonusBlockLMapImg   = new Image(getClass().getResourceAsStream("block_map_bonus_l.png"), 190, 72, true, false);
-        bonusBlockShadowImg = new Image(getClass().getResourceAsStream("bonus_block_shadow.png"), 38, 18, true, false);
+        logoImg               = new Image(getClass().getResourceAsStream("jarkanoid_logo.png"), 460, 118, true, false);
+        copyrightImg          = new Image(getClass().getResourceAsStream("copyright.png"), 458, 115, true, false);
+        bkgPatternImgBlue     = new Image(getClass().getResourceAsStream("backgroundPattern_blue.png"), 68, 117, true, false);
+        bkgPatternImgRed      = new Image(getClass().getResourceAsStream("backgroundPattern_red.png"), 68, 117, true, false);
+        bkgPatternImgGreen    = new Image(getClass().getResourceAsStream("backgroundPattern_green.png"), 68, 117, true, false);
+        borderPatternImg      = new Image(getClass().getResourceAsStream("borderPattern.png"), 20, 113, true, false);
+        borderVerticalImg     = new Image(getClass().getResourceAsStream("borderVertical.png"), 20, 113, true, false);
+        borderPartVerticalImg = new Image(getClass().getResourceAsStream("borderPartVertical.png"), 20, 71, true, false);
+        topPartImg            = new Image(getClass().getResourceAsStream("topPart.png"), 64, 23, true, false);
+        ulCornerImg           = new Image(getClass().getResourceAsStream("upperLeftCorner.png"), 15, 20, true, false);
+        urCornerImg           = new Image(getClass().getResourceAsStream("upperRightCorner.png"), 15, 20, true, false);
+        pipeImg               = new Image(getClass().getResourceAsStream("pipe.png"), 5, 17, true, false);
+        paddleMapStdImg       = new Image(getClass().getResourceAsStream("paddlemap_std.png"), 640, 176, false, false);
+        paddleMapWideImg      = new Image(getClass().getResourceAsStream("paddlemap_wide.png"), 960, 176, false, false);
+        paddleMapGunImg       = new Image(getClass().getResourceAsStream("paddlemap_gun.png"), 640, 176, false, false);
+        blinkMapImg           = new Image(getClass().getResourceAsStream("blink_map.png"), 304, 60, false, false);
+        paddleMiniImg         = new Image(getClass().getResourceAsStream("paddle_std.png"), 40, 11, true, false);
+        paddleStdShadowImg    = new Image(getClass().getResourceAsStream("paddle_std_shadow.png"), 80, 22, true, false);
+        paddleWideShadowImg   = new Image(getClass().getResourceAsStream("paddle_wide_shadow.png"), 121, 22, true, false);
+        paddleGunShadowImg    = new Image(getClass().getResourceAsStream("paddle_gun_shadow.png"), 80, 22, true, false);
+        ballImg               = new Image(getClass().getResourceAsStream("ball.png"), 12, 12, true, false);
+        ballShadowImg         = new Image(getClass().getResourceAsStream("ball_shadow.png"), 12, 12, true, false);
+        torpedoImg            = new Image(getClass().getResourceAsStream("torpedo.png"), 41, 23, true, false);
+        goldBlockImg          = new Image(getClass().getResourceAsStream("goldBlock.png"), 38, 20, true, false);
+        grayBlockImg          = new Image(getClass().getResourceAsStream("grayBlock.png"), 38, 20, true, false);
+        whiteBlockImg         = new Image(getClass().getResourceAsStream("whiteBlock.png"), 38, 20, true, false);
+        orangeBlockImg        = new Image(getClass().getResourceAsStream("orangeBlock.png"), 38, 20, true, false);
+        cyanBlockImg          = new Image(getClass().getResourceAsStream("cyanBlock.png"), 38, 20, true, false);
+        limeBlockImg          = new Image(getClass().getResourceAsStream("limeBlock.png"), 38, 20, true, false);
+        redBlockImg           = new Image(getClass().getResourceAsStream("redBlock.png"), 38, 20, true, false);
+        blueBlockImg          = new Image(getClass().getResourceAsStream("blueBlock.png"), 38, 20, true, false);
+        magentaBlockImg       = new Image(getClass().getResourceAsStream("magentaBlock.png"), 38, 20, true, false);
+        yellowBlockImg        = new Image(getClass().getResourceAsStream("yellowBlock.png"), 38, 20, true, false);
+        blockShadowImg        = new Image(getClass().getResourceAsStream("block_shadow.png"), 38, 20, true, false);
+        bonusBlockCMapImg     = new Image(getClass().getResourceAsStream("block_map_bonus_c.png"), 190, 72, true, false);
+        bonusBlockFMapImg     = new Image(getClass().getResourceAsStream("block_map_bonus_f.png"), 190, 72, true, false);
+        bonusBlockDMapImg     = new Image(getClass().getResourceAsStream("block_map_bonus_d.png"), 190, 72, true, false);
+        bonusBlockSMapImg     = new Image(getClass().getResourceAsStream("block_map_bonus_s.png"), 190, 72, true, false);
+        bonusBlockLMapImg     = new Image(getClass().getResourceAsStream("block_map_bonus_l.png"), 190, 72, true, false);
+        bonusBlockShadowImg   = new Image(getClass().getResourceAsStream("bonus_block_shadow.png"), 38, 18, true, false);
     }
 
     private void loadSounds() {
@@ -396,6 +399,7 @@ public class Main extends Application {
     private void startScreen() {
         ctx.clearRect(0, 0, WIDTH, HEIGHT);
         drawBackground(1);
+        drawBorder();
     }
 
 
@@ -409,6 +413,7 @@ public class Main extends Application {
         spawnBall();
         if (!running) { running = true; }
         drawBackground(level);
+        drawBorder();
         executor.schedule(() -> { readyLevelVisible = false; }, 2, TimeUnit.SECONDS);
     }
 
@@ -436,15 +441,15 @@ public class Main extends Application {
     private void setupBlocks(final int level) {
         blocks.clear();
         BlockType[][] level2 = Constants.LEVEL_MAP.get(level);
-        int noOfBonusBlocks = 0;
+        int bonusTypeCounter = 0;
         for (int iy = 0 ; iy < level2.length ; iy++) {
             for (int ix = 0 ; ix < level2[iy].length ; ix++) {
                 Block block;
                 final BlockType blockType = level2[iy][ix];
                 // Randomly add bonus blocks to each level
-                //final BonusType bonusType = noOfBonusBlocks == MAX_BONUS_BLOCKS ? BonusType.NONE : BONUS_TYPE_LOOKUP[RND.nextInt(25)];
-                //if (noOfBonusBlocks < MAX_BONUS_BLOCKS && BonusType.NONE != bonusType) { noOfBonusBlocks++; }
-                final BonusType bonusType = BONUS_TYPE_LOOKUP[RND.nextInt(25)];
+                BonusType bonusType = bonusTypeCounter > 20 ? BonusType.values()[RND.nextInt(5)] : BonusType.NONE;
+                if (BonusType.NONE != bonusType) { bonusTypeCounter = 0; }
+                bonusTypeCounter++;
                 switch (blockType) {
                     case GOLD    -> block = new Block(goldBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 0, blockType.maxHits, BonusType.NONE, blockType);
                     case GRAY    -> block = new Block(grayBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 20, blockType.maxHits, BonusType.NONE, blockType);
@@ -530,26 +535,12 @@ public class Main extends Application {
             } else {
                 bkgCtx.setFill(bkgPatternFillBlue);
             }
-
             bkgCtx.fillRect(0, UPPER_INSET, WIDTH, HEIGHT);
 
-            bkgCtx.save();
-            bkgCtx.setEffect(DROP_SHADOW);
-
-            bkgCtx.save();
-            bkgCtx.setFill(pipePatternFill);
-            bkgCtx.fillRect(17, 68, WIDTH - 34, 17);
-            bkgCtx.setFill(borderPatternFill);
-            bkgCtx.fillRect(0, UPPER_INSET, 20, HEIGHT);
-            bkgCtx.fillRect(WIDTH - 20, UPPER_INSET, 20, HEIGHT);
-            bkgCtx.restore();
-
-            bkgCtx.restore();
-
-            bkgCtx.drawImage(ulCornerImg, 2.5, 67.5);
-            bkgCtx.drawImage(urCornerImg, WIDTH - urCornerImg.getWidth() - 2.5, 67.5);
-            bkgCtx.drawImage(topPartImg, 100, 65);
-            bkgCtx.drawImage(topPartImg, WIDTH - 100 - topPartImg.getWidth(), 65);
+            // Draw shadow
+            bkgCtx.setFill(Color.rgb(0, 0, 0, 0.3));
+            bkgCtx.fillRect(0, UPPER_INSET, 40, HEIGHT);
+            bkgCtx.fillRect(0, UPPER_INSET, WIDTH, 20);
         } else {
             ctx.setFont(SCORE_FONT);
             ctx.setTextBaseline(VPos.TOP);
@@ -679,6 +670,29 @@ public class Main extends Application {
             level++;
             if (level > Constants.LEVEL_MAP.size()) { level = 1; }
             startLevel(level);
+        }
+    }
+
+    private void drawBorder() {
+        brdrCtx.clearRect(0, 0, WIDTH, HEIGHT);
+        if (running) {
+            brdrCtx.setFill(pipePatternFill);
+            brdrCtx.fillRect(17, 68, WIDTH - 34, 17);
+
+            // Draw vertical border
+            brdrCtx.setFill(borderPatternFill);
+            brdrCtx.fillRect(0, UPPER_INSET, 20, HEIGHT);
+            brdrCtx.fillRect(WIDTH - 20, UPPER_INSET, 20, HEIGHT);
+
+            for (int i = 0 ; i < 6 ; i++) {
+                brdrCtx.drawImage(borderPartVerticalImg, 0, UPPER_INSET + i * 113);
+                brdrCtx.drawImage(borderPartVerticalImg, WIDTH - 20, UPPER_INSET + i * 113);
+            }
+
+            brdrCtx.drawImage(ulCornerImg, 2.5, 67.5);
+            brdrCtx.drawImage(urCornerImg, WIDTH - urCornerImg.getWidth() - 2.5, 67.5);
+            brdrCtx.drawImage(topPartImg, 100, 65);
+            brdrCtx.drawImage(topPartImg, WIDTH - 100 - topPartImg.getWidth(), 65);
         }
     }
 
