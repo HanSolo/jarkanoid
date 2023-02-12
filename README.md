@@ -27,6 +27,7 @@ At the time of writing this you will find 13 levels.
 - F (color dark blue)   -> wide paddle (for 30 seconds)
 - L (color red)         -> laser paddle (for 30 seconds)
 - S (color dark yellow) -> slow down (for 30 seconds)
+- B (color magenta)     -> opens door to next level (for 30 seconds) NOT IMPLEMENTED YET !!!
 
 ### Blocks
 - white, red, yellow, cyan, blue, orange, magenta -> 10 points per block

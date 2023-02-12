@@ -49,8 +49,8 @@ public class Main extends Application {
         BONUS_D,  // 3-Balls         (cyan)
         BONUS_F,  // Wide            (dark blue)
         BONUS_L,  // Laser           (red)
-        BONUS_S   // Slow            (dark yellow)
-        //BONUS_B   // Next Level    (magenta)
+        BONUS_S,  // Slow            (dark yellow)
+        BONUS_B   // Next Level      (magenta)
     }
 
     protected static final Random      RND                 = new Random();
@@ -96,7 +96,6 @@ public class Main extends Application {
     private ImagePattern         bkgPatternFillBlue;
     private ImagePattern         bkgPatternFillRed;
     private ImagePattern         bkgPatternFillGreen;
-    private Image                borderPatternImg;
     private ImagePattern         borderPatternFill;
     private Image                borderVerticalImg;
     private Image                borderPartVerticalImg;
@@ -131,6 +130,7 @@ public class Main extends Application {
     private Image                bonusBlockDMapImg;
     private Image                bonusBlockSMapImg;
     private Image                bonusBlockLMapImg;
+    private Image                bonusBlockBMapImg;
     private Image                blockShadowImg;
     private Image                bonusBlockShadowImg;
     private AudioClip            gameStartSnd;
@@ -311,7 +311,6 @@ public class Main extends Application {
         bkgPatternImgBlue     = new Image(getClass().getResourceAsStream("backgroundPattern_blue.png"), 68, 117, true, false);
         bkgPatternImgRed      = new Image(getClass().getResourceAsStream("backgroundPattern_red.png"), 68, 117, true, false);
         bkgPatternImgGreen    = new Image(getClass().getResourceAsStream("backgroundPattern_green.png"), 68, 117, true, false);
-        borderPatternImg      = new Image(getClass().getResourceAsStream("borderPattern.png"), 20, 113, true, false);
         borderVerticalImg     = new Image(getClass().getResourceAsStream("borderVertical.png"), 20, 113, true, false);
         borderPartVerticalImg = new Image(getClass().getResourceAsStream("borderPartVertical.png"), 20, 71, true, false);
         topPartImg            = new Image(getClass().getResourceAsStream("topPart.png"), 64, 23, true, false);
@@ -345,6 +344,7 @@ public class Main extends Application {
         bonusBlockDMapImg     = new Image(getClass().getResourceAsStream("block_map_bonus_d.png"), 190, 72, true, false);
         bonusBlockSMapImg     = new Image(getClass().getResourceAsStream("block_map_bonus_s.png"), 190, 72, true, false);
         bonusBlockLMapImg     = new Image(getClass().getResourceAsStream("block_map_bonus_l.png"), 190, 72, true, false);
+        bonusBlockBMapImg     = new Image(getClass().getResourceAsStream("block_map_bonus_b.png"), 190, 72, true, false);
         bonusBlockShadowImg   = new Image(getClass().getResourceAsStream("bonus_block_shadow.png"), 38, 18, true, false);
     }
 
@@ -514,6 +514,7 @@ public class Main extends Application {
                         speedResetCounter = 30;
                         ballSpeed         = BALL_SPEED * 0.5;
                     }
+                    case BONUS_B -> { /* Lower right border part should disappear so that you can move to next level */  }
                 }
             }
         }
