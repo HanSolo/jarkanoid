@@ -95,8 +95,12 @@ public class Main extends Application {
     private GraphicsContext      ctx;
     private Image                logoImg;
     private Image                copyrightImg;
-    private Image                bkgPatternImg;
-    private ImagePattern         bkgPatternFill;
+    private Image                bkgPatternImgBlue;
+    private Image                bkgPatternImgRed;
+    private Image                bkgPatternImgGreen;
+    private ImagePattern         bkgPatternFillBlue;
+    private ImagePattern         bkgPatternFillRed;
+    private ImagePattern         bkgPatternFillGreen;
     private Image                borderPatternImg;
     private ImagePattern         borderPatternFill;
     private Image                topPartImg;
@@ -227,9 +231,12 @@ public class Main extends Application {
         // Load all sounds
         loadSounds();
 
-        bkgPatternFill    = new ImagePattern(bkgPatternImg, 0, 0, 68, 117, false);
-        borderPatternFill = new ImagePattern(borderPatternImg, 0, 0, 20, 113, false);
-        pipePatternFill   = new ImagePattern(pipeImg, 0, 0, 5, 17, false);
+        bkgPatternFillBlue  = new ImagePattern(bkgPatternImgBlue, 0, 0, 68, 117, false);
+        bkgPatternFillRed   = new ImagePattern(bkgPatternImgRed, 0, 0, 68, 117, false);
+        bkgPatternFillGreen = new ImagePattern(bkgPatternImgGreen, 0, 0, 68, 117, false);
+        borderPatternFill   = new ImagePattern(borderPatternImg, 0, 0, 20, 113, false);
+        pipePatternFill     = new ImagePattern(pipeImg, 0, 0, 5, 17, false);
+
 
         // Initialize paddles
         paddle = new Paddle();
@@ -300,7 +307,9 @@ public class Main extends Application {
     private void loadImages() {
         logoImg             = new Image(getClass().getResourceAsStream("jarkanoid_logo.png"), 460, 118, true, false);
         copyrightImg        = new Image(getClass().getResourceAsStream("copyright.png"), 458, 115, true, false);
-        bkgPatternImg       = new Image(getClass().getResourceAsStream("backgroundPattern.png"), 68, 117, true, false);
+        bkgPatternImgBlue   = new Image(getClass().getResourceAsStream("backgroundPattern_blue.png"), 68, 117, true, false);
+        bkgPatternImgRed    = new Image(getClass().getResourceAsStream("backgroundPattern_red.png"), 68, 117, true, false);
+        bkgPatternImgGreen  = new Image(getClass().getResourceAsStream("backgroundPattern_green.png"), 68, 117, true, false);
         borderPatternImg    = new Image(getClass().getResourceAsStream("borderPattern.png"), 20, 113, true, false);
         topPartImg          = new Image(getClass().getResourceAsStream("topPart.png"), 64, 23, true, false);
         ulCornerImg         = new Image(getClass().getResourceAsStream("upperLeftCorner.png"), 15, 20, true, false);
@@ -514,8 +523,12 @@ public class Main extends Application {
 
         if (running) {
             // Use background pattern related to level
-            switch (level) {
-                default -> bkgCtx.setFill(bkgPatternFill);
+            if (level % 3 == 0) {
+                bkgCtx.setFill(bkgPatternFillGreen);
+            } else if (level % 2 == 0) {
+                bkgCtx.setFill(bkgPatternFillRed);
+            } else {
+                bkgCtx.setFill(bkgPatternFillBlue);
             }
 
             bkgCtx.fillRect(0, UPPER_INSET, WIDTH, HEIGHT);
