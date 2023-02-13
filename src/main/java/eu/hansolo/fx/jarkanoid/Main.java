@@ -8,8 +8,6 @@ import javafx.geometry.VPos;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.effect.BlurType;
-import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.layout.StackPane;
 import javafx.scene.media.AudioClip;
@@ -82,6 +80,7 @@ public class Main extends Application {
     private long                 lastAnimCall;
     private long                 lastBonusAnimCall;
     private long                 lastResetCounterCall;
+    private long                 lastNextLevelCounterCall;
     private Canvas               bkgCanvas;
     private GraphicsContext      bkgCtx;
     private Canvas               canvas;
@@ -155,25 +154,32 @@ public class Main extends Application {
     private boolean              readyLevelVisible;
     private int                  paddleResetCounter;
     private int                  speedResetCounter;
+    private int                  nextLevelDoorCounter;
+    private boolean              nextLevelDoorOpen;
+    private double               nextLevelDoorAlpha;
 
 
     // ******************** Methods *******************************************
     @Override public void init() {
-        running              = false;
-        paddleState          = PaddleState.STANDARD;
-        highscore            = PropertyManager.INSTANCE.getLong(Constants.HIGHSCORE_KEY, 0);
-        level                = 1;
-        blinks               = new ArrayList<>();
-        ballSpeed            = BALL_SPEED;
-        readyLevelVisible    = false;
-        paddleResetCounter   = 0;
-        speedResetCounter    = 0;
+        running                  = false;
+        paddleState              = PaddleState.STANDARD;
+        highscore                = PropertyManager.INSTANCE.getLong(Constants.HIGHSCORE_KEY, 0);
+        level                    = 1;
+        blinks                   = new ArrayList<>();
+        ballSpeed                = BALL_SPEED;
+        readyLevelVisible        = false;
+        paddleResetCounter       = 0;
+        speedResetCounter        = 0;
+        nextLevelDoorCounter     = 0;
+        nextLevelDoorOpen        = false;
+        nextLevelDoorAlpha       = 1.0;
 
-        lastTimerCall        = System.nanoTime();
-        lastAnimCall         = System.nanoTime();
-        lastBonusAnimCall    = System.nanoTime();
-        lastResetCounterCall = System.nanoTime();
-        timer                = new AnimationTimer() {
+        lastTimerCall            = System.nanoTime();
+        lastAnimCall             = System.nanoTime();
+        lastBonusAnimCall        = System.nanoTime();
+        lastResetCounterCall     = System.nanoTime();
+        lastNextLevelCounterCall = System.nanoTime();
+        timer                    = new AnimationTimer() {
             @Override public void handle(final long now) {
                 if (running) {
                     // Decrease reset counter
@@ -190,6 +196,14 @@ public class Main extends Application {
                             lastResetCounterCall = now;
                             if (speedResetCounter == 0) {
                                 ballSpeed = BALL_SPEED;
+                            }
+                        }
+                        if (nextLevelDoorCounter > 0) {
+                            nextLevelDoorCounter--;
+                            lastNextLevelCounterCall = now;
+                            if (nextLevelDoorCounter == 0) {
+                                nextLevelDoorAlpha = 1.0;
+                                nextLevelDoorOpen  = false;
                             }
                         }
                     }
@@ -210,20 +224,22 @@ public class Main extends Application {
                     if (now > lastTimerCall) {
                         hitTests();
                         updateAndDraw();
+                        if (nextLevelDoorOpen) { drawBorder(); }
                         lastTimerCall = now;
                     }
                 }
             }
         };
 
-        bkgCanvas     = new Canvas(WIDTH, HEIGHT);
-        bkgCtx        = bkgCanvas.getGraphicsContext2D();
+        // Setup canvas nodes
+        bkgCanvas  = new Canvas(WIDTH, HEIGHT);
+        bkgCtx     = bkgCanvas.getGraphicsContext2D();
 
-        canvas        = new Canvas(WIDTH, HEIGHT);
-        ctx           = canvas.getGraphicsContext2D();
+        canvas     = new Canvas(WIDTH, HEIGHT);
+        ctx        = canvas.getGraphicsContext2D();
 
-        brdrCanvas    = new Canvas(WIDTH, HEIGHT);
-        brdrCtx       = brdrCanvas.getGraphicsContext2D();
+        brdrCanvas = new Canvas(WIDTH, HEIGHT);
+        brdrCtx    = brdrCanvas.getGraphicsContext2D();
         brdrCanvas.setMouseTransparent(true);
 
         // Load all images
@@ -514,7 +530,10 @@ public class Main extends Application {
                         speedResetCounter = 30;
                         ballSpeed         = BALL_SPEED * 0.5;
                     }
-                    case BONUS_B -> { /* Lower right border part should disappear so that you can move to next level */  }
+                    case BONUS_B -> {
+                        nextLevelDoorCounter = 5;
+                        nextLevelDoorOpen    = true;
+                    }
                 }
             }
         }
@@ -569,10 +588,13 @@ public class Main extends Application {
         // Draw shadows
         ctx.save();
         ctx.translate(10, 10);
+
         // Draw block shadows
         blocks.forEach(block -> ctx.drawImage(blockShadowImg, block.x, block.y));
+
         // Draw bonus block shadows
         bonusBlocks.forEach(bonusBlock -> ctx.drawImage(bonusBlockShadowImg, bonusBlock.x, bonusBlock.y));
+
         // Draw paddle shadow
         if (noOfLifes > 0) {
             switch (paddleState) {
@@ -581,6 +603,7 @@ public class Main extends Application {
                 case LASER -> ctx.drawImage(paddleGunShadowImg, paddle.bounds.minX, paddle.bounds.minY);
             }
         }
+
         // Draw ball shadow
         balls.forEach(ball -> ctx.drawImage(ballShadowImg, ball.bounds.minX, ball.bounds.minY));
         ctx.restore();
@@ -596,6 +619,7 @@ public class Main extends Application {
                 case BONUS_D -> ctx.drawImage(bonusBlockDMapImg, bonusBlock.countX * BONUS_BLOCK_WIDTH, bonusBlock.countY * BONUS_BLOCK_HEIGHT, BONUS_BLOCK_WIDTH, BONUS_BLOCK_HEIGHT, bonusBlock.x, bonusBlock.y, BONUS_BLOCK_WIDTH, BONUS_BLOCK_HEIGHT);
                 case BONUS_L -> ctx.drawImage(bonusBlockLMapImg, bonusBlock.countX * BONUS_BLOCK_WIDTH, bonusBlock.countY * BONUS_BLOCK_HEIGHT, BONUS_BLOCK_WIDTH, BONUS_BLOCK_HEIGHT, bonusBlock.x, bonusBlock.y, BONUS_BLOCK_WIDTH, BONUS_BLOCK_HEIGHT);
                 case BONUS_S -> ctx.drawImage(bonusBlockSMapImg, bonusBlock.countX * BONUS_BLOCK_WIDTH, bonusBlock.countY * BONUS_BLOCK_HEIGHT, BONUS_BLOCK_WIDTH, BONUS_BLOCK_HEIGHT, bonusBlock.x, bonusBlock.y, BONUS_BLOCK_WIDTH, BONUS_BLOCK_HEIGHT);
+                case BONUS_B -> ctx.drawImage(bonusBlockBMapImg, bonusBlock.countX * BONUS_BLOCK_WIDTH, bonusBlock.countY * BONUS_BLOCK_HEIGHT, BONUS_BLOCK_WIDTH, BONUS_BLOCK_HEIGHT, bonusBlock.x, bonusBlock.y, BONUS_BLOCK_WIDTH, BONUS_BLOCK_HEIGHT);
             }
         });
 
@@ -682,12 +706,33 @@ public class Main extends Application {
 
             // Draw vertical border
             brdrCtx.setFill(borderPatternFill);
-            brdrCtx.fillRect(0, UPPER_INSET, 20, HEIGHT);
-            brdrCtx.fillRect(WIDTH - 20, UPPER_INSET, 20, HEIGHT);
+            brdrCtx.fillRect(0, UPPER_INSET, 20, HEIGHT - UPPER_INSET);
+            if (nextLevelDoorOpen) {
+                brdrCtx.fillRect(WIDTH - 20, UPPER_INSET, 20, 563 );
+                brdrCtx.fillRect(WIDTH - 20, UPPER_INSET + 565 + borderPartVerticalImg.getHeight(), 20, 100);
+            } else {
+                brdrCtx.fillRect(WIDTH - 20, UPPER_INSET, 20, HEIGHT);
+            }
 
-            for (int i = 0 ; i < 6 ; i++) {
-                brdrCtx.drawImage(borderPartVerticalImg, 0, UPPER_INSET + i * 113);
-                brdrCtx.drawImage(borderPartVerticalImg, WIDTH - 20, UPPER_INSET + i * 113);
+            if (nextLevelDoorOpen) {
+                for (int i = 0 ; i < 6 ; i++) {
+                    brdrCtx.drawImage(borderPartVerticalImg, 0, UPPER_INSET + i * 113);
+                    if (i < 5) {
+                        brdrCtx.drawImage(borderPartVerticalImg, WIDTH - 20, UPPER_INSET + i * 113);
+                    }
+                }
+                if (nextLevelDoorAlpha > 0.01) {
+                    nextLevelDoorAlpha -= 0.01;
+                }
+                brdrCtx.save();
+                brdrCtx.setGlobalAlpha(nextLevelDoorAlpha);
+                brdrCtx.drawImage(borderPartVerticalImg, WIDTH - 20, UPPER_INSET + 565);
+                brdrCtx.restore();
+            } else {
+                for (int i = 0; i < 6; i++) {
+                    brdrCtx.drawImage(borderPartVerticalImg, 0, UPPER_INSET + i * 113);
+                    brdrCtx.drawImage(borderPartVerticalImg, WIDTH - 20, UPPER_INSET + i * 113);
+                }
             }
 
             brdrCtx.drawImage(ulCornerImg, 2.5, 67.5);
@@ -829,8 +874,14 @@ public class Main extends Application {
             x += vX;
             //y += vY;
 
-            if (x + paddleState.width > WIDTH - INSET) {
-                x = WIDTH - INSET - paddleState.width;
+            if (nextLevelDoorOpen) {
+                if (x > WIDTH) {
+                    System.out.println("Move to next level");
+                }
+            } else {
+                if (x + paddleState.width > WIDTH - INSET) {
+                    x = WIDTH - INSET - paddleState.width;
+                }
             }
             if (x < INSET) {
                 x = INSET;
@@ -985,7 +1036,7 @@ public class Main extends Application {
                 this.vY = ballSpeed;
             }
 
-            this.bounds.set(this.x - this.radius, this.y - this.radius, this.width, this.height);
+            this.bounds.set(this.x - this.width * 0.5, this.y - this.height * 0.5, this.width, this.height);
 
             // Hit test ball with blocks
             for (Block block : blocks) {
@@ -1022,7 +1073,6 @@ public class Main extends Application {
                             }
                         }
                     }
-
                     if (bounds.centerX > block.bounds.minX && bounds.centerX < block.bounds.maxX) {
                         // Top or Bottom hit
                         vY = -vY;
