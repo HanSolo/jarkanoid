@@ -480,6 +480,132 @@ public class Constants {
     protected static final BlockType[][] LEVEL_26 =
     { { BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE },
       { BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE },
+      { BlockType.NONE, BlockType.NONE, BlockType.GOLD, BlockType.GRAY, BlockType.GRAY, BlockType.GRAY, BlockType.GOLD, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE },
+      { BlockType.NONE, BlockType.GOLD, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.GOLD, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE },
+      { BlockType.GOLD, BlockType.NONE, BlockType.NONE, BlockType.CYAN, BlockType.CYAN, BlockType.CYAN, BlockType.NONE, BlockType.NONE, BlockType.GOLD, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE },
+      { BlockType.GOLD, BlockType.NONE, BlockType.LIME, BlockType.LIME, BlockType.LIME, BlockType.LIME, BlockType.LIME, BlockType.NONE, BlockType.GOLD, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE },
+      { BlockType.GOLD, BlockType.NONE, BlockType.BLUE, BlockType.BLUE, BlockType.BLUE, BlockType.BLUE, BlockType.BLUE, BlockType.NONE, BlockType.GOLD, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE },
+      { BlockType.GOLD, BlockType.NONE, BlockType.NONE, BlockType.MGNT, BlockType.MGNT, BlockType.MGNT, BlockType.NONE, BlockType.NONE, BlockType.GOLD, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE },
+      { BlockType.NONE, BlockType.GOLD, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.GOLD, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE },
+      { BlockType.NONE, BlockType.NONE, BlockType.GOLD, BlockType.GOLD, BlockType.GOLD, BlockType.GOLD, BlockType.GOLD, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE },
+      { BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE },
+      { BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE },
+      { BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE },
+      { BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE },
+      { BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE },
+      { BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE } };
+
+    protected static final BlockType[][] LEVEL_27 =
+    { { BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE },
+      { BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE },
+      { BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE },
+      { BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE },
+      { BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE },
+      { BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE },
+      { BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE },
+      { BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE },
+      { BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE },
+      { BlockType.GRAY, BlockType.GRAY, BlockType.GRAY, BlockType.GRAY, BlockType.GRAY, BlockType.GRAY, BlockType.GRAY, BlockType.GRAY, BlockType.GRAY, BlockType.GRAY, BlockType.GRAY, BlockType.GRAY, BlockType.GRAY },
+      { BlockType.YLLW, BlockType.YLLW, BlockType.YLLW, BlockType.YLLW, BlockType.YLLW, BlockType.YLLW, BlockType.YLLW, BlockType.YLLW, BlockType.YLLW, BlockType.YLLW, BlockType.YLLW, BlockType.YLLW, BlockType.YLLW },
+      { BlockType.GRAY, BlockType.GRAY, BlockType.GRAY, BlockType.GRAY, BlockType.GRAY, BlockType.GRAY, BlockType.GRAY, BlockType.GRAY, BlockType.GRAY, BlockType.GRAY, BlockType.GRAY, BlockType.GRAY, BlockType.GRAY },
+      { BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE },
+      { BlockType.GRAY, BlockType.GRAY, BlockType.GRAY, BlockType.GRAY, BlockType.GRAY, BlockType.GRAY, BlockType.GRAY, BlockType.GRAY, BlockType.GRAY, BlockType.GRAY, BlockType.GRAY, BlockType.GRAY, BlockType.GRAY },
+      { BlockType.RUBY, BlockType.RUBY, BlockType.RUBY, BlockType.RUBY, BlockType.RUBY, BlockType.RUBY, BlockType.RUBY, BlockType.RUBY, BlockType.RUBY, BlockType.RUBY, BlockType.RUBY, BlockType.RUBY, BlockType.RUBY },
+      { BlockType.GRAY, BlockType.GRAY, BlockType.GRAY, BlockType.GRAY, BlockType.GRAY, BlockType.GRAY, BlockType.GRAY, BlockType.GRAY, BlockType.GRAY, BlockType.GRAY, BlockType.GRAY, BlockType.GRAY, BlockType.GRAY } };
+
+    protected static final BlockType[][] LEVEL_28 =
+    { { BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE },
+      { BlockType.BLUE, BlockType.BLUE, BlockType.BLUE, BlockType.BLUE, BlockType.BLUE, BlockType.BLUE, BlockType.BLUE, BlockType.BLUE, BlockType.BLUE, BlockType.BLUE, BlockType.BLUE, BlockType.BLUE, BlockType.BLUE },
+      { BlockType.BLUE, BlockType.GOLD, BlockType.GOLD, BlockType.GOLD, BlockType.GOLD, BlockType.MGNT, BlockType.GOLD, BlockType.MGNT, BlockType.GOLD, BlockType.GOLD, BlockType.GOLD, BlockType.GOLD, BlockType.BLUE },
+      { BlockType.BLUE, BlockType.GOLD, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.GOLD, BlockType.BLUE },
+      { BlockType.BLUE, BlockType.GOLD, BlockType.MGNT, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.MGNT, BlockType.GOLD, BlockType.BLUE },
+      { BlockType.BLUE, BlockType.GOLD, BlockType.MGNT, BlockType.MGNT, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.MGNT, BlockType.MGNT, BlockType.GOLD, BlockType.BLUE },
+      { BlockType.BLUE, BlockType.GOLD, BlockType.MGNT, BlockType.MGNT, BlockType.MGNT, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.MGNT, BlockType.MGNT, BlockType.MGNT, BlockType.GOLD, BlockType.BLUE },
+      { BlockType.NONE, BlockType.BLUE, BlockType.GOLD, BlockType.MGNT, BlockType.MGNT, BlockType.MGNT, BlockType.NONE, BlockType.MGNT, BlockType.MGNT, BlockType.MGNT, BlockType.GOLD, BlockType.BLUE, BlockType.NONE },
+      { BlockType.NONE, BlockType.NONE, BlockType.BLUE, BlockType.GOLD, BlockType.MGNT, BlockType.MGNT, BlockType.MGNT, BlockType.MGNT, BlockType.MGNT, BlockType.GOLD, BlockType.BLUE, BlockType.NONE, BlockType.NONE },
+      { BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.BLUE, BlockType.GOLD, BlockType.MGNT, BlockType.MGNT, BlockType.MGNT, BlockType.GOLD, BlockType.BLUE, BlockType.NONE, BlockType.NONE, BlockType.NONE },
+      { BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.BLUE, BlockType.GOLD, BlockType.MGNT, BlockType.GOLD, BlockType.BLUE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE },
+      { BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.BLUE, BlockType.MGNT, BlockType.BLUE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE },
+      { BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.BLUE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE },
+      { BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE },
+      { BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE },
+      { BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE } };
+
+    protected static final BlockType[][] LEVEL_29 =
+    { { BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE },
+      { BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE },
+      { BlockType.YLLW, BlockType.YLLW, BlockType.YLLW, BlockType.YLLW, BlockType.YLLW, BlockType.GOLD, BlockType.NONE, BlockType.GOLD, BlockType.YLLW, BlockType.YLLW, BlockType.YLLW, BlockType.YLLW, BlockType.YLLW },
+      { BlockType.MGNT, BlockType.MGNT, BlockType.MGNT, BlockType.MGNT, BlockType.MGNT, BlockType.GOLD, BlockType.NONE, BlockType.GOLD, BlockType.MGNT, BlockType.MGNT, BlockType.MGNT, BlockType.MGNT, BlockType.MGNT },
+      { BlockType.GOLD, BlockType.GOLD, BlockType.WHIT, BlockType.GOLD, BlockType.GOLD, BlockType.GOLD, BlockType.NONE, BlockType.GOLD, BlockType.GOLD, BlockType.GOLD, BlockType.WHIT, BlockType.GOLD, BlockType.GOLD },
+      { BlockType.BLUE, BlockType.BLUE, BlockType.BLUE, BlockType.BLUE, BlockType.BLUE, BlockType.GOLD, BlockType.NONE, BlockType.GOLD, BlockType.BLUE, BlockType.BLUE, BlockType.BLUE, BlockType.BLUE, BlockType.BLUE },
+      { BlockType.RUBY, BlockType.RUBY, BlockType.RUBY, BlockType.RUBY, BlockType.RUBY, BlockType.GOLD, BlockType.NONE, BlockType.GOLD, BlockType.RUBY, BlockType.RUBY, BlockType.RUBY, BlockType.RUBY, BlockType.RUBY },
+      { BlockType.LIME, BlockType.LIME, BlockType.LIME, BlockType.LIME, BlockType.LIME, BlockType.GOLD, BlockType.NONE, BlockType.GOLD, BlockType.LIME, BlockType.LIME, BlockType.LIME, BlockType.LIME, BlockType.LIME },
+      { BlockType.GRAY, BlockType.GRAY, BlockType.WHIT, BlockType.GRAY, BlockType.GRAY, BlockType.GOLD, BlockType.NONE, BlockType.GOLD, BlockType.GRAY, BlockType.GRAY, BlockType.WHIT, BlockType.GRAY, BlockType.GRAY },
+      { BlockType.CYAN, BlockType.CYAN, BlockType.CYAN, BlockType.CYAN, BlockType.CYAN, BlockType.GOLD, BlockType.NONE, BlockType.GOLD, BlockType.CYAN, BlockType.CYAN, BlockType.CYAN, BlockType.CYAN, BlockType.CYAN },
+      { BlockType.ORNG, BlockType.ORNG, BlockType.ORNG, BlockType.ORNG, BlockType.ORNG, BlockType.GOLD, BlockType.NONE, BlockType.GOLD, BlockType.ORNG, BlockType.ORNG, BlockType.ORNG, BlockType.ORNG, BlockType.ORNG },
+      { BlockType.WHIT, BlockType.WHIT, BlockType.WHIT, BlockType.WHIT, BlockType.WHIT, BlockType.GOLD, BlockType.NONE, BlockType.GOLD, BlockType.WHIT, BlockType.WHIT, BlockType.WHIT, BlockType.WHIT, BlockType.WHIT },
+      { BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE },
+      { BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE },
+      { BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE },
+      { BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE } };
+
+    protected static final BlockType[][] LEVEL_30 =
+    { { BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE },
+      { BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE },
+      { BlockType.YLLW, BlockType.MGNT, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE },
+      { BlockType.YLLW, BlockType.MGNT, BlockType.BLUE, BlockType.RUBY, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE },
+      { BlockType.YLLW, BlockType.MGNT, BlockType.BLUE, BlockType.RUBY, BlockType.LIME, BlockType.CYAN, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE },
+      { BlockType.YLLW, BlockType.MGNT, BlockType.BLUE, BlockType.RUBY, BlockType.LIME, BlockType.CYAN, BlockType.ORNG, BlockType.WHIT, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE },
+      { BlockType.YLLW, BlockType.MGNT, BlockType.BLUE, BlockType.RUBY, BlockType.LIME, BlockType.CYAN, BlockType.ORNG, BlockType.WHIT, BlockType.YLLW, BlockType.MGNT, BlockType.NONE, BlockType.NONE, BlockType.NONE },
+      { BlockType.GRAY, BlockType.MGNT, BlockType.BLUE, BlockType.RUBY, BlockType.LIME, BlockType.CYAN, BlockType.ORNG, BlockType.WHIT, BlockType.YLLW, BlockType.MGNT, BlockType.BLUE, BlockType.RUBY, BlockType.NONE },
+      { BlockType.NONE, BlockType.GOLD, BlockType.GRAY, BlockType.RUBY, BlockType.LIME, BlockType.CYAN, BlockType.ORNG, BlockType.WHIT, BlockType.YLLW, BlockType.MGNT, BlockType.BLUE, BlockType.RUBY, BlockType.LIME },
+      { BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.GOLD, BlockType.GRAY, BlockType.CYAN, BlockType.ORNG, BlockType.WHIT, BlockType.YLLW, BlockType.MGNT, BlockType.BLUE, BlockType.RUBY, BlockType.LIME },
+      { BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.GOLD, BlockType.GRAY, BlockType.WHIT, BlockType.YLLW, BlockType.MGNT, BlockType.BLUE, BlockType.RUBY, BlockType.LIME },
+      { BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.GOLD, BlockType.GRAY, BlockType.MGNT, BlockType.BLUE, BlockType.RUBY, BlockType.LIME },
+      { BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.GOLD, BlockType.GRAY, BlockType.RUBY, BlockType.LIME },
+      { BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.GOLD, BlockType.GRAY },
+      { BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE },
+      { BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE } };
+
+    protected static final BlockType[][] LEVEL_31 =
+    { { BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE },
+      { BlockType.LIME, BlockType.NONE, BlockType.RUBY, BlockType.NONE, BlockType.BLUE, BlockType.NONE, BlockType.MGNT, BlockType.NONE, BlockType.YLLW, BlockType.NONE, BlockType.WHIT, BlockType.NONE, BlockType.ORNG },
+      { BlockType.GRAY, BlockType.NONE, BlockType.GRAY, BlockType.NONE, BlockType.GRAY, BlockType.NONE, BlockType.GRAY, BlockType.NONE, BlockType.GRAY, BlockType.NONE, BlockType.GRAY, BlockType.NONE, BlockType.GRAY },
+      { BlockType.NONE, BlockType.BLUE, BlockType.NONE, BlockType.RUBY, BlockType.NONE, BlockType.LIME, BlockType.NONE, BlockType.CYAN, BlockType.NONE, BlockType.ORNG, BlockType.NONE, BlockType.WHIT, BlockType.NONE },
+      { BlockType.NONE, BlockType.GRAY, BlockType.NONE, BlockType.GRAY, BlockType.NONE, BlockType.GRAY, BlockType.NONE, BlockType.GRAY, BlockType.NONE, BlockType.GRAY, BlockType.NONE, BlockType.GRAY, BlockType.NONE },
+      { BlockType.CYAN, BlockType.NONE, BlockType.LIME, BlockType.NONE, BlockType.RUBY, BlockType.NONE, BlockType.BLUE, BlockType.NONE, BlockType.MGNT, BlockType.NONE, BlockType.YLLW, BlockType.NONE, BlockType.WHIT },
+      { BlockType.GRAY, BlockType.NONE, BlockType.GRAY, BlockType.NONE, BlockType.GRAY, BlockType.NONE, BlockType.GRAY, BlockType.NONE, BlockType.GRAY, BlockType.NONE, BlockType.GRAY, BlockType.NONE, BlockType.GRAY },
+      { BlockType.NONE, BlockType.MGNT, BlockType.NONE, BlockType.BLUE, BlockType.NONE, BlockType.RUBY, BlockType.NONE, BlockType.LIME, BlockType.NONE, BlockType.CYAN, BlockType.NONE, BlockType.ORNG, BlockType.NONE },
+      { BlockType.NONE, BlockType.GRAY, BlockType.NONE, BlockType.GRAY, BlockType.NONE, BlockType.GRAY, BlockType.NONE, BlockType.GRAY, BlockType.NONE, BlockType.GRAY, BlockType.NONE, BlockType.GRAY, BlockType.NONE },
+      { BlockType.ORNG, BlockType.NONE, BlockType.CYAN, BlockType.NONE, BlockType.LIME, BlockType.NONE, BlockType.RUBY, BlockType.NONE, BlockType.BLUE, BlockType.NONE, BlockType.MGNT, BlockType.NONE, BlockType.YLLW },
+      { BlockType.GRAY, BlockType.NONE, BlockType.GRAY, BlockType.NONE, BlockType.GRAY, BlockType.NONE, BlockType.GRAY, BlockType.NONE, BlockType.GRAY, BlockType.NONE, BlockType.GRAY, BlockType.NONE, BlockType.GRAY },
+      { BlockType.NONE, BlockType.YLLW, BlockType.NONE, BlockType.MGNT, BlockType.NONE, BlockType.BLUE, BlockType.NONE, BlockType.RUBY, BlockType.NONE, BlockType.LIME, BlockType.NONE, BlockType.CYAN, BlockType.NONE },
+      { BlockType.NONE, BlockType.GRAY, BlockType.NONE, BlockType.GRAY, BlockType.NONE, BlockType.GRAY, BlockType.NONE, BlockType.GRAY, BlockType.NONE, BlockType.GRAY, BlockType.NONE, BlockType.GRAY, BlockType.NONE },
+      { BlockType.WHIT, BlockType.NONE, BlockType.ORNG, BlockType.NONE, BlockType.CYAN, BlockType.NONE, BlockType.LIME, BlockType.NONE, BlockType.RUBY, BlockType.NONE, BlockType.BLUE, BlockType.NONE, BlockType.MGNT },
+      { BlockType.GRAY, BlockType.NONE, BlockType.GRAY, BlockType.NONE, BlockType.GRAY, BlockType.NONE, BlockType.GRAY, BlockType.NONE, BlockType.GRAY, BlockType.NONE, BlockType.GRAY, BlockType.NONE, BlockType.GRAY },
+      { BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE } };
+
+    protected static final BlockType[][] LEVEL_32 =
+    { { BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE },
+      { BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE },
+      { BlockType.NONE, BlockType.NONE, BlockType.GOLD, BlockType.NONE, BlockType.GOLD, BlockType.NONE, BlockType.GOLD, BlockType.NONE, BlockType.GOLD, BlockType.NONE, BlockType.GOLD, BlockType.NONE, BlockType.NONE },
+      { BlockType.NONE, BlockType.NONE, BlockType.GOLD, BlockType.NONE, BlockType.GOLD, BlockType.NONE, BlockType.GOLD, BlockType.NONE, BlockType.GOLD, BlockType.NONE, BlockType.GOLD, BlockType.NONE, BlockType.NONE },
+      { BlockType.NONE, BlockType.NONE, BlockType.GOLD, BlockType.NONE, BlockType.GOLD, BlockType.NONE, BlockType.GOLD, BlockType.NONE, BlockType.GOLD, BlockType.LIME, BlockType.LIME, BlockType.NONE, BlockType.NONE },
+      { BlockType.NONE, BlockType.NONE, BlockType.GOLD, BlockType.NONE, BlockType.GOLD, BlockType.NONE, BlockType.GOLD, BlockType.NONE, BlockType.GOLD, BlockType.NONE, BlockType.GOLD, BlockType.NONE, BlockType.NONE },
+      { BlockType.NONE, BlockType.NONE, BlockType.GOLD, BlockType.NONE, BlockType.GOLD, BlockType.NONE, BlockType.GOLD, BlockType.RUBY, BlockType.RUBY, BlockType.RUBY, BlockType.RUBY, BlockType.NONE, BlockType.NONE },
+      { BlockType.NONE, BlockType.NONE, BlockType.GOLD, BlockType.NONE, BlockType.GOLD, BlockType.NONE, BlockType.GOLD, BlockType.NONE, BlockType.GOLD, BlockType.NONE, BlockType.GOLD, BlockType.NONE, BlockType.NONE },
+      { BlockType.NONE, BlockType.NONE, BlockType.GOLD, BlockType.NONE, BlockType.GOLD, BlockType.BLUE, BlockType.BLUE, BlockType.BLUE, BlockType.BLUE, BlockType.BLUE, BlockType.BLUE, BlockType.NONE, BlockType.NONE },
+      { BlockType.NONE, BlockType.NONE, BlockType.GOLD, BlockType.NONE, BlockType.GOLD, BlockType.NONE, BlockType.GOLD, BlockType.NONE, BlockType.GOLD, BlockType.NONE, BlockType.GOLD, BlockType.NONE, BlockType.NONE },
+      { BlockType.NONE, BlockType.NONE, BlockType.GOLD, BlockType.MGNT, BlockType.MGNT, BlockType.MGNT, BlockType.MGNT, BlockType.MGNT, BlockType.MGNT, BlockType.MGNT, BlockType.MGNT, BlockType.NONE, BlockType.NONE },
+      { BlockType.NONE, BlockType.NONE, BlockType.GOLD, BlockType.NONE, BlockType.GOLD, BlockType.NONE, BlockType.GOLD, BlockType.NONE, BlockType.GOLD, BlockType.NONE, BlockType.GOLD, BlockType.NONE, BlockType.NONE },
+      { BlockType.NONE, BlockType.NONE, BlockType.YLLW, BlockType.YLLW, BlockType.YLLW, BlockType.YLLW, BlockType.YLLW, BlockType.YLLW, BlockType.YLLW, BlockType.YLLW, BlockType.YLLW, BlockType.NONE, BlockType.NONE },
+      { BlockType.NONE, BlockType.NONE, BlockType.GRAY, BlockType.GRAY, BlockType.GRAY, BlockType.GRAY, BlockType.GRAY, BlockType.GRAY, BlockType.GRAY, BlockType.GRAY, BlockType.GRAY, BlockType.NONE, BlockType.NONE },
+      { BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE },
+      { BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE } };
+
+    protected static final BlockType[][] LEVEL_TEMPLATE =
+    { { BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE },
+      { BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE },
       { BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE },
       { BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE },
       { BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE },
@@ -494,7 +620,6 @@ public class Constants {
       { BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE },
       { BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE },
       { BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE, BlockType.NONE } };
-
 
     protected static final Map<Integer, BlockType[][]> LEVEL_MAP = new HashMap<>();
 
@@ -524,5 +649,12 @@ public class Constants {
         LEVEL_MAP.put(23, LEVEL_23);
         LEVEL_MAP.put(24, LEVEL_24);
         LEVEL_MAP.put(25, LEVEL_25);
+        LEVEL_MAP.put(26, LEVEL_26);
+        LEVEL_MAP.put(27, LEVEL_27);
+        LEVEL_MAP.put(28, LEVEL_28);
+        LEVEL_MAP.put(29, LEVEL_29);
+        LEVEL_MAP.put(30, LEVEL_30);
+        LEVEL_MAP.put(31, LEVEL_31);
+        LEVEL_MAP.put(32, LEVEL_32);
     }
 }

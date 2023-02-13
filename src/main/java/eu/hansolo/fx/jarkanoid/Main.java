@@ -157,6 +157,8 @@ public class Main extends Application {
     private int                  nextLevelDoorCounter;
     private boolean              nextLevelDoorOpen;
     private double               nextLevelDoorAlpha;
+    private boolean              movingPaddleOut;
+    private int                  noOfBonusBlockB;
 
 
     // ******************** Methods *******************************************
@@ -173,6 +175,8 @@ public class Main extends Application {
         nextLevelDoorCounter     = 0;
         nextLevelDoorOpen        = false;
         nextLevelDoorAlpha       = 1.0;
+        movingPaddleOut          = false;
+        noOfBonusBlockB          = 0;
 
         lastTimerCall            = System.nanoTime();
         lastAnimCall             = System.nanoTime();
@@ -198,13 +202,18 @@ public class Main extends Application {
                                 ballSpeed = BALL_SPEED;
                             }
                         }
+                    }
+
+                    // Next level counter
+                    if (now > lastNextLevelCounterCall + 1_000_000_000) {
                         if (nextLevelDoorCounter > 0) {
                             nextLevelDoorCounter--;
-                            lastNextLevelCounterCall = now;
-                            if (nextLevelDoorCounter == 0) {
+                            if (nextLevelDoorCounter == 0 && !movingPaddleOut) {
                                 nextLevelDoorAlpha = 1.0;
                                 nextLevelDoorOpen  = false;
+                                drawBorder();
                             }
+                            lastNextLevelCounterCall = now;
                         }
                     }
 
@@ -226,6 +235,18 @@ public class Main extends Application {
                         updateAndDraw();
                         if (nextLevelDoorOpen) { drawBorder(); }
                         lastTimerCall = now;
+                    }
+
+                    if (movingPaddleOut) {
+                        paddle.x += 1;
+                        paddle.bounds.set(paddle.x, paddle.y, paddleState.width, paddle.height);
+                        updateAndDraw();
+                        if (paddle.x > WIDTH) {
+                            level++;
+                            if (level > Constants.LEVEL_MAP.size()) { level = 1; }
+                            blocks.stream().filter(block -> block.blockType != BlockType.GOLD).filter(block -> block.blockType != BlockType.GRAY).forEach(block -> score += block.value);
+                            startLevel(level);
+                        }
                     }
                 }
             }
@@ -274,10 +295,11 @@ public class Main extends Application {
 
         scene.setOnKeyPressed(e -> {
             if (running) {
+                if (movingPaddleOut) { return; }
                 switch (e.getCode()) {
                     case RIGHT -> movePaddleRight();
                     case LEFT  -> movePaddleLeft();
-                    case S     -> { /* implement "shake" to get out of endless loops */ }
+                    case S     -> { /*TODO: implement "shake" to get out of endless loops */ }
                     case SPACE -> {
                         final long activeBalls = balls.stream().filter(ball -> ball.active).count();
                         if (activeBalls > 0) {
@@ -421,7 +443,16 @@ public class Main extends Application {
 
     // Start Level
     private void startLevel(final int level) {
-        readyLevelVisible = true;
+        noOfBonusBlockB    = 0;
+        nextLevelDoorAlpha = 1.0;
+        nextLevelDoorOpen  = false;
+        movingPaddleOut    = false;
+        paddle.countX      = 0;
+        paddle.countY      = 0;
+        animateInc         = 0;
+        paddle.x           = WIDTH * 0.5 - paddleState.width * 0.5;
+        paddle.bounds.minX = paddle.x - paddle.width * 0.5;
+        readyLevelVisible  = true;
         playSound(startLevelSnd);
         setupBlocks(level);
         bonusBlocks.clear();
@@ -430,6 +461,7 @@ public class Main extends Application {
         if (!running) { running = true; }
         drawBackground(level);
         drawBorder();
+        updateAndDraw();
         executor.schedule(() -> { readyLevelVisible = false; }, 2, TimeUnit.SECONDS);
     }
 
@@ -465,19 +497,26 @@ public class Main extends Application {
                 // Randomly add bonus blocks to each level
                 BonusType bonusType = bonusTypeCounter > 20 ? BonusType.values()[RND.nextInt(5)] : BonusType.NONE;
                 if (BonusType.NONE != bonusType) { bonusTypeCounter = 0; }
+                if (BonusType.BONUS_B == bonusType) {
+                    if (level < 5 || noOfBonusBlockB > 0) {
+                        bonusType = BonusType.NONE; // Open next level door only if level > 4
+                    } else {
+                        noOfBonusBlockB += 1;
+                    }
+                }
                 bonusTypeCounter++;
                 switch (blockType) {
-                    case GOLD    -> block = new Block(goldBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 0, blockType.maxHits, BonusType.NONE, blockType);
-                    case GRAY    -> block = new Block(grayBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 20, blockType.maxHits, BonusType.NONE, blockType);
+                    case GOLD -> block = new Block(goldBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 0, blockType.maxHits, BonusType.NONE, blockType);
+                    case GRAY -> block = new Block(grayBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 20, blockType.maxHits, BonusType.NONE, blockType);
                     case WHIT -> block = new Block(whiteBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType, blockType);
                     case ORNG -> block = new Block(orangeBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType, blockType);
-                    case CYAN    -> block = new Block(cyanBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType, blockType);
-                    case LIME    -> block = new Block(limeBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType, blockType);
+                    case CYAN -> block = new Block(cyanBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType, blockType);
+                    case LIME -> block = new Block(limeBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType, blockType);
                     case RUBY -> block = new Block(redBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType, blockType);
-                    case BLUE    -> block = new Block(blueBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType, blockType);
+                    case BLUE -> block = new Block(blueBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType, blockType);
                     case MGNT -> block = new Block(magentaBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType, blockType);
                     case YLLW -> block = new Block(yellowBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType, blockType);
-                    default      -> block = null;
+                    default   -> block = null;
                 }
                 if (null == block) { continue; }
                 blocks.add(block);
@@ -599,8 +638,8 @@ public class Main extends Application {
         if (noOfLifes > 0) {
             switch (paddleState) {
                 case STANDARD -> ctx.drawImage(paddleStdShadowImg, paddle.bounds.minX, paddle.bounds.minY);
-                case WIDE -> ctx.drawImage(paddleWideShadowImg, paddle.bounds.minX, paddle.bounds.minY);
-                case LASER -> ctx.drawImage(paddleGunShadowImg, paddle.bounds.minX, paddle.bounds.minY);
+                case WIDE     -> ctx.drawImage(paddleWideShadowImg, paddle.bounds.minX, paddle.bounds.minY);
+                case LASER    -> ctx.drawImage(paddleGunShadowImg, paddle.bounds.minX, paddle.bounds.minY);
             }
         }
 
@@ -634,7 +673,9 @@ public class Main extends Application {
 
         // Draw paddle
         if (noOfLifes > 0) {
-            paddle.update();
+            if (!movingPaddleOut) {
+                paddle.update();
+            }
             switch (paddleState) {
                 case STANDARD -> ctx.drawImage(paddleMapStdImg, paddle.countX * paddleState.width, paddle.countY * paddleState.height, paddleState.width, paddleState.height, paddle.x, paddle.y, paddleState.width, paddleState.height);
                 case WIDE     -> ctx.drawImage(paddleMapWideImg, paddle.countX * paddleState.width, paddle.countY * paddleState.height, paddleState.width, paddleState.height, paddle.x, paddle.y, paddleState.width, paddleState.height);
@@ -681,7 +722,7 @@ public class Main extends Application {
         torpedoes.removeIf(torpedo -> torpedo.toBeRemoved);
 
         // Respawn ball and check for game over
-        if (balls.isEmpty() && noOfLifes > 0) {
+        if (!movingPaddleOut && balls.isEmpty() && noOfLifes > 0) {
             noOfLifes -= 1;
             if (noOfLifes == 0) { gameOver(); }
             spawnBall();
@@ -872,23 +913,16 @@ public class Main extends Application {
 
         @Override public void update() {
             x += vX;
-            //y += vY;
 
-            if (nextLevelDoorOpen) {
-                if (x > WIDTH) {
-                    System.out.println("Move to next level");
-                }
-            } else {
-                if (x + paddleState.width > WIDTH - INSET) {
-                    x = WIDTH - INSET - paddleState.width;
-                }
+            if (x + paddleState.width > WIDTH - INSET) {
+                if (nextLevelDoorOpen && !movingPaddleOut) { movingPaddleOut = true; }
+                x = WIDTH - INSET - paddleState.width;
             }
             if (x < INSET) {
                 x = INSET;
             }
             this.bounds.set(this.x, this.y, paddleState.width, this.height);
 
-            //countX++;
             countX = animateInc;
             if (countX == maxFrameX) {
                 countX     = 0;
@@ -1000,6 +1034,7 @@ public class Main extends Application {
 
     private class Ball extends Sprite {
         public boolean active;
+        public long    bornTimestamp;
 
 
         // ******************** Constructors **************************************
@@ -1008,14 +1043,28 @@ public class Main extends Application {
         }
         public Ball(final Image image, final double x, final double y, final double vX, final boolean active) {
             super(image, paddle.bounds.centerX, paddle.bounds.minY - image.getHeight() * 0.5 - BALL_SPEED - 1, 0, -ballSpeed);
-            this.vX     = vX;
-            this.active = active;
+            this.vX            = vX;
+            this.active        = active;
+            this.bornTimestamp = Instant.now().getEpochSecond();
         }
 
 
         // ******************** Methods *******************************************
         @Override public void update() {
             if (active) {
+                // Speed up ball over time
+                long lifetime = Instant.now().getEpochSecond() - bornTimestamp;
+                if (lifetime > 120) {       // After lifetime of 2min increase speed to 2 x ballSpeed
+                    this.vX = vX > 0 ? 2 * ballSpeed : -2 * ballSpeed;
+                    this.vY = vY > 0 ? 2 * ballSpeed : -2 * ballSpeed;
+                } else if (lifetime > 60) { // After lifetime of 1min increase speed to 1.5 x ballSpeed
+                    this.vX = vX > 0 ? 1.5 * ballSpeed : -1.5 * ballSpeed;
+                    this.vY = vY > 0 ? 1.5 * ballSpeed : -1.5 * ballSpeed;
+                } else {                    // Lifetime below 1min use ballSpeed
+                    this.vX = vX > 0 ? ballSpeed : -ballSpeed;
+                    this.vY = vY > 0 ? ballSpeed : -ballSpeed;
+                }
+
                 this.x += this.vX;
                 this.y += this.vY;
             } else {

@@ -2,9 +2,9 @@
 
 JArkanoid is a simple clone of the game Arkanoid from 1986 by Taito written in JavaFX.
 
-It doesn't come with all the features of the original game yet but I may add them over time.
+The game contains 32 levels and is only missing the last level at the moment.
 
-At the time of writing this you will find 13 levels.
+Also the molecules and other obstacles that are flying around are not implemented (yet).
 
 ### Gameplay
 - Space key to start the game or shoot (when laser paddle)
@@ -27,7 +27,7 @@ At the time of writing this you will find 13 levels.
 - F (color dark blue)   -> wide paddle (for 30 seconds)
 - L (color red)         -> laser paddle (for 30 seconds)
 - S (color dark yellow) -> slow down (for 30 seconds)
-- B (color magenta)     -> opens door to next level (for 30 seconds) NOT IMPLEMENTED YET !!!
+- B (color magenta)     -> opens door to next level (for 5 seconds)
 
 ### Blocks
 - white, red, yellow, cyan, blue, orange, magenta -> 10 points per block
@@ -164,3 +164,38 @@ At the time of writing this you will find 13 levels.
 ##### Level 25
 
 ![Level 25](https://github.com/HanSolo/jarkanoid/blob/main/resources/level25.png?raw=true)
+
+
+##### Level 26
+
+![Level 26](https://github.com/HanSolo/jarkanoid/blob/main/resources/level26.png?raw=true)
+
+
+##### Level 27
+
+![Level 27](https://github.com/HanSolo/jarkanoid/blob/main/resources/level27.png?raw=true)
+
+
+##### Level 28
+
+![Level 28](https://github.com/HanSolo/jarkanoid/blob/main/resources/level28.png?raw=true)
+
+
+##### Level 29
+
+![Level 29](https://github.com/HanSolo/jarkanoid/blob/main/resources/level29.png?raw=true)
+
+
+##### Level 30
+
+![Level 30](https://github.com/HanSolo/jarkanoid/blob/main/resources/level30.png?raw=true)
+
+
+##### Level 31
+
+![Level 31](https://github.com/HanSolo/jarkanoid/blob/main/resources/level31.png?raw=true)
+
+
+##### Level 32
+
+![Level 32](https://github.com/HanSolo/jarkanoid/blob/main/resources/level32.png?raw=true)
