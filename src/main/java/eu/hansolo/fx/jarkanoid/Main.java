@@ -74,6 +74,7 @@ public class Main extends Application {
 
     private ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
+    private Instant              startTime;
     private boolean              running;
     private AnimationTimer       timer;
     private long                 lastTimerCall;
@@ -130,6 +131,7 @@ public class Main extends Application {
     private Image                bonusBlockSMapImg;
     private Image                bonusBlockLMapImg;
     private Image                bonusBlockBMapImg;
+    private Image                openDoorMapImg;
     private Image                blockShadowImg;
     private Image                bonusBlockShadowImg;
     private AudioClip            gameStartSnd;
@@ -159,6 +161,8 @@ public class Main extends Application {
     private double               nextLevelDoorAlpha;
     private boolean              movingPaddleOut;
     private int                  noOfBonusBlockB;
+    private OpenDoor             openDoor;
+    private boolean              showStartHint;
 
 
     // ******************** Methods *******************************************
@@ -177,6 +181,8 @@ public class Main extends Application {
         nextLevelDoorAlpha       = 1.0;
         movingPaddleOut          = false;
         noOfBonusBlockB          = 0;
+        openDoor                 = new OpenDoor(WIDTH - 20, UPPER_INSET + 565);
+        showStartHint            = false;
 
         lastTimerCall            = System.nanoTime();
         lastAnimCall             = System.nanoTime();
@@ -248,6 +254,11 @@ public class Main extends Application {
                             startLevel(level);
                         }
                     }
+                } else {
+                    if (!showStartHint && Instant.now().getEpochSecond() - startTime.getEpochSecond() > 8) {
+                        showStartHint = true;
+                        startScreen();
+                    }
                 }
             }
         };
@@ -289,9 +300,10 @@ public class Main extends Application {
     }
 
     @Override public void start(final Stage stage) {
-        final Instant   startTime = Instant.now();
-        final StackPane pane      = new StackPane(bkgCanvas, canvas, brdrCanvas);
-        final Scene     scene     = new Scene(pane, WIDTH, HEIGHT);
+        startTime = Instant.now();
+
+        final StackPane pane  = new StackPane(bkgCanvas, canvas, brdrCanvas);
+        final Scene     scene = new Scene(pane, WIDTH, HEIGHT);
 
         scene.setOnKeyPressed(e -> {
             if (running) {
@@ -305,7 +317,10 @@ public class Main extends Application {
                         if (activeBalls > 0) {
                             if (PaddleState.LASER == paddleState) { fire(paddle.bounds.centerX); }
                         } else {
-                            balls.forEach(ball -> ball.active = true);
+                            balls.forEach(ball -> {
+                                ball.active        = true;
+                                ball.bornTimestamp = Instant.now().getEpochSecond();
+                            });
                         }
                     }
                 }
@@ -383,6 +398,7 @@ public class Main extends Application {
         bonusBlockSMapImg     = new Image(getClass().getResourceAsStream("block_map_bonus_s.png"), 190, 72, true, false);
         bonusBlockLMapImg     = new Image(getClass().getResourceAsStream("block_map_bonus_l.png"), 190, 72, true, false);
         bonusBlockBMapImg     = new Image(getClass().getResourceAsStream("block_map_bonus_b.png"), 190, 72, true, false);
+        openDoorMapImg        = new Image(getClass().getResourceAsStream("open_door_map.png"), 120, 71, true, false);
         bonusBlockShadowImg   = new Image(getClass().getResourceAsStream("bonus_block_shadow.png"), 38, 18, true, false);
     }
 
@@ -405,6 +421,15 @@ public class Main extends Application {
         if (value < min) { return min; }
         if (value > max) { return max; }
         return value;
+    }
+
+    private static double[] rotatePointAroundRotationCenter(final double x, final double y, final double rX, final double rY, final double angleDeg) {
+        final double rad = Math.toRadians(angleDeg);
+        final double sin = Math.sin(rad);
+        final double cos = Math.cos(rad);
+        final double nX  = rX + (x - rX) * cos - (y - rY) * sin;
+        final double nY  = rY + (x - rX) * sin + (y - rY) * cos;
+        return new double[] { nX, nY };
     }
 
 
@@ -609,6 +634,10 @@ public class Main extends Application {
             ctx.setFill(SCORE_WHITE);
             ctx.fillText(Long.toString(highscore), WIDTH * 0.5, 30);
 
+            if (showStartHint) {
+                ctx.fillText("Hit space to start", WIDTH * 0.5, HEIGHT * 0.6);
+            }
+
             bkgCtx.drawImage(logoImg, (WIDTH - logoImg.getWidth()) * 0.5, HEIGHT * 0.25);
 
             bkgCtx.drawImage(copyrightImg, (WIDTH - copyrightImg.getWidth()) * 0.5, HEIGHT * 0.75);
@@ -665,7 +694,7 @@ public class Main extends Application {
         // Draw blinks
         blinks.forEach(blink -> ctx.drawImage(blinkMapImg, blink.countX * BLOCK_WIDTH, blink.countY * BLOCK_HEIGHT, BLOCK_WIDTH, BLOCK_HEIGHT, blink.x, blink.y, BLOCK_WIDTH, BLOCK_HEIGHT));
 
-        // Draw ball
+        // Draw ball(s)
         balls.forEach(ball -> {
             ball.update();
             ctx.drawImage(ballImg, ball.bounds.x, ball.bounds.y);
@@ -769,6 +798,9 @@ public class Main extends Application {
                 brdrCtx.setGlobalAlpha(nextLevelDoorAlpha);
                 brdrCtx.drawImage(borderPartVerticalImg, WIDTH - 20, UPPER_INSET + 565);
                 brdrCtx.restore();
+
+                openDoor.update();
+                ctx.drawImage(openDoorMapImg, openDoor.countX * 20, 0, 20, 71, WIDTH - 20, UPPER_INSET + 565, 20, 71);
             } else {
                 for (int i = 0; i < 6; i++) {
                     brdrCtx.drawImage(borderPartVerticalImg, 0, UPPER_INSET + i * 113);
@@ -976,7 +1008,6 @@ public class Main extends Application {
             this.maxHits     = maxHits;
             this.bonusType   = bonusType;
             this.blockType   = blockType;
-            this.toBeRemoved = false;
             this.hits        = 0;
             this.width       = BLOCK_WIDTH;
             this.height      = BLOCK_HEIGHT;
@@ -1000,14 +1031,12 @@ public class Main extends Application {
 
     private class BonusBlock extends AnimatedSprite {
         public BonusType bonusType;
-        public boolean   toBeRemoved;
 
 
         // ******************** Constructors **************************************
         public BonusBlock(final double x, final double y, final BonusType bonusType) {
             super(x, y, 0, 2 * BALL_SPEED, 4, 3, 1.0);
             this.bonusType   = bonusType;
-            this.toBeRemoved = false;
             this.width       = BLOCK_WIDTH;
             this.height      = BLOCK_HEIGHT;
             this.bounds.set(x, y, width, height);
@@ -1052,19 +1081,6 @@ public class Main extends Application {
         // ******************** Methods *******************************************
         @Override public void update() {
             if (active) {
-                // Speed up ball over time
-                long lifetime = Instant.now().getEpochSecond() - bornTimestamp;
-                if (lifetime > 120) {       // After lifetime of 2min increase speed to 2 x ballSpeed
-                    this.vX = vX > 0 ? 2 * ballSpeed : -2 * ballSpeed;
-                    this.vY = vY > 0 ? 2 * ballSpeed : -2 * ballSpeed;
-                } else if (lifetime > 60) { // After lifetime of 1min increase speed to 1.5 x ballSpeed
-                    this.vX = vX > 0 ? 1.5 * ballSpeed : -1.5 * ballSpeed;
-                    this.vY = vY > 0 ? 1.5 * ballSpeed : -1.5 * ballSpeed;
-                } else {                    // Lifetime below 1min use ballSpeed
-                    this.vX = vX > 0 ? ballSpeed : -ballSpeed;
-                    this.vY = vY > 0 ? ballSpeed : -ballSpeed;
-                }
-
                 this.x += this.vX;
                 this.y += this.vY;
             } else {
@@ -1184,6 +1200,28 @@ public class Main extends Application {
             this.bounds.set(this.x - this.width * 0.5, this.y - this.height * 0.5, this.width, this.height);
             if (bounds.minY < UPPER_INSET) {
                 toBeRemoved = true;
+            }
+        }
+    }
+
+    private class OpenDoor extends AnimatedSprite {
+
+        // ******************** Constructors **************************************
+        public OpenDoor(final double x, final double y) {
+            super(x, y, 0, 0, 3, 0, 1.0);
+            this.bounds.set(x, y, width, height);
+        }
+
+
+        // ******************** Methods *******************************************
+        @Override public void update() {
+            countX++;
+            if (countX == maxFrameX) {
+                countY++;
+                countX = 0;
+                if (countY == maxFrameY) {
+                    countY = 0;
+                }
             }
         }
     }

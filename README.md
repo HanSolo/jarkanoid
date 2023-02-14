@@ -3,8 +3,14 @@
 JArkanoid is a simple clone of the game Arkanoid from 1986 by Taito written in JavaFX.
 
 The game contains 32 levels and is only missing the last level at the moment.
+It is not an 100% clone of the original game because it does not contain the molecules
+and other things that are flying around and that one can shoot. I might add them later
+though. Also the bonus block that adds the additional balls is working a bit differently
+than the original one. The speed of the ball is also constant and will not vary over
+time.
 
-Also the molecules and other obstacles that are flying around are not implemented (yet).
+All sprites and spritemaps are drawn by myself and can be found in the resources folder
+in the main directory of the project. These files are in the format of Affinity Designer.
 
 ### Gameplay
 - Space key to start the game or shoot (when laser paddle)
