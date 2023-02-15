@@ -6,14 +6,12 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
-import javafx.geometry.Rectangle2D;
 import javafx.geometry.VPos;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.input.TouchEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.media.AudioClip;
 import javafx.scene.paint.Color;
@@ -331,10 +329,9 @@ public class Main extends Application {
             if (running) {
                 if (movingPaddleOut) { return; }
                 switch (e.getCode()) {
-                    case RIGHT -> movePaddleRight();
-                    case LEFT  -> movePaddleLeft();
-                    case S     -> { /*TODO: implement "shake" to get out of endless loops */ }
-                    case SPACE -> {
+                    case RIGHT,D  -> movePaddleRight();
+                    case LEFT, A  -> movePaddleLeft();
+                    case SPACE    -> {
                         final long activeBalls = balls.stream().filter(ball -> ball.active).count();
                         if (activeBalls > 0) {
                             if (PaddleState.LASER == paddleState) { fire(paddle.bounds.centerX); }
@@ -445,15 +442,6 @@ public class Main extends Application {
         return value;
     }
 
-    private static double[] rotatePointAroundRotationCenter(final double x, final double y, final double rX, final double rY, final double angleDeg) {
-        final double rad = Math.toRadians(angleDeg);
-        final double sin = Math.sin(rad);
-        final double cos = Math.cos(rad);
-        final double nX  = rX + (x - rX) * cos - (y - rY) * sin;
-        final double nY  = rY + (x - rX) * sin + (y - rY) * cos;
-        return new double[] { nX, nY };
-    }
-
 
     // ******************** Game control **************************************
     private void movePaddleRight() { paddle.vX = PADDLE_SPEED; }
@@ -552,6 +540,7 @@ public class Main extends Application {
                     }
                 }
                 bonusTypeCounter++;
+                bonusType = BonusType.BONUS_D;
                 switch (blockType) {
                     case GOLD -> block = new Block(goldBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 0, blockType.maxHits, BonusType.NONE, blockType);
                     case GRAY -> block = new Block(grayBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 20, blockType.maxHits, BonusType.NONE, blockType);
@@ -600,8 +589,14 @@ public class Main extends Application {
                 switch (bonusBlock.bonusType) {
                     case BONUS_C -> noOfLifes = clamp(2, 5, noOfLifes + 1);
                     case BONUS_D -> {
-                        for (int i = 0; i <= 3 - balls.size(); i++) {
-                            balls.add(new Ball(ballImg, paddle.bounds.centerX, paddle.bounds.minY - ballImg.getHeight() * 0.5 - 1, (RND.nextDouble() * (2 * ballSpeed) - ballSpeed), true));
+                        if (balls.size() == 1) {
+                            Ball ball = balls.get(0);
+                            double vX1 = (Math.sin(Math.toRadians(10)) * ball.vX);
+                            double vY1 = (Math.cos(Math.toRadians(10)) * ball.vY);
+                            double vX2 = (Math.sin(Math.toRadians(-10)) * ball.vX);
+                            double vY2 = (Math.cos(Math.toRadians(-10)) * ball.vY);
+                            balls.add(new Ball(ballImg, ball.x, ball.y, vX1, vY1));
+                            balls.add(new Ball(ballImg, ball.x, ball.y, vX2, vY2));
                         }
                     }
                     case BONUS_F -> {
@@ -1019,6 +1014,7 @@ public class Main extends Application {
         public final int       maxHits;
         public final BonusType bonusType;
         public final BlockType blockType;
+        public final Bounds    hitBounds;
 
 
         // ******************** Constructors **************************************
@@ -1034,6 +1030,7 @@ public class Main extends Application {
             this.width       = BLOCK_WIDTH;
             this.height      = BLOCK_HEIGHT;
             this.bounds.set(x, y, width, height);
+            this.hitBounds   = new Bounds(x - 3, y - 3, width + 6, height + 6);
             init();
         }
 
@@ -1098,6 +1095,11 @@ public class Main extends Application {
             this.active        = active;
             this.bornTimestamp = Instant.now().getEpochSecond();
         }
+        private Ball(final Image image, final double x, final double y, final double vX, final double vY) {
+            super(image, x, y, vX, vY);
+            this.active        = true;
+            this.bornTimestamp = Instant.now().getEpochSecond();
+        }
 
 
         // ******************** Methods *******************************************
@@ -1127,7 +1129,7 @@ public class Main extends Application {
 
             // Hit test ball with blocks
             for (Block block : blocks) {
-                boolean ballHitsBlock = this.bounds.intersects(block.bounds);
+                boolean ballHitsBlock = this.bounds.intersects(block.hitBounds);
                 if (ballHitsBlock) {
                     switch (block.blockType) {
                         case GOLD -> {
@@ -1160,15 +1162,15 @@ public class Main extends Application {
                             }
                         }
                     }
-                    if (bounds.centerX > block.bounds.minX && bounds.centerX < block.bounds.maxX) {
+                    if (bounds.centerX > block.hitBounds.minX && bounds.centerX < block.hitBounds.maxX) {
                         // Top or Bottom hit
                         vY = -vY;
-                    } else if (bounds.centerY > block.bounds.minY && bounds.centerY < block.bounds.maxY) {
+                    } else if (bounds.centerY > block.hitBounds.minY && bounds.centerY < block.hitBounds.maxY) {
                         // Left or Right hit
                         vX = -vX;
                     } else {
-                        double dx = Math.abs(bounds.centerX - block.bounds.centerX) - block.bounds.width * 0.5;
-                        double dy = Math.abs(bounds.centerY - block.bounds.centerY) - block.bounds.height * 0.5;
+                        double dx = Math.abs(bounds.centerX - block.bounds.centerX) - block.hitBounds.width * 0.5;
+                        double dy = Math.abs(bounds.centerY - block.bounds.centerY) - block.hitBounds.height * 0.5;
                         if (dx > dy) {
                             // Left or Right hit
                             vX = -vX;
@@ -1201,6 +1203,8 @@ public class Main extends Application {
 
                 playSound(ballPaddleSnd);
             }
+
+            if (Double.compare(vX, 0) == 0) { vX = 0.5; }
 
             if (this.bounds.maxY > HEIGHT) {
                 this.toBeRemoved = true;

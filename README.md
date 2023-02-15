@@ -12,9 +12,17 @@ time.
 All sprites and spritemaps are drawn by myself and can be found in the resources folder
 in the main directory of the project. These files are in the format of Affinity Designer.
 
+### Settings
+- The game will create a properties file in your user folder named jarkanoid.properties
+- You can set the default ball speed in that file to values between 1 and 5. (2 recommended for M1 Macs, 3 for all other machines)
+
 ### Gameplay
 - Space key to start the game or shoot (when laser paddle)
-- Arrow left and right to move the paddle
+- Move paddle to the left: Arrow left or A key
+- Move paddle to the right: Arrow right or D key
+- Shoot: Space bar
+- Paddle can also be moved by dragging it with the mouse
+- The ball can get some spin when the paddle is moved when they have contact
 
 ### Paddles
 #### Standard

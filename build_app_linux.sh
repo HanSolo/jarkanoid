@@ -1,8 +1,8 @@
 #!/bin/bash
 
 JAVA_VERSION=17
-MAIN_JAR="jarkanoid-17.0.2.jar"
-APP_VERSION=17.0.2
+MAIN_JAR="jarkanoid-17.0.3.jar"
+APP_VERSION=17.0.3
 
 echo "java home: $JAVA_HOME"
 echo "project version: $PROJECT_VERSION"
