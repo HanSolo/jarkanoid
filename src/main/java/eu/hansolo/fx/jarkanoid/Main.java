@@ -189,8 +189,8 @@ public class Main extends Application {
         nextLevelDoorAlpha       = 1.0;
         movingPaddleOut          = false;
         noOfBonusBlockB          = 0;
-        openDoor                 = new OpenDoor(WIDTH - 20, UPPER_INSET + 565);
-        showStartHint            = false;
+        openDoor                 = new OpenDoor(WIDTH - 20 * Constants.SCALE_FACTOR, UPPER_INSET + 565 * Constants.SCALE_FACTOR);
+        showStartHint            = true;
 
         lastTimerCall            = System.nanoTime();
         lastAnimCall             = System.nanoTime();
@@ -263,10 +263,10 @@ public class Main extends Application {
                         }
                     }
                 } else {
-                    if (!showStartHint && Instant.now().getEpochSecond() - startTime.getEpochSecond() > 8) {
-                        showStartHint = true;
-                        startScreen();
-                    }
+                    //if (!showStartHint && Instant.now().getEpochSecond() - startTime.getEpochSecond() > 8) {
+                        //showStartHint = true;
+                        //startScreen();
+                    //}
                 }
             }
         };
@@ -304,11 +304,11 @@ public class Main extends Application {
         // Load all sounds
         //loadSounds();
 
-        bkgPatternFillBlue  = new ImagePattern(bkgPatternImgBlue, 0, 0, 68, 117, false);
-        bkgPatternFillRed   = new ImagePattern(bkgPatternImgRed, 0, 0, 68, 117, false);
-        bkgPatternFillGreen = new ImagePattern(bkgPatternImgGreen, 0, 0, 68, 117, false);
-        borderPatternFill   = new ImagePattern(borderVerticalImg, 0, 0, 20, 113, false);
-        pipePatternFill     = new ImagePattern(pipeImg, 0, 0, 5, 17, false);
+        bkgPatternFillBlue  = new ImagePattern(bkgPatternImgBlue, 0, 0, 68 * Constants.SCALE_FACTOR, 117 * Constants.SCALE_FACTOR, false);
+        bkgPatternFillRed   = new ImagePattern(bkgPatternImgRed, 0, 0, 68 * Constants.SCALE_FACTOR, 117 * Constants.SCALE_FACTOR, false);
+        bkgPatternFillGreen = new ImagePattern(bkgPatternImgGreen, 0, 0, 68 * Constants.SCALE_FACTOR, 117 * Constants.SCALE_FACTOR, false);
+        borderPatternFill   = new ImagePattern(borderVerticalImg, 0, 0, 20 * Constants.SCALE_FACTOR, 113 * Constants.SCALE_FACTOR, false);
+        pipePatternFill     = new ImagePattern(pipeImg, 0, 0, 5 * Constants.SCALE_FACTOR, 17 * Constants.SCALE_FACTOR, false);
 
 
         // Initialize paddles
@@ -328,6 +328,7 @@ public class Main extends Application {
 
         final StackPane pane  = new StackPane(bkgCanvas, canvas, brdrCanvas);
         pane.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
+
         final Scene     scene = new Scene(pane, WIDTH, HEIGHT);
 
         scene.setOnKeyPressed(e -> {
@@ -369,6 +370,24 @@ public class Main extends Application {
             }
         });
 
+        scene.setOnMousePressed(e -> {
+            if (running) {
+                if (movingPaddleOut) { return; }
+                final long activeBalls = balls.stream().filter(ball -> ball.active).count();
+                if (activeBalls > 0) {
+                        if (PaddleState.LASER == paddleState) { fire(paddle.bounds.centerX); }
+                    } else {
+                        balls.forEach(ball -> {
+                            ball.active        = true;
+                            ball.bornTimestamp = Instant.now().getEpochSecond();
+                        });
+                    }
+            } else {
+                level = 1;
+                startLevel(level);
+            }
+        });
+
         stage.setTitle("JArkanoid");
         stage.setScene(scene);
         stage.show();
@@ -400,10 +419,10 @@ public class Main extends Application {
         ulCornerImg           = new Image(getClass().getResourceAsStream("upperLeftCorner.png"), 15 * Constants.SCALE_FACTOR, 20 * Constants.SCALE_FACTOR, true, false);
         urCornerImg           = new Image(getClass().getResourceAsStream("upperRightCorner.png"), 15 * Constants.SCALE_FACTOR, 20 * Constants.SCALE_FACTOR, true, false);
         pipeImg               = new Image(getClass().getResourceAsStream("pipe.png"), 5 * Constants.SCALE_FACTOR, 17 * Constants.SCALE_FACTOR, true, false);
-        paddleMapStdImg       = new Image(getClass().getResourceAsStream("paddlemap_std.png"), 640 * Constants.SCALE_FACTOR, 176 * Constants.SCALE_FACTOR, false, false);
-        paddleMapWideImg      = new Image(getClass().getResourceAsStream("paddlemap_wide.png"), 960 * Constants.SCALE_FACTOR, 176 * Constants.SCALE_FACTOR, false, false);
-        paddleMapGunImg       = new Image(getClass().getResourceAsStream("paddlemap_gun.png"), 640 * Constants.SCALE_FACTOR, 176 * Constants.SCALE_FACTOR, false, false);
-        blinkMapImg           = new Image(getClass().getResourceAsStream("blink_map.png"), 304 * Constants.SCALE_FACTOR, 60 * Constants.SCALE_FACTOR, false, false);
+        paddleMapStdImg       = new Image(getClass().getResourceAsStream("paddlemap_std.png"), 640, 176, false, false);
+        paddleMapWideImg      = new Image(getClass().getResourceAsStream("paddlemap_wide.png"), 960, 176, false, false);
+        paddleMapGunImg       = new Image(getClass().getResourceAsStream("paddlemap_gun.png"), 640, 176, false, false);
+        blinkMapImg           = new Image(getClass().getResourceAsStream("blink_map.png"), 304, 60, false, false);
         paddleMiniImg         = new Image(getClass().getResourceAsStream("paddle_std.png"), 40 * Constants.SCALE_FACTOR, 11 * Constants.SCALE_FACTOR, true, false);
         paddleStdShadowImg    = new Image(getClass().getResourceAsStream("paddle_std_shadow.png"), 80 * Constants.SCALE_FACTOR, 22 * Constants.SCALE_FACTOR, true, false);
         paddleWideShadowImg   = new Image(getClass().getResourceAsStream("paddle_wide_shadow.png"), 121 * Constants.SCALE_FACTOR, 22 * Constants.SCALE_FACTOR, true, false);
@@ -422,14 +441,14 @@ public class Main extends Application {
         magentaBlockImg       = new Image(getClass().getResourceAsStream("magentaBlock.png"), 38 * Constants.SCALE_FACTOR, 20 * Constants.SCALE_FACTOR, true, false);
         yellowBlockImg        = new Image(getClass().getResourceAsStream("yellowBlock.png"), 38 * Constants.SCALE_FACTOR, 20 * Constants.SCALE_FACTOR, true, false);
         blockShadowImg        = new Image(getClass().getResourceAsStream("block_shadow.png"), 38 * Constants.SCALE_FACTOR, 20 * Constants.SCALE_FACTOR, true, false);
-        bonusBlockCMapImg     = new Image(getClass().getResourceAsStream("block_map_bonus_c.png"), 190 * Constants.SCALE_FACTOR, 72 * Constants.SCALE_FACTOR, true, false);
-        bonusBlockFMapImg     = new Image(getClass().getResourceAsStream("block_map_bonus_f.png"), 190 * Constants.SCALE_FACTOR, 72 * Constants.SCALE_FACTOR, true, false);
-        bonusBlockDMapImg     = new Image(getClass().getResourceAsStream("block_map_bonus_d.png"), 190 * Constants.SCALE_FACTOR, 72 * Constants.SCALE_FACTOR, true, false);
-        bonusBlockSMapImg     = new Image(getClass().getResourceAsStream("block_map_bonus_s.png"), 190 * Constants.SCALE_FACTOR, 72 * Constants.SCALE_FACTOR, true, false);
-        bonusBlockLMapImg     = new Image(getClass().getResourceAsStream("block_map_bonus_l.png"), 190 * Constants.SCALE_FACTOR, 72 * Constants.SCALE_FACTOR, true, false);
-        bonusBlockBMapImg     = new Image(getClass().getResourceAsStream("block_map_bonus_b.png"), 190 * Constants.SCALE_FACTOR, 72 * Constants.SCALE_FACTOR, true, false);
-        openDoorMapImg        = new Image(getClass().getResourceAsStream("open_door_map.png"), 120 * Constants.SCALE_FACTOR, 71 * Constants.SCALE_FACTOR, true, false);
-        bonusBlockShadowImg   = new Image(getClass().getResourceAsStream("bonus_block_shadow.png"), 38 * Constants.SCALE_FACTOR, 18 * Constants.SCALE_FACTOR, true, false);
+        bonusBlockCMapImg     = new Image(getClass().getResourceAsStream("block_map_bonus_c.png"), 190, 72, true, false);
+        bonusBlockFMapImg     = new Image(getClass().getResourceAsStream("block_map_bonus_f.png"), 190, 72, true, false);
+        bonusBlockDMapImg     = new Image(getClass().getResourceAsStream("block_map_bonus_d.png"), 190, 72, true, false);
+        bonusBlockSMapImg     = new Image(getClass().getResourceAsStream("block_map_bonus_s.png"), 190, 72, true, false);
+        bonusBlockLMapImg     = new Image(getClass().getResourceAsStream("block_map_bonus_l.png"), 190, 72, true, false);
+        bonusBlockBMapImg     = new Image(getClass().getResourceAsStream("block_map_bonus_b.png"), 190, 72, true, false);
+        openDoorMapImg        = new Image(getClass().getResourceAsStream("open_door_map.png"), 120, 71, true, false);
+        bonusBlockShadowImg   = new Image(getClass().getResourceAsStream("bonus_block_shadow.png"), 38, 18, true, false);
     }
 
     private void loadSounds() {
@@ -552,16 +571,16 @@ public class Main extends Application {
                 }
                 bonusTypeCounter++;
                 switch (blockType) {
-                    case GOLD : block = new Block(goldBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 0, blockType.maxHits, BonusType.NONE, blockType); break;
-                    case GRAY : block = new Block(grayBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 20, blockType.maxHits, BonusType.NONE, blockType); break;
-                    case WHIT : block = new Block(whiteBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType, blockType); break;
-                    case ORNG : block = new Block(orangeBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType, blockType); break;
-                    case CYAN : block = new Block(cyanBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType, blockType); break;
-                    case LIME : block = new Block(limeBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType, blockType); break;
-                    case RUBY : block = new Block(redBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType, blockType); break;
-                    case BLUE : block = new Block(blueBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType, blockType); break;
-                    case MGNT : block = new Block(magentaBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType, blockType); break;
-                    case YLLW : block = new Block(yellowBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType, blockType); break;
+                    case GOLD : block = new Block(goldBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 * Constants.SCALE_FACTOR + iy * BLOCK_STEP_Y, 0, blockType.maxHits, BonusType.NONE, blockType); break;
+                    case GRAY : block = new Block(grayBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 * Constants.SCALE_FACTOR + iy * BLOCK_STEP_Y, 20, blockType.maxHits, BonusType.NONE, blockType); break;
+                    case WHIT : block = new Block(whiteBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 * Constants.SCALE_FACTOR + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType, blockType); break;
+                    case ORNG : block = new Block(orangeBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 * Constants.SCALE_FACTOR + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType, blockType); break;
+                    case CYAN : block = new Block(cyanBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 * Constants.SCALE_FACTOR + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType, blockType); break;
+                    case LIME : block = new Block(limeBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 * Constants.SCALE_FACTOR + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType, blockType); break;
+                    case RUBY : block = new Block(redBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 * Constants.SCALE_FACTOR + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType, blockType); break;
+                    case BLUE : block = new Block(blueBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 * Constants.SCALE_FACTOR + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType, blockType); break;
+                    case MGNT : block = new Block(magentaBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 * Constants.SCALE_FACTOR + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType, blockType); break;
+                    case YLLW : block = new Block(yellowBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 * Constants.SCALE_FACTOR + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType, blockType); break;
                     default   : block = null; break;
                 }
                 if (null == block) { continue; }
@@ -652,8 +671,8 @@ public class Main extends Application {
 
             // Draw shadow
             bkgCtx.setFill(Color.rgb(0, 0, 0, 0.3));
-            bkgCtx.fillRect(0, UPPER_INSET, 40, HEIGHT);
-            bkgCtx.fillRect(0, UPPER_INSET, WIDTH, 20);
+            bkgCtx.fillRect(0, UPPER_INSET, 40 * Constants.SCALE_FACTOR, HEIGHT);
+            bkgCtx.fillRect(0, UPPER_INSET, WIDTH, 20 * Constants.SCALE_FACTOR);
         } else {
             ctx.setFont(SCORE_FONT);
             ctx.setTextBaseline(VPos.TOP);
@@ -661,10 +680,10 @@ public class Main extends Application {
             ctx.setTextAlign(TextAlignment.CENTER);
             ctx.fillText("HIGH SCORE", WIDTH * 0.5, 0);
             ctx.setFill(SCORE_WHITE);
-            ctx.fillText(Long.toString(highscore), WIDTH * 0.5, 30);
+            ctx.fillText(Long.toString(highscore), WIDTH * 0.5, 30 * Constants.SCALE_FACTOR);
 
             if (showStartHint) {
-                ctx.fillText("Hit space to start", WIDTH * 0.5, HEIGHT * 0.6);
+                ctx.fillText("Touch screen to start", WIDTH * 0.5, HEIGHT * 0.6);
             }
 
             bkgCtx.drawImage(logoImg, (WIDTH - logoImg.getWidth()) * 0.5, HEIGHT * 0.25);
@@ -684,7 +703,7 @@ public class Main extends Application {
 
         // Draw shadows
         ctx.save();
-        ctx.translate(10, 10);
+        ctx.translate(10 * Constants.SCALE_FACTOR, 10 * Constants.SCALE_FACTOR);
 
         // Draw block shadows
         blocks.forEach(block -> ctx.drawImage(blockShadowImg, block.x, block.y));
@@ -750,17 +769,17 @@ public class Main extends Application {
         ctx.setFont(SCORE_FONT);
         ctx.setTextAlign(TextAlignment.RIGHT);
         ctx.setTextBaseline(VPos.TOP);
-        ctx.fillText(Long.toString(score), 140, 30);
+        ctx.fillText(Long.toString(score), 140 * Constants.SCALE_FACTOR, 30 * Constants.SCALE_FACTOR);
 
         ctx.setFill(HIGH_SCORE_RED);
         ctx.setTextAlign(TextAlignment.CENTER);
         ctx.fillText("HIGH SCORE", WIDTH * 0.5, 0);
         ctx.setFill(SCORE_WHITE);
-        ctx.fillText(Long.toString(score > highscore ? score : highscore), WIDTH * 0.5, 30);
+        ctx.fillText(Long.toString(score > highscore ? score : highscore), WIDTH * 0.5, 30 * Constants.SCALE_FACTOR);
 
         // Draw no of lifes
         for (int i = 0 ; i < noOfLifes ; i++) {
-            ctx.drawImage(paddleMiniImg, INSET + 2 + 42 * i, HEIGHT - 30);
+            ctx.drawImage(paddleMiniImg, INSET + 2 + 42 * Constants.SCALE_FACTOR * i, HEIGHT - 30 * Constants.SCALE_FACTOR);
         }
 
         // Draw ready level label
@@ -801,23 +820,23 @@ public class Main extends Application {
         brdrCtx.clearRect(0, 0, WIDTH, HEIGHT);
         if (running) {
             brdrCtx.setFill(pipePatternFill);
-            brdrCtx.fillRect(17, 68, WIDTH - 34, 17);
+            brdrCtx.fillRect(17 * Constants.SCALE_FACTOR, 68 * Constants.SCALE_FACTOR, WIDTH - 34 * Constants.SCALE_FACTOR, 17 * Constants.SCALE_FACTOR);
 
             // Draw vertical border
             brdrCtx.setFill(borderPatternFill);
-            brdrCtx.fillRect(0, UPPER_INSET, 20, HEIGHT - UPPER_INSET);
+            brdrCtx.fillRect(0, UPPER_INSET, 20 * Constants.SCALE_FACTOR, HEIGHT - UPPER_INSET);
             if (nextLevelDoorOpen) {
-                brdrCtx.fillRect(WIDTH - 20, UPPER_INSET, 20, 563 );
-                brdrCtx.fillRect(WIDTH - 20, UPPER_INSET + 565 + borderPartVerticalImg.getHeight(), 20, 100);
+                brdrCtx.fillRect(WIDTH - 20 * Constants.SCALE_FACTOR, UPPER_INSET, 20 * Constants.SCALE_FACTOR, 563 * Constants.SCALE_FACTOR );
+                brdrCtx.fillRect(WIDTH - 20 * Constants.SCALE_FACTOR, UPPER_INSET + 565 * Constants.SCALE_FACTOR + borderPartVerticalImg.getHeight(), 20 * Constants.SCALE_FACTOR, 100 * Constants.SCALE_FACTOR);
             } else {
-                brdrCtx.fillRect(WIDTH - 20, UPPER_INSET, 20, HEIGHT);
+                brdrCtx.fillRect(WIDTH - 20 * Constants.SCALE_FACTOR, UPPER_INSET, 20 * Constants.SCALE_FACTOR, HEIGHT);
             }
 
             if (nextLevelDoorOpen) {
                 for (int i = 0 ; i < 6 ; i++) {
-                    brdrCtx.drawImage(borderPartVerticalImg, 0, UPPER_INSET + i * 113);
+                    brdrCtx.drawImage(borderPartVerticalImg, 0, UPPER_INSET + i * 113 * Constants.SCALE_FACTOR);
                     if (i < 5) {
-                        brdrCtx.drawImage(borderPartVerticalImg, WIDTH - 20, UPPER_INSET + i * 113);
+                        brdrCtx.drawImage(borderPartVerticalImg, WIDTH - 20 * Constants.SCALE_FACTOR, UPPER_INSET + i * 113 * Constants.SCALE_FACTOR);
                     }
                 }
                 if (nextLevelDoorAlpha > 0.01) {
@@ -825,22 +844,22 @@ public class Main extends Application {
                 }
                 brdrCtx.save();
                 brdrCtx.setGlobalAlpha(nextLevelDoorAlpha);
-                brdrCtx.drawImage(borderPartVerticalImg, WIDTH - 20, UPPER_INSET + 565);
+                brdrCtx.drawImage(borderPartVerticalImg, WIDTH - 20 * Constants.SCALE_FACTOR, UPPER_INSET + 565 * Constants.SCALE_FACTOR);
                 brdrCtx.restore();
 
                 openDoor.update();
-                ctx.drawImage(openDoorMapImg, openDoor.countX * 20, 0, 20, 71, WIDTH - 20, UPPER_INSET + 565, 20, 71);
+                ctx.drawImage(openDoorMapImg, openDoor.countX * 20 * Constants.SCALE_FACTOR, 0, 20 * Constants.SCALE_FACTOR, 71 * Constants.SCALE_FACTOR, WIDTH - 20 * Constants.SCALE_FACTOR, UPPER_INSET + 565 * Constants.SCALE_FACTOR, 20 * Constants.SCALE_FACTOR, 71 * Constants.SCALE_FACTOR);
             } else {
                 for (int i = 0; i < 6; i++) {
-                    brdrCtx.drawImage(borderPartVerticalImg, 0, UPPER_INSET + i * 113);
-                    brdrCtx.drawImage(borderPartVerticalImg, WIDTH - 20, UPPER_INSET + i * 113);
+                    brdrCtx.drawImage(borderPartVerticalImg, 0, UPPER_INSET + i * 113 * Constants.SCALE_FACTOR);
+                    brdrCtx.drawImage(borderPartVerticalImg, WIDTH - 20, UPPER_INSET + i * 113 * Constants.SCALE_FACTOR);
                 }
             }
 
-            brdrCtx.drawImage(ulCornerImg, 2.5, 67.5);
-            brdrCtx.drawImage(urCornerImg, WIDTH - urCornerImg.getWidth() - 2.5, 67.5);
-            brdrCtx.drawImage(topPartImg, 100, 65);
-            brdrCtx.drawImage(topPartImg, WIDTH - 100 - topPartImg.getWidth(), 65);
+            brdrCtx.drawImage(ulCornerImg, 2.5 * Constants.SCALE_FACTOR, 67.5 * Constants.SCALE_FACTOR);
+            brdrCtx.drawImage(urCornerImg, WIDTH - urCornerImg.getWidth() - 2.5 * Constants.SCALE_FACTOR, 67.5 * Constants.SCALE_FACTOR);
+            brdrCtx.drawImage(topPartImg, 100 * Constants.SCALE_FACTOR, 65 * Constants.SCALE_FACTOR);
+            brdrCtx.drawImage(topPartImg, WIDTH - 100 * Constants.SCALE_FACTOR - topPartImg.getWidth(), 65 * Constants.SCALE_FACTOR);
         }
     }
 
@@ -1042,7 +1061,7 @@ public class Main extends Application {
             this.width       = BLOCK_WIDTH;
             this.height      = BLOCK_HEIGHT;
             this.bounds.set(x, y, width, height);
-            this.hitBounds   = new Bounds(x - 3, y - 3, width + 6, height + 6);
+            this.hitBounds   = new Bounds(x - 3 * Constants.SCALE_FACTOR, y - 3 * Constants.SCALE_FACTOR, width + 6 * Constants.SCALE_FACTOR, height + 6 * Constants.SCALE_FACTOR);
             init();
         }
 

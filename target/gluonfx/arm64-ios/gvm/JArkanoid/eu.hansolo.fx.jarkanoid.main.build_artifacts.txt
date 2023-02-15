@@ -1,6 +1,6 @@
 [HEADER]
-graal_isolate.h
 eu.hansolo.fx.jarkanoid.main.h
-graal_isolate_dynamic.h
+graal_isolate.h
 eu.hansolo.fx.jarkanoid.main_dynamic.h
+graal_isolate_dynamic.h
 
