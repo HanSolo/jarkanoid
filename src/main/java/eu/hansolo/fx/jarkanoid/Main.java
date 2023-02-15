@@ -540,7 +540,6 @@ public class Main extends Application {
                     }
                 }
                 bonusTypeCounter++;
-                bonusType = BonusType.BONUS_D;
                 switch (blockType) {
                     case GOLD -> block = new Block(goldBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 0, blockType.maxHits, BonusType.NONE, blockType);
                     case GRAY -> block = new Block(grayBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 20, blockType.maxHits, BonusType.NONE, blockType);
