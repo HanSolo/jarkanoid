@@ -1,0 +1,25 @@
+You need to have an Apple developer account to be able to deploy a JavaFX application to your device.
+
+You need to make your iOS device a developer device by enabling the Developer Mode like described here:
+https://developer.apple.com/documentation/xcode/enabling-developer-mode-on-a-device
+
+Make sure you have an adhoc wildcard provisioning profile created to be able to install it.
+You can create that at https://developer.apple.com/account under Certificates, Identifiers & Profiles.
+
+Download and install the latest Gluon GraalVM version from: https://github.com/gluonhq/graal/releases
+
+Set the GRAALVM_HOME environment variable to the Gluon GraalVM installation on your machine, e.g.
+ export GRAALVM_HOME=/Library/Java/JavaVirtualMachines/gluon-graalvm/Contents/Home
+
+Hook up your iOS device to your computer.
+
+In the project folder execute the following commands.
+
+Build it:
+ mvn -Pios gluonfx:build
+
+Package it:
+ mvn -Pios gluonfx:package
+
+Deploy it:
+ mvn -Pios gluonfx:install

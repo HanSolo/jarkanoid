@@ -41,4 +41,7 @@ bin/
 .vscode/
 
 ### Mac OS ###
+.DS_Storetarget/
+target/
 .DS_Store
+*.log
