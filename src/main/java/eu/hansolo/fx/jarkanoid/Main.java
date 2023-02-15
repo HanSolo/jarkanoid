@@ -6,14 +6,18 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
+import javafx.geometry.Insets;
 import javafx.geometry.VPos;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.StackPane;
-import javafx.scene.media.AudioClip;
+//import javafx.scene.media.AudioClip;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.text.Font;
@@ -55,22 +59,22 @@ public class Main extends Application {
     }
 
     protected static final Random      RND                 = new Random();
-    protected static final double      WIDTH               = 560;
-    protected static final double      HEIGHT              = 740;
-    protected static final double      INSET               = 22;
-    protected static final double      UPPER_INSET         = 85;
-    protected static final double      PADDLE_OFFSET_Y     = 68;
-    protected static final double      PADDLE_SPEED        = 8;
-    protected static final double      TORPEDO_SPEED       = 12;
+    protected static final double      WIDTH               = 390; //390; //560;
+    protected static final double      HEIGHT              = 516; //800; //740;
+    protected static final double      INSET               = 22 * Constants.SCALE_FACTOR;
+    protected static final double      UPPER_INSET         = 85 * Constants.SCALE_FACTOR;
+    protected static final double      PADDLE_OFFSET_Y     = 68 * Constants.SCALE_FACTOR;
+    protected static final double      PADDLE_SPEED        = 8 * Constants.SCALE_FACTOR;
+    protected static final double      TORPEDO_SPEED       = 12 * Constants.SCALE_FACTOR;
     protected static final double      BALL_SPEED          = clamp(1, 5, PropertyManager.INSTANCE.getDouble(Constants.BALL_SPEED_KEY, 2));
-    protected static final double      BLOCK_WIDTH         = 38;
-    protected static final double      BLOCK_HEIGHT        = 20;
-    protected static final double      BLOCK_STEP_X        = 40;
-    protected static final double      BLOCK_STEP_Y        = 22;
-    protected static final double      BONUS_BLOCK_WIDTH   = 38;
-    protected static final double      BONUS_BLOCK_HEIGHT  = 18;
+    protected static final double      BLOCK_WIDTH         = 38 * Constants.SCALE_FACTOR;
+    protected static final double      BLOCK_HEIGHT        = 20 * Constants.SCALE_FACTOR;
+    protected static final double      BLOCK_STEP_X        = 40 * Constants.SCALE_FACTOR;
+    protected static final double      BLOCK_STEP_Y        = 22 * Constants.SCALE_FACTOR;
+    protected static final double      BONUS_BLOCK_WIDTH   = 38 * Constants.SCALE_FACTOR;
+    protected static final double      BONUS_BLOCK_HEIGHT  = 18 * Constants.SCALE_FACTOR;
     protected static final double      BALL_VX_INFLUENCE   = 0.75;
-    protected static final Font        SCORE_FONT          = Fonts.emulogic(20);
+    protected static final Font        SCORE_FONT          = Fonts.emulogic(20 * Constants.SCALE_FACTOR);
     protected static final Color       HIGH_SCORE_RED      = Color.rgb(229, 2, 1);
     protected static final Color       SCORE_WHITE         = Color.WHITE;
     protected static final Color       TEXT_GRAY           = Color.rgb(216, 216, 216);
@@ -137,12 +141,12 @@ public class Main extends Application {
     private Image                    openDoorMapImg;
     private Image                    blockShadowImg;
     private Image                    bonusBlockShadowImg;
-    private AudioClip                gameStartSnd;
-    private AudioClip                startLevelSnd;
-    private AudioClip                ballPaddleSnd;
-    private AudioClip                ballBlockSnd;
-    private AudioClip                ballHardBlockSnd;
-    private AudioClip                laserSnd;
+    //private AudioClip                gameStartSnd;
+    //private AudioClip                startLevelSnd;
+    //private AudioClip                ballPaddleSnd;
+    //private AudioClip                ballBlockSnd;
+    //private AudioClip                ballHardBlockSnd;
+    //private AudioClip                laserSnd;
     private Paddle                   paddle;
     private List<Ball>               balls;
     private List<Block>              blocks;
@@ -298,7 +302,7 @@ public class Main extends Application {
         loadImages();
 
         // Load all sounds
-        loadSounds();
+        //loadSounds();
 
         bkgPatternFillBlue  = new ImagePattern(bkgPatternImgBlue, 0, 0, 68, 117, false);
         bkgPatternFillRed   = new ImagePattern(bkgPatternImgRed, 0, 0, 68, 117, false);
@@ -323,15 +327,22 @@ public class Main extends Application {
         startTime = Instant.now();
 
         final StackPane pane  = new StackPane(bkgCanvas, canvas, brdrCanvas);
+        pane.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
         final Scene     scene = new Scene(pane, WIDTH, HEIGHT);
 
         scene.setOnKeyPressed(e -> {
             if (running) {
                 if (movingPaddleOut) { return; }
                 switch (e.getCode()) {
-                    case RIGHT,D  -> movePaddleRight();
-                    case LEFT, A  -> movePaddleLeft();
-                    case SPACE    -> {
+                    case RIGHT:
+                    case D    :
+                        movePaddleRight();
+                        break;
+                    case LEFT :
+                    case A    :
+                        movePaddleLeft();
+                        break;
+                    case SPACE:
                         final long activeBalls = balls.stream().filter(ball -> ball.active).count();
                         if (activeBalls > 0) {
                             if (PaddleState.LASER == paddleState) { fire(paddle.bounds.centerX); }
@@ -341,7 +352,7 @@ public class Main extends Application {
                                 ball.bornTimestamp = Instant.now().getEpochSecond();
                             });
                         }
-                    }
+                        break;
                 }
             } else {
                 // Block for the first 8 seconds to give it some time to play the game start song
@@ -353,8 +364,8 @@ public class Main extends Application {
         });
         scene.setOnKeyReleased(e -> {
             switch(e.getCode()) {
-                case RIGHT -> stopPaddle();
-                case LEFT  -> stopPaddle();
+                case RIGHT: stopPaddle(); break;
+                case LEFT : stopPaddle(); break;
             }
         });
 
@@ -363,7 +374,7 @@ public class Main extends Application {
         stage.show();
         stage.setResizable(false);
 
-        playSound(gameStartSnd);
+        //playSound(gameStartSnd);
 
         startScreen();
 
@@ -378,56 +389,56 @@ public class Main extends Application {
 
     // Helper methods
     private void loadImages() {
-        logoImg               = new Image(getClass().getResourceAsStream("jarkanoid_logo.png"), 460, 118, true, false);
-        copyrightImg          = new Image(getClass().getResourceAsStream("copyright.png"), 458, 115, true, false);
-        bkgPatternImgBlue     = new Image(getClass().getResourceAsStream("backgroundPattern_blue.png"), 68, 117, true, false);
-        bkgPatternImgRed      = new Image(getClass().getResourceAsStream("backgroundPattern_red.png"), 68, 117, true, false);
-        bkgPatternImgGreen    = new Image(getClass().getResourceAsStream("backgroundPattern_green.png"), 68, 117, true, false);
-        borderVerticalImg     = new Image(getClass().getResourceAsStream("borderVertical.png"), 20, 113, true, false);
-        borderPartVerticalImg = new Image(getClass().getResourceAsStream("borderPartVertical.png"), 20, 71, true, false);
-        topPartImg            = new Image(getClass().getResourceAsStream("topPart.png"), 64, 23, true, false);
-        ulCornerImg           = new Image(getClass().getResourceAsStream("upperLeftCorner.png"), 15, 20, true, false);
-        urCornerImg           = new Image(getClass().getResourceAsStream("upperRightCorner.png"), 15, 20, true, false);
-        pipeImg               = new Image(getClass().getResourceAsStream("pipe.png"), 5, 17, true, false);
-        paddleMapStdImg       = new Image(getClass().getResourceAsStream("paddlemap_std.png"), 640, 176, false, false);
-        paddleMapWideImg      = new Image(getClass().getResourceAsStream("paddlemap_wide.png"), 960, 176, false, false);
-        paddleMapGunImg       = new Image(getClass().getResourceAsStream("paddlemap_gun.png"), 640, 176, false, false);
-        blinkMapImg           = new Image(getClass().getResourceAsStream("blink_map.png"), 304, 60, false, false);
-        paddleMiniImg         = new Image(getClass().getResourceAsStream("paddle_std.png"), 40, 11, true, false);
-        paddleStdShadowImg    = new Image(getClass().getResourceAsStream("paddle_std_shadow.png"), 80, 22, true, false);
-        paddleWideShadowImg   = new Image(getClass().getResourceAsStream("paddle_wide_shadow.png"), 121, 22, true, false);
-        paddleGunShadowImg    = new Image(getClass().getResourceAsStream("paddle_gun_shadow.png"), 80, 22, true, false);
-        ballImg               = new Image(getClass().getResourceAsStream("ball.png"), 12, 12, true, false);
-        ballShadowImg         = new Image(getClass().getResourceAsStream("ball_shadow.png"), 12, 12, true, false);
-        torpedoImg            = new Image(getClass().getResourceAsStream("torpedo.png"), 41, 23, true, false);
-        goldBlockImg          = new Image(getClass().getResourceAsStream("goldBlock.png"), 38, 20, true, false);
-        grayBlockImg          = new Image(getClass().getResourceAsStream("grayBlock.png"), 38, 20, true, false);
-        whiteBlockImg         = new Image(getClass().getResourceAsStream("whiteBlock.png"), 38, 20, true, false);
-        orangeBlockImg        = new Image(getClass().getResourceAsStream("orangeBlock.png"), 38, 20, true, false);
-        cyanBlockImg          = new Image(getClass().getResourceAsStream("cyanBlock.png"), 38, 20, true, false);
-        limeBlockImg          = new Image(getClass().getResourceAsStream("limeBlock.png"), 38, 20, true, false);
-        redBlockImg           = new Image(getClass().getResourceAsStream("redBlock.png"), 38, 20, true, false);
-        blueBlockImg          = new Image(getClass().getResourceAsStream("blueBlock.png"), 38, 20, true, false);
-        magentaBlockImg       = new Image(getClass().getResourceAsStream("magentaBlock.png"), 38, 20, true, false);
-        yellowBlockImg        = new Image(getClass().getResourceAsStream("yellowBlock.png"), 38, 20, true, false);
-        blockShadowImg        = new Image(getClass().getResourceAsStream("block_shadow.png"), 38, 20, true, false);
-        bonusBlockCMapImg     = new Image(getClass().getResourceAsStream("block_map_bonus_c.png"), 190, 72, true, false);
-        bonusBlockFMapImg     = new Image(getClass().getResourceAsStream("block_map_bonus_f.png"), 190, 72, true, false);
-        bonusBlockDMapImg     = new Image(getClass().getResourceAsStream("block_map_bonus_d.png"), 190, 72, true, false);
-        bonusBlockSMapImg     = new Image(getClass().getResourceAsStream("block_map_bonus_s.png"), 190, 72, true, false);
-        bonusBlockLMapImg     = new Image(getClass().getResourceAsStream("block_map_bonus_l.png"), 190, 72, true, false);
-        bonusBlockBMapImg     = new Image(getClass().getResourceAsStream("block_map_bonus_b.png"), 190, 72, true, false);
-        openDoorMapImg        = new Image(getClass().getResourceAsStream("open_door_map.png"), 120, 71, true, false);
-        bonusBlockShadowImg   = new Image(getClass().getResourceAsStream("bonus_block_shadow.png"), 38, 18, true, false);
+        logoImg               = new Image(getClass().getResourceAsStream("jarkanoid_logo.png"), 460 * Constants.SCALE_FACTOR, 118 * Constants.SCALE_FACTOR, true, false);
+        copyrightImg          = new Image(getClass().getResourceAsStream("copyright.png"), 458 * Constants.SCALE_FACTOR, 115 * Constants.SCALE_FACTOR, true, false);
+        bkgPatternImgBlue     = new Image(getClass().getResourceAsStream("backgroundPattern_blue.png"), 68 * Constants.SCALE_FACTOR, 117 * Constants.SCALE_FACTOR, true, false);
+        bkgPatternImgRed      = new Image(getClass().getResourceAsStream("backgroundPattern_red.png"), 68 * Constants.SCALE_FACTOR, 117 * Constants.SCALE_FACTOR, true, false);
+        bkgPatternImgGreen    = new Image(getClass().getResourceAsStream("backgroundPattern_green.png"), 68 * Constants.SCALE_FACTOR, 117 * Constants.SCALE_FACTOR, true, false);
+        borderVerticalImg     = new Image(getClass().getResourceAsStream("borderVertical.png"), 20 * Constants.SCALE_FACTOR, 113 * Constants.SCALE_FACTOR, true, false);
+        borderPartVerticalImg = new Image(getClass().getResourceAsStream("borderPartVertical.png"), 20 * Constants.SCALE_FACTOR, 71 * Constants.SCALE_FACTOR, true, false);
+        topPartImg            = new Image(getClass().getResourceAsStream("topPart.png"), 64 * Constants.SCALE_FACTOR, 23 * Constants.SCALE_FACTOR, true, false);
+        ulCornerImg           = new Image(getClass().getResourceAsStream("upperLeftCorner.png"), 15 * Constants.SCALE_FACTOR, 20 * Constants.SCALE_FACTOR, true, false);
+        urCornerImg           = new Image(getClass().getResourceAsStream("upperRightCorner.png"), 15 * Constants.SCALE_FACTOR, 20 * Constants.SCALE_FACTOR, true, false);
+        pipeImg               = new Image(getClass().getResourceAsStream("pipe.png"), 5 * Constants.SCALE_FACTOR, 17 * Constants.SCALE_FACTOR, true, false);
+        paddleMapStdImg       = new Image(getClass().getResourceAsStream("paddlemap_std.png"), 640 * Constants.SCALE_FACTOR, 176 * Constants.SCALE_FACTOR, false, false);
+        paddleMapWideImg      = new Image(getClass().getResourceAsStream("paddlemap_wide.png"), 960 * Constants.SCALE_FACTOR, 176 * Constants.SCALE_FACTOR, false, false);
+        paddleMapGunImg       = new Image(getClass().getResourceAsStream("paddlemap_gun.png"), 640 * Constants.SCALE_FACTOR, 176 * Constants.SCALE_FACTOR, false, false);
+        blinkMapImg           = new Image(getClass().getResourceAsStream("blink_map.png"), 304 * Constants.SCALE_FACTOR, 60 * Constants.SCALE_FACTOR, false, false);
+        paddleMiniImg         = new Image(getClass().getResourceAsStream("paddle_std.png"), 40 * Constants.SCALE_FACTOR, 11 * Constants.SCALE_FACTOR, true, false);
+        paddleStdShadowImg    = new Image(getClass().getResourceAsStream("paddle_std_shadow.png"), 80 * Constants.SCALE_FACTOR, 22 * Constants.SCALE_FACTOR, true, false);
+        paddleWideShadowImg   = new Image(getClass().getResourceAsStream("paddle_wide_shadow.png"), 121 * Constants.SCALE_FACTOR, 22 * Constants.SCALE_FACTOR, true, false);
+        paddleGunShadowImg    = new Image(getClass().getResourceAsStream("paddle_gun_shadow.png"), 80 * Constants.SCALE_FACTOR, 22 * Constants.SCALE_FACTOR, true, false);
+        ballImg               = new Image(getClass().getResourceAsStream("ball.png"), 12 * Constants.SCALE_FACTOR, 12 * Constants.SCALE_FACTOR, true, false);
+        ballShadowImg         = new Image(getClass().getResourceAsStream("ball_shadow.png"), 12 * Constants.SCALE_FACTOR, 12 * Constants.SCALE_FACTOR, true, false);
+        torpedoImg            = new Image(getClass().getResourceAsStream("torpedo.png"), 41 * Constants.SCALE_FACTOR, 23 * Constants.SCALE_FACTOR, true, false);
+        goldBlockImg          = new Image(getClass().getResourceAsStream("goldBlock.png"), 38 * Constants.SCALE_FACTOR, 20 * Constants.SCALE_FACTOR, true, false);
+        grayBlockImg          = new Image(getClass().getResourceAsStream("grayBlock.png"), 38 * Constants.SCALE_FACTOR, 20 * Constants.SCALE_FACTOR, true, false);
+        whiteBlockImg         = new Image(getClass().getResourceAsStream("whiteBlock.png"), 38 * Constants.SCALE_FACTOR, 20 * Constants.SCALE_FACTOR, true, false);
+        orangeBlockImg        = new Image(getClass().getResourceAsStream("orangeBlock.png"), 38 * Constants.SCALE_FACTOR, 20 * Constants.SCALE_FACTOR, true, false);
+        cyanBlockImg          = new Image(getClass().getResourceAsStream("cyanBlock.png"), 38 * Constants.SCALE_FACTOR, 20 * Constants.SCALE_FACTOR, true, false);
+        limeBlockImg          = new Image(getClass().getResourceAsStream("limeBlock.png"), 38 * Constants.SCALE_FACTOR, 20 * Constants.SCALE_FACTOR, true, false);
+        redBlockImg           = new Image(getClass().getResourceAsStream("redBlock.png"), 38 * Constants.SCALE_FACTOR, 20 * Constants.SCALE_FACTOR, true, false);
+        blueBlockImg          = new Image(getClass().getResourceAsStream("blueBlock.png"), 38 * Constants.SCALE_FACTOR, 20 * Constants.SCALE_FACTOR, true, false);
+        magentaBlockImg       = new Image(getClass().getResourceAsStream("magentaBlock.png"), 38 * Constants.SCALE_FACTOR, 20 * Constants.SCALE_FACTOR, true, false);
+        yellowBlockImg        = new Image(getClass().getResourceAsStream("yellowBlock.png"), 38 * Constants.SCALE_FACTOR, 20 * Constants.SCALE_FACTOR, true, false);
+        blockShadowImg        = new Image(getClass().getResourceAsStream("block_shadow.png"), 38 * Constants.SCALE_FACTOR, 20 * Constants.SCALE_FACTOR, true, false);
+        bonusBlockCMapImg     = new Image(getClass().getResourceAsStream("block_map_bonus_c.png"), 190 * Constants.SCALE_FACTOR, 72 * Constants.SCALE_FACTOR, true, false);
+        bonusBlockFMapImg     = new Image(getClass().getResourceAsStream("block_map_bonus_f.png"), 190 * Constants.SCALE_FACTOR, 72 * Constants.SCALE_FACTOR, true, false);
+        bonusBlockDMapImg     = new Image(getClass().getResourceAsStream("block_map_bonus_d.png"), 190 * Constants.SCALE_FACTOR, 72 * Constants.SCALE_FACTOR, true, false);
+        bonusBlockSMapImg     = new Image(getClass().getResourceAsStream("block_map_bonus_s.png"), 190 * Constants.SCALE_FACTOR, 72 * Constants.SCALE_FACTOR, true, false);
+        bonusBlockLMapImg     = new Image(getClass().getResourceAsStream("block_map_bonus_l.png"), 190 * Constants.SCALE_FACTOR, 72 * Constants.SCALE_FACTOR, true, false);
+        bonusBlockBMapImg     = new Image(getClass().getResourceAsStream("block_map_bonus_b.png"), 190 * Constants.SCALE_FACTOR, 72 * Constants.SCALE_FACTOR, true, false);
+        openDoorMapImg        = new Image(getClass().getResourceAsStream("open_door_map.png"), 120 * Constants.SCALE_FACTOR, 71 * Constants.SCALE_FACTOR, true, false);
+        bonusBlockShadowImg   = new Image(getClass().getResourceAsStream("bonus_block_shadow.png"), 38 * Constants.SCALE_FACTOR, 18 * Constants.SCALE_FACTOR, true, false);
     }
 
     private void loadSounds() {
-        gameStartSnd     = new AudioClip(getClass().getResource("game_start.wav").toExternalForm());
-        startLevelSnd    = new AudioClip(getClass().getResource("level_ready.wav").toExternalForm());
-        ballPaddleSnd    = new AudioClip(getClass().getResource("ball_paddle.wav").toExternalForm());
-        ballBlockSnd     = new AudioClip(getClass().getResource("ball_block.wav").toExternalForm());
-        ballHardBlockSnd = new AudioClip(getClass().getResource("ball_hard_block.wav").toExternalForm());
-        laserSnd         = new AudioClip(getClass().getResource("gun.wav").toExternalForm());
+        //gameStartSnd     = new AudioClip(getClass().getResource("game_start.wav").toExternalForm());
+        //startLevelSnd    = new AudioClip(getClass().getResource("level_ready.wav").toExternalForm());
+        //ballPaddleSnd    = new AudioClip(getClass().getResource("ball_paddle.wav").toExternalForm());
+        //ballBlockSnd     = new AudioClip(getClass().getResource("ball_block.wav").toExternalForm());
+        //ballHardBlockSnd = new AudioClip(getClass().getResource("ball_hard_block.wav").toExternalForm());
+        //laserSnd         = new AudioClip(getClass().getResource("gun.wav").toExternalForm());
     }
 
     private static double clamp(final double min, final double max, final double value) {
@@ -452,13 +463,13 @@ public class Main extends Application {
 
     private void fire(final double x) {
         if (torpedoes.size() > 0) { return; }
-        torpedoes.add(new Torpedo(torpedoImg, x, HEIGHT - 50));
-        playSound(laserSnd);
+        torpedoes.add(new Torpedo(torpedoImg, x, HEIGHT - 50 * Constants.SCALE_FACTOR));
+        //playSound(laserSnd);
     }
 
 
     // Play audio clips
-    private void playSound(final AudioClip audioClip) { audioClip.play(); }
+    //private void playSound(final AudioClip audioClip) { audioClip.play(); }
 
 
     // Re-Spawn Ball
@@ -488,7 +499,7 @@ public class Main extends Application {
         paddle.x           = WIDTH * 0.5 - paddleState.width * 0.5;
         paddle.bounds.minX = paddle.x - paddle.width * 0.5;
         readyLevelVisible  = true;
-        playSound(startLevelSnd);
+        //playSound(startLevelSnd);
         setupBlocks(level);
         bonusBlocks.clear();
         balls.clear();
@@ -540,19 +551,18 @@ public class Main extends Application {
                     }
                 }
                 bonusTypeCounter++;
-                bonusType = BonusType.BONUS_D;
                 switch (blockType) {
-                    case GOLD -> block = new Block(goldBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 0, blockType.maxHits, BonusType.NONE, blockType);
-                    case GRAY -> block = new Block(grayBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 20, blockType.maxHits, BonusType.NONE, blockType);
-                    case WHIT -> block = new Block(whiteBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType, blockType);
-                    case ORNG -> block = new Block(orangeBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType, blockType);
-                    case CYAN -> block = new Block(cyanBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType, blockType);
-                    case LIME -> block = new Block(limeBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType, blockType);
-                    case RUBY -> block = new Block(redBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType, blockType);
-                    case BLUE -> block = new Block(blueBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType, blockType);
-                    case MGNT -> block = new Block(magentaBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType, blockType);
-                    case YLLW -> block = new Block(yellowBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType, blockType);
-                    default   -> block = null;
+                    case GOLD : block = new Block(goldBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 0, blockType.maxHits, BonusType.NONE, blockType); break;
+                    case GRAY : block = new Block(grayBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 20, blockType.maxHits, BonusType.NONE, blockType); break;
+                    case WHIT : block = new Block(whiteBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType, blockType); break;
+                    case ORNG : block = new Block(orangeBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType, blockType); break;
+                    case CYAN : block = new Block(cyanBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType, blockType); break;
+                    case LIME : block = new Block(limeBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType, blockType); break;
+                    case RUBY : block = new Block(redBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType, blockType); break;
+                    case BLUE : block = new Block(blueBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType, blockType); break;
+                    case MGNT : block = new Block(magentaBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType, blockType); break;
+                    case YLLW : block = new Block(yellowBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType, blockType); break;
+                    default   : block = null; break;
                 }
                 if (null == block) { continue; }
                 blocks.add(block);
@@ -587,8 +597,10 @@ public class Main extends Application {
             if (bonusBlock.bounds.intersects(paddle.bounds)) {
                 bonusBlock.toBeRemoved = true;
                 switch (bonusBlock.bonusType) {
-                    case BONUS_C -> noOfLifes = clamp(2, 5, noOfLifes + 1);
-                    case BONUS_D -> {
+                    case BONUS_C :
+                        noOfLifes = clamp(2, 5, noOfLifes + 1);
+                        break;
+                    case BONUS_D :
                         if (balls.size() == 1) {
                             Ball ball = balls.get(0);
                             double vX1 = (Math.sin(Math.toRadians(10)) * ball.vX);
@@ -598,23 +610,23 @@ public class Main extends Application {
                             balls.add(new Ball(ballImg, ball.x, ball.y, vX1, vY1));
                             balls.add(new Ball(ballImg, ball.x, ball.y, vX2, vY2));
                         }
-                    }
-                    case BONUS_F -> {
+                        break;
+                    case BONUS_F :
                         paddleResetCounter = 30;
                         paddleState        = PaddleState.WIDE;
-                    }
-                    case BONUS_L -> {
+                        break;
+                    case BONUS_L :
                         paddleResetCounter = 30;
                         paddleState        = PaddleState.LASER;
-                    }
-                    case BONUS_S -> {
+                        break;
+                    case BONUS_S :
                         speedResetCounter = 30;
                         ballSpeed         = BALL_SPEED * 0.5;
-                    }
-                    case BONUS_B -> {
+                        break;
+                    case BONUS_B :
                         nextLevelDoorCounter = 5;
                         nextLevelDoorOpen    = true;
-                    }
+                        break;
                 }
             }
         }
@@ -683,9 +695,9 @@ public class Main extends Application {
         // Draw paddle shadow
         if (noOfLifes > 0) {
             switch (paddleState) {
-                case STANDARD -> ctx.drawImage(paddleStdShadowImg, paddle.bounds.minX, paddle.bounds.minY);
-                case WIDE     -> ctx.drawImage(paddleWideShadowImg, paddle.bounds.minX, paddle.bounds.minY);
-                case LASER    -> ctx.drawImage(paddleGunShadowImg, paddle.bounds.minX, paddle.bounds.minY);
+                case STANDARD: ctx.drawImage(paddleStdShadowImg, paddle.bounds.minX, paddle.bounds.minY); break;
+                case WIDE    : ctx.drawImage(paddleWideShadowImg, paddle.bounds.minX, paddle.bounds.minY); break;
+                case LASER   : ctx.drawImage(paddleGunShadowImg, paddle.bounds.minX, paddle.bounds.minY); break;
             }
         }
 
@@ -699,12 +711,12 @@ public class Main extends Application {
         // Draw bonus blocks
         bonusBlocks.forEach(bonusBlock -> {
             switch(bonusBlock.bonusType) {
-                case BONUS_C -> ctx.drawImage(bonusBlockCMapImg, bonusBlock.countX * BONUS_BLOCK_WIDTH, bonusBlock.countY * BONUS_BLOCK_HEIGHT, BONUS_BLOCK_WIDTH, BONUS_BLOCK_HEIGHT, bonusBlock.x, bonusBlock.y, BONUS_BLOCK_WIDTH, BONUS_BLOCK_HEIGHT);
-                case BONUS_F -> ctx.drawImage(bonusBlockFMapImg, bonusBlock.countX * BONUS_BLOCK_WIDTH, bonusBlock.countY * BONUS_BLOCK_HEIGHT, BONUS_BLOCK_WIDTH, BONUS_BLOCK_HEIGHT, bonusBlock.x, bonusBlock.y, BONUS_BLOCK_WIDTH, BONUS_BLOCK_HEIGHT);
-                case BONUS_D -> ctx.drawImage(bonusBlockDMapImg, bonusBlock.countX * BONUS_BLOCK_WIDTH, bonusBlock.countY * BONUS_BLOCK_HEIGHT, BONUS_BLOCK_WIDTH, BONUS_BLOCK_HEIGHT, bonusBlock.x, bonusBlock.y, BONUS_BLOCK_WIDTH, BONUS_BLOCK_HEIGHT);
-                case BONUS_L -> ctx.drawImage(bonusBlockLMapImg, bonusBlock.countX * BONUS_BLOCK_WIDTH, bonusBlock.countY * BONUS_BLOCK_HEIGHT, BONUS_BLOCK_WIDTH, BONUS_BLOCK_HEIGHT, bonusBlock.x, bonusBlock.y, BONUS_BLOCK_WIDTH, BONUS_BLOCK_HEIGHT);
-                case BONUS_S -> ctx.drawImage(bonusBlockSMapImg, bonusBlock.countX * BONUS_BLOCK_WIDTH, bonusBlock.countY * BONUS_BLOCK_HEIGHT, BONUS_BLOCK_WIDTH, BONUS_BLOCK_HEIGHT, bonusBlock.x, bonusBlock.y, BONUS_BLOCK_WIDTH, BONUS_BLOCK_HEIGHT);
-                case BONUS_B -> ctx.drawImage(bonusBlockBMapImg, bonusBlock.countX * BONUS_BLOCK_WIDTH, bonusBlock.countY * BONUS_BLOCK_HEIGHT, BONUS_BLOCK_WIDTH, BONUS_BLOCK_HEIGHT, bonusBlock.x, bonusBlock.y, BONUS_BLOCK_WIDTH, BONUS_BLOCK_HEIGHT);
+                case BONUS_C: ctx.drawImage(bonusBlockCMapImg, bonusBlock.countX * BONUS_BLOCK_WIDTH, bonusBlock.countY * BONUS_BLOCK_HEIGHT, BONUS_BLOCK_WIDTH, BONUS_BLOCK_HEIGHT, bonusBlock.x, bonusBlock.y, BONUS_BLOCK_WIDTH, BONUS_BLOCK_HEIGHT); break;
+                case BONUS_F: ctx.drawImage(bonusBlockFMapImg, bonusBlock.countX * BONUS_BLOCK_WIDTH, bonusBlock.countY * BONUS_BLOCK_HEIGHT, BONUS_BLOCK_WIDTH, BONUS_BLOCK_HEIGHT, bonusBlock.x, bonusBlock.y, BONUS_BLOCK_WIDTH, BONUS_BLOCK_HEIGHT); break;
+                case BONUS_D: ctx.drawImage(bonusBlockDMapImg, bonusBlock.countX * BONUS_BLOCK_WIDTH, bonusBlock.countY * BONUS_BLOCK_HEIGHT, BONUS_BLOCK_WIDTH, BONUS_BLOCK_HEIGHT, bonusBlock.x, bonusBlock.y, BONUS_BLOCK_WIDTH, BONUS_BLOCK_HEIGHT); break;
+                case BONUS_L: ctx.drawImage(bonusBlockLMapImg, bonusBlock.countX * BONUS_BLOCK_WIDTH, bonusBlock.countY * BONUS_BLOCK_HEIGHT, BONUS_BLOCK_WIDTH, BONUS_BLOCK_HEIGHT, bonusBlock.x, bonusBlock.y, BONUS_BLOCK_WIDTH, BONUS_BLOCK_HEIGHT); break;
+                case BONUS_S: ctx.drawImage(bonusBlockSMapImg, bonusBlock.countX * BONUS_BLOCK_WIDTH, bonusBlock.countY * BONUS_BLOCK_HEIGHT, BONUS_BLOCK_WIDTH, BONUS_BLOCK_HEIGHT, bonusBlock.x, bonusBlock.y, BONUS_BLOCK_WIDTH, BONUS_BLOCK_HEIGHT); break;
+                case BONUS_B: ctx.drawImage(bonusBlockBMapImg, bonusBlock.countX * BONUS_BLOCK_WIDTH, bonusBlock.countY * BONUS_BLOCK_HEIGHT, BONUS_BLOCK_WIDTH, BONUS_BLOCK_HEIGHT, bonusBlock.x, bonusBlock.y, BONUS_BLOCK_WIDTH, BONUS_BLOCK_HEIGHT); break;
             }
         });
 
@@ -723,9 +735,9 @@ public class Main extends Application {
                 paddle.update();
             }
             switch (paddleState) {
-                case STANDARD -> ctx.drawImage(paddleMapStdImg, paddle.countX * paddleState.width, paddle.countY * paddleState.height, paddleState.width, paddleState.height, paddle.x, paddle.y, paddleState.width, paddleState.height);
-                case WIDE     -> ctx.drawImage(paddleMapWideImg, paddle.countX * paddleState.width, paddle.countY * paddleState.height, paddleState.width, paddleState.height, paddle.x, paddle.y, paddleState.width, paddleState.height);
-                case LASER    -> ctx.drawImage(paddleMapGunImg, paddle.countX * paddleState.width, paddle.countY * paddleState.height, paddleState.width, paddleState.height, paddle.x, paddle.y, paddleState.width, paddleState.height);
+                case STANDARD: ctx.drawImage(paddleMapStdImg, paddle.countX * paddleState.width, paddle.countY * paddleState.height, paddleState.width, paddleState.height, paddle.x, paddle.y, paddleState.width, paddleState.height); break;
+                case WIDE    : ctx.drawImage(paddleMapWideImg, paddle.countX * paddleState.width, paddle.countY * paddleState.height, paddleState.width, paddleState.height, paddle.x, paddle.y, paddleState.width, paddleState.height); break;
+                case LASER   : ctx.drawImage(paddleMapGunImg, paddle.countX * paddleState.width, paddle.countY * paddleState.height, paddleState.width, paddleState.height, paddle.x, paddle.y, paddleState.width, paddleState.height); break;
             }
         } else {
             ctx.setFill(TEXT_GRAY);
@@ -1132,35 +1144,35 @@ public class Main extends Application {
                 boolean ballHitsBlock = this.bounds.intersects(block.hitBounds);
                 if (ballHitsBlock) {
                     switch (block.blockType) {
-                        case GOLD -> {
-                            playSound(ballHardBlockSnd);
+                        case GOLD:
+                            //playSound(ballHardBlockSnd);
                             blinks.add(new Blink(block.bounds.minX, block.bounds.minY));
-                        }
-                        case GRAY -> {
+                            break;
+                        case GRAY :
                             block.hits++;
                             if (block.hits == block.maxHits) {
                                 score += block.value;
                                 block.toBeRemoved = true;
-                                playSound(ballBlockSnd);
+                                //playSound(ballBlockSnd);
                                 if (block.bonusType != BonusType.NONE) {
                                     bonusBlocks.add(new BonusBlock(block.x, block.y, block.bonusType));
                                 }
                             } else {
-                                playSound(ballHardBlockSnd);
+                                //playSound(ballHardBlockSnd);
                                 blinks.add(new Blink(block.bounds.minX, block.bounds.minY));
                             }
-                        }
-                        default -> {
+                            break;
+                        default:
                             block.hits++;
                             if (block.hits >= block.maxHits) {
                                 score += block.value;
                                 block.toBeRemoved = true;
-                                playSound(ballBlockSnd);
+                                //playSound(ballBlockSnd);
                                 if (block.bonusType != BonusType.NONE) {
                                     bonusBlocks.add(new BonusBlock(block.x, block.y, block.bonusType));
                                 }
                             }
-                        }
+                            break;
                     }
                     if (bounds.centerX > block.hitBounds.minX && bounds.centerX < block.hitBounds.maxX) {
                         // Top or Bottom hit
@@ -1201,7 +1213,7 @@ public class Main extends Application {
                 }
                 vY = -ballSpeed;
 
-                playSound(ballPaddleSnd);
+                //playSound(ballPaddleSnd);
             }
 
             if (Double.compare(vX, 0) == 0) { vX = 0.5; }

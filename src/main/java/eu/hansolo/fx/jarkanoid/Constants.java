@@ -6,6 +6,8 @@ import java.util.Map;
 
 
 public class Constants {
+    protected static final double SCALE_FACTOR = 0.6964285714;
+
     protected enum BlockType {
         NONE(0),
         GOLD(-1),
