@@ -36,9 +36,9 @@ import java.util.concurrent.TimeUnit;
 
 public class Main extends Application {
     protected enum PaddleState {
-        STANDARD(80, 22),
-        WIDE(120, 22),
-        LASER(80, 22);
+        STANDARD(80 * Constants.SCALE_FACTOR, 22 * Constants.SCALE_FACTOR),
+        WIDE(120 * Constants.SCALE_FACTOR, 22 * Constants.SCALE_FACTOR),
+        LASER(80 * Constants.SCALE_FACTOR, 22 * Constants.SCALE_FACTOR);
 
         protected final double width;
         protected final double height;
@@ -419,10 +419,10 @@ public class Main extends Application {
         ulCornerImg           = new Image(getClass().getResourceAsStream("upperLeftCorner.png"), 15 * Constants.SCALE_FACTOR, 20 * Constants.SCALE_FACTOR, true, false);
         urCornerImg           = new Image(getClass().getResourceAsStream("upperRightCorner.png"), 15 * Constants.SCALE_FACTOR, 20 * Constants.SCALE_FACTOR, true, false);
         pipeImg               = new Image(getClass().getResourceAsStream("pipe.png"), 5 * Constants.SCALE_FACTOR, 17 * Constants.SCALE_FACTOR, true, false);
-        paddleMapStdImg       = new Image(getClass().getResourceAsStream("paddlemap_std.png"), 640, 176, false, false);
-        paddleMapWideImg      = new Image(getClass().getResourceAsStream("paddlemap_wide.png"), 960, 176, false, false);
-        paddleMapGunImg       = new Image(getClass().getResourceAsStream("paddlemap_gun.png"), 640, 176, false, false);
-        blinkMapImg           = new Image(getClass().getResourceAsStream("blink_map.png"), 304, 60, false, false);
+        paddleMapStdImg       = new Image(getClass().getResourceAsStream("paddlemap_std.png"), 640 * Constants.SCALE_FACTOR, 176 * Constants.SCALE_FACTOR, true, false);
+        paddleMapWideImg      = new Image(getClass().getResourceAsStream("paddlemap_wide.png"), 960 * Constants.SCALE_FACTOR, 176 * Constants.SCALE_FACTOR, false, false);
+        paddleMapGunImg       = new Image(getClass().getResourceAsStream("paddlemap_gun.png"), 640 * Constants.SCALE_FACTOR, 176 * Constants.SCALE_FACTOR, false, false);
+        blinkMapImg           = new Image(getClass().getResourceAsStream("blink_map.png"), 304 * Constants.SCALE_FACTOR, 60 * Constants.SCALE_FACTOR, false, false);
         paddleMiniImg         = new Image(getClass().getResourceAsStream("paddle_std.png"), 40 * Constants.SCALE_FACTOR, 11 * Constants.SCALE_FACTOR, true, false);
         paddleStdShadowImg    = new Image(getClass().getResourceAsStream("paddle_std_shadow.png"), 80 * Constants.SCALE_FACTOR, 22 * Constants.SCALE_FACTOR, true, false);
         paddleWideShadowImg   = new Image(getClass().getResourceAsStream("paddle_wide_shadow.png"), 121 * Constants.SCALE_FACTOR, 22 * Constants.SCALE_FACTOR, true, false);
@@ -441,14 +441,14 @@ public class Main extends Application {
         magentaBlockImg       = new Image(getClass().getResourceAsStream("magentaBlock.png"), 38 * Constants.SCALE_FACTOR, 20 * Constants.SCALE_FACTOR, true, false);
         yellowBlockImg        = new Image(getClass().getResourceAsStream("yellowBlock.png"), 38 * Constants.SCALE_FACTOR, 20 * Constants.SCALE_FACTOR, true, false);
         blockShadowImg        = new Image(getClass().getResourceAsStream("block_shadow.png"), 38 * Constants.SCALE_FACTOR, 20 * Constants.SCALE_FACTOR, true, false);
-        bonusBlockCMapImg     = new Image(getClass().getResourceAsStream("block_map_bonus_c.png"), 190, 72, true, false);
-        bonusBlockFMapImg     = new Image(getClass().getResourceAsStream("block_map_bonus_f.png"), 190, 72, true, false);
-        bonusBlockDMapImg     = new Image(getClass().getResourceAsStream("block_map_bonus_d.png"), 190, 72, true, false);
-        bonusBlockSMapImg     = new Image(getClass().getResourceAsStream("block_map_bonus_s.png"), 190, 72, true, false);
-        bonusBlockLMapImg     = new Image(getClass().getResourceAsStream("block_map_bonus_l.png"), 190, 72, true, false);
-        bonusBlockBMapImg     = new Image(getClass().getResourceAsStream("block_map_bonus_b.png"), 190, 72, true, false);
-        openDoorMapImg        = new Image(getClass().getResourceAsStream("open_door_map.png"), 120, 71, true, false);
-        bonusBlockShadowImg   = new Image(getClass().getResourceAsStream("bonus_block_shadow.png"), 38, 18, true, false);
+        bonusBlockCMapImg     = new Image(getClass().getResourceAsStream("block_map_bonus_c.png"), 190 * Constants.SCALE_FACTOR, 72 * Constants.SCALE_FACTOR, true, false);
+        bonusBlockFMapImg     = new Image(getClass().getResourceAsStream("block_map_bonus_f.png"), 190 * Constants.SCALE_FACTOR, 72 * Constants.SCALE_FACTOR, true, false);
+        bonusBlockDMapImg     = new Image(getClass().getResourceAsStream("block_map_bonus_d.png"), 190 * Constants.SCALE_FACTOR, 72 * Constants.SCALE_FACTOR, true, false);
+        bonusBlockSMapImg     = new Image(getClass().getResourceAsStream("block_map_bonus_s.png"), 190 * Constants.SCALE_FACTOR, 72 * Constants.SCALE_FACTOR, true, false);
+        bonusBlockLMapImg     = new Image(getClass().getResourceAsStream("block_map_bonus_l.png"), 190 * Constants.SCALE_FACTOR, 72 * Constants.SCALE_FACTOR, true, false);
+        bonusBlockBMapImg     = new Image(getClass().getResourceAsStream("block_map_bonus_b.png"), 190 * Constants.SCALE_FACTOR, 72 * Constants.SCALE_FACTOR, true, false);
+        openDoorMapImg        = new Image(getClass().getResourceAsStream("open_door_map.png"), 120 * Constants.SCALE_FACTOR, 71 * Constants.SCALE_FACTOR, true, false);
+        bonusBlockShadowImg   = new Image(getClass().getResourceAsStream("bonus_block_shadow.png"), 38 * Constants.SCALE_FACTOR, 18 * Constants.SCALE_FACTOR, true, false);
     }
 
     private void loadSounds() {
