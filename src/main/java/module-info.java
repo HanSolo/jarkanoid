@@ -1,11 +1,12 @@
 module eu.hansolo.fx.jarkanoid {
+    // Java
+    requires java.base;
 
     // Java-FX
-    requires javafx.base;
-    requires javafx.graphics;
-    requires javafx.controls;
-    requires javafx.swing;
-    requires javafx.media;
+    requires transitive javafx.base;
+    requires transitive javafx.graphics;
+    requires transitive javafx.controls;
+    requires transitive javafx.media;
 
-    exports eu.hansolo.fx.jarkanoid;
+    exports eu.hansolo.fx.jarkanoid to javafx.base,javafx.graphics,javafx.controls,javafx.media;
 }
