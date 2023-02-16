@@ -9,11 +9,11 @@
   <properties>
     <maven.compiler.release>11</maven.compiler.release>
     <charm.version>6.2.2</charm.version>
-    <attach.version>4.0.16</attach.version>
+    <attach.version>4.0.17-SNAPSHOT</attach.version>
     <main.class>eu.hansolo.fx.jarkanoid.Main</main.class>
     <gluonfx.plugin.version>1.0.16</gluonfx.plugin.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <javafx.version>17.0.2</javafx.version>
+    <javafx.version>17.0.6</javafx.version>
     <javafx.plugin.version>0.0.8</javafx.plugin.version>
   </properties>
   <dependencies>
@@ -25,11 +25,6 @@
     <dependency>
       <groupId>org.openjfx</groupId>
       <artifactId>javafx-media</artifactId>
-      <version>${javafx.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.openjfx</groupId>
-      <artifactId>javafx-swing</artifactId>
       <version>${javafx.version}</version>
     </dependency>
     <dependency>
@@ -114,6 +109,10 @@
         <configuration>
           <target>${gluonfx.target}</target>
           <mainClass>${main.class}</mainClass>
+          <resourcesList>
+            <list>.*\\.wav$</list>
+            <list>.*\\.mp3$</list>
+          </resourcesList>
           <attachList>
             <list>runtime-args</list>
             <list>audio</list>

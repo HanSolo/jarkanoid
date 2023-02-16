@@ -13,11 +13,11 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.StackPane;
-//import javafx.scene.media.AudioClip;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.text.Font;
@@ -141,12 +141,12 @@ public class Main extends Application {
     private Image                    openDoorMapImg;
     private Image                    blockShadowImg;
     private Image                    bonusBlockShadowImg;
-    //private AudioClip                gameStartSnd;
-    //private AudioClip                startLevelSnd;
-    //private AudioClip                ballPaddleSnd;
-    //private AudioClip                ballBlockSnd;
-    //private AudioClip                ballHardBlockSnd;
-    //private AudioClip                laserSnd;
+    private Audio                    gameStartSnd;
+    private Audio                    startLevelSnd;
+    private Audio                    ballPaddleSnd;
+    private Audio                    ballBlockSnd;
+    private Audio                    ballHardBlockSnd;
+    private Audio                    laserSnd;
     private Paddle                   paddle;
     private List<Ball>               balls;
     private List<Block>              blocks;
@@ -171,6 +171,8 @@ public class Main extends Application {
     private OpenDoor                 openDoor;
     private boolean                  showStartHint;
     private EventHandler<MouseEvent> mouseHandler;
+    private StackPane                laserTouchArea;
+    private AudioService             audioService;
 
 
     // ******************** Methods *******************************************
@@ -191,6 +193,8 @@ public class Main extends Application {
         noOfBonusBlockB          = 0;
         openDoor                 = new OpenDoor(WIDTH - 20 * Constants.SCALE_FACTOR, UPPER_INSET + 565 * Constants.SCALE_FACTOR);
         showStartHint            = true;
+        laserTouchArea           = new StackPane();
+        audioService             = AudioService.create().orElse(null);
 
         lastTimerCall            = System.nanoTime();
         lastAnimCall             = System.nanoTime();
@@ -302,7 +306,7 @@ public class Main extends Application {
         loadImages();
 
         // Load all sounds
-        //loadSounds();
+        loadSounds();
 
         bkgPatternFillBlue  = new ImagePattern(bkgPatternImgBlue, 0, 0, 68 * Constants.SCALE_FACTOR, 117 * Constants.SCALE_FACTOR, false);
         bkgPatternFillRed   = new ImagePattern(bkgPatternImgRed, 0, 0, 68 * Constants.SCALE_FACTOR, 117 * Constants.SCALE_FACTOR, false);
@@ -326,10 +330,19 @@ public class Main extends Application {
     @Override public void start(final Stage stage) {
         startTime = Instant.now();
 
-        final StackPane pane  = new StackPane(bkgCanvas, canvas, brdrCanvas);
-        pane.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
+        final StackPane gamePane  = new StackPane(bkgCanvas, canvas, brdrCanvas);
+        gamePane.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
 
-        final Scene     scene = new Scene(pane, WIDTH, HEIGHT);
+        final AnchorPane pane = new AnchorPane(gamePane, laserTouchArea);
+
+        AnchorPane.setTopAnchor(gamePane, 0d);
+        AnchorPane.setLeftAnchor(gamePane, 0d);
+
+        AnchorPane.setTopAnchor(laserTouchArea, HEIGHT);
+        AnchorPane.setLeftAnchor(laserTouchArea, 0d);
+
+        //final Scene     scene = new Scene(gamePane, WIDTH, HEIGHT);
+        final Scene     scene = new Scene(pane, WIDTH, 800);
 
         scene.setOnKeyPressed(e -> {
             if (running) {
@@ -388,12 +401,16 @@ public class Main extends Application {
             }
         });
 
+        laserTouchArea.setOnMousePressed(e -> {
+            if (PaddleState.LASER == paddleState) { fire(paddle.bounds.centerX); }
+        });
+
         stage.setTitle("JArkanoid");
         stage.setScene(scene);
         stage.show();
         stage.setResizable(false);
 
-        //playSound(gameStartSnd);
+        playSound(gameStartSnd);
 
         startScreen();
 
@@ -452,12 +469,13 @@ public class Main extends Application {
     }
 
     private void loadSounds() {
-        //gameStartSnd     = new AudioClip(getClass().getResource("game_start.wav").toExternalForm());
-        //startLevelSnd    = new AudioClip(getClass().getResource("level_ready.wav").toExternalForm());
-        //ballPaddleSnd    = new AudioClip(getClass().getResource("ball_paddle.wav").toExternalForm());
-        //ballBlockSnd     = new AudioClip(getClass().getResource("ball_block.wav").toExternalForm());
-        //ballHardBlockSnd = new AudioClip(getClass().getResource("ball_hard_block.wav").toExternalForm());
-        //laserSnd         = new AudioClip(getClass().getResource("gun.wav").toExternalForm());
+        if (null == audioService) { return; }
+        gameStartSnd     = audioService.load(getClass().getResource("game_start.mp3").toExternalForm()).orElse(null);
+        startLevelSnd    = audioService.load(getClass().getResource("level_ready.mp3").toExternalForm()).orElse(null);
+        ballPaddleSnd    = audioService.load(getClass().getResource("ball_paddle.mp3").toExternalForm()).orElse(null);
+        ballBlockSnd     = audioService.load(getClass().getResource("ball_block.mp3").toExternalForm()).orElse(null);
+        ballHardBlockSnd = audioService.load(getClass().getResource("ball_hard_block.mp3").toExternalForm()).orElse(null);
+        laserSnd         = audioService.load(getClass().getResource("gun.mp3").toExternalForm()).orElse(null);
     }
 
     private static double clamp(final double min, final double max, final double value) {
@@ -483,12 +501,15 @@ public class Main extends Application {
     private void fire(final double x) {
         if (torpedoes.size() > 0) { return; }
         torpedoes.add(new Torpedo(torpedoImg, x, HEIGHT - 50 * Constants.SCALE_FACTOR));
-        //playSound(laserSnd);
+        playSound(laserSnd);
     }
 
 
     // Play audio clips
-    //private void playSound(final AudioClip audioClip) { audioClip.play(); }
+    private void playSound(final Audio audioClip) {
+        if (null == audioService || null == audioClip) { return; }
+        audioClip.play();
+    }
 
 
     // Re-Spawn Ball
@@ -518,7 +539,7 @@ public class Main extends Application {
         paddle.x           = WIDTH * 0.5 - paddleState.width * 0.5;
         paddle.bounds.minX = paddle.x - paddle.width * 0.5;
         readyLevelVisible  = true;
-        //playSound(startLevelSnd);
+        playSound(startLevelSnd);
         setupBlocks(level);
         bonusBlocks.clear();
         balls.clear();
@@ -852,7 +873,7 @@ public class Main extends Application {
             } else {
                 for (int i = 0; i < 6; i++) {
                     brdrCtx.drawImage(borderPartVerticalImg, 0, UPPER_INSET + i * 113 * Constants.SCALE_FACTOR);
-                    brdrCtx.drawImage(borderPartVerticalImg, WIDTH - 20, UPPER_INSET + i * 113 * Constants.SCALE_FACTOR);
+                    brdrCtx.drawImage(borderPartVerticalImg, WIDTH - 20 * Constants.SCALE_FACTOR, UPPER_INSET + i * 113 * Constants.SCALE_FACTOR);
                 }
             }
 
@@ -1164,7 +1185,7 @@ public class Main extends Application {
                 if (ballHitsBlock) {
                     switch (block.blockType) {
                         case GOLD:
-                            //playSound(ballHardBlockSnd);
+                            playSound(ballHardBlockSnd);
                             blinks.add(new Blink(block.bounds.minX, block.bounds.minY));
                             break;
                         case GRAY :
@@ -1172,12 +1193,12 @@ public class Main extends Application {
                             if (block.hits == block.maxHits) {
                                 score += block.value;
                                 block.toBeRemoved = true;
-                                //playSound(ballBlockSnd);
+                                playSound(ballBlockSnd);
                                 if (block.bonusType != BonusType.NONE) {
                                     bonusBlocks.add(new BonusBlock(block.x, block.y, block.bonusType));
                                 }
                             } else {
-                                //playSound(ballHardBlockSnd);
+                                playSound(ballHardBlockSnd);
                                 blinks.add(new Blink(block.bounds.minX, block.bounds.minY));
                             }
                             break;
@@ -1186,7 +1207,7 @@ public class Main extends Application {
                             if (block.hits >= block.maxHits) {
                                 score += block.value;
                                 block.toBeRemoved = true;
-                                //playSound(ballBlockSnd);
+                                playSound(ballBlockSnd);
                                 if (block.bonusType != BonusType.NONE) {
                                     bonusBlocks.add(new BonusBlock(block.x, block.y, block.bonusType));
                                 }
@@ -1232,7 +1253,7 @@ public class Main extends Application {
                 }
                 vY = -ballSpeed;
 
-                //playSound(ballPaddleSnd);
+                playSound(ballPaddleSnd);
             }
 
             if (Double.compare(vX, 0) == 0) { vX = 0.5; }
