@@ -57,6 +57,11 @@
         </dependency>
         <dependency>
             <groupId>com.gluonhq.attach</groupId>
+            <artifactId>storage</artifactId>
+            <version>${attach.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.gluonhq.attach</groupId>
             <artifactId>connectivity</artifactId>
             <version>${attach.version}</version>
         </dependency>
@@ -124,6 +129,7 @@
                         <list>local-notifications</list>
                         <list>settings</list>
                         <list>statusbar</list>
+                        <list>storage</list>
                     </attachList>
                     <graalvmHome>/Library/Java/JavaVirtualMachines/gluon-graalvm/Contents/Home</graalvmHome>
                     <!--

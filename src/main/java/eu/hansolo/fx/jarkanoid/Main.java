@@ -13,6 +13,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
@@ -326,10 +327,21 @@ public class Main extends Application {
     @Override public void start(final Stage stage) {
         startTime = Instant.now();
 
-        final StackPane pane  = new StackPane(bkgCanvas, canvas, brdrCanvas);
-        pane.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
+        final StackPane gamePane  = new StackPane(bkgCanvas, canvas, brdrCanvas);
+        gamePane.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
 
-        final Scene     scene = new Scene(pane, WIDTH, HEIGHT);
+        final StackPane laserPane = new StackPane();
+        laserPane.setPrefHeight(100);
+
+        final AnchorPane pane = new AnchorPane(gamePane, laserPane);
+        pane.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
+        AnchorPane.setTopAnchor(gamePane, 100d);
+        AnchorPane.setLeftAnchor(gamePane, 0d);
+        AnchorPane.setTopAnchor(laserPane, 100d + HEIGHT);
+        AnchorPane.setLeftAnchor(laserPane, 0d);
+        AnchorPane.setRightAnchor(laserPane, 0d);
+
+        final Scene     scene = new Scene(pane, WIDTH, 800);
 
         scene.setOnKeyPressed(e -> {
             if (running) {
@@ -370,21 +382,29 @@ public class Main extends Application {
             }
         });
 
-        scene.setOnMousePressed(e -> {
+        canvas.setOnMousePressed(e -> {
+            if (running) {
+                if (movingPaddleOut) { return; }
+                final long activeBalls = balls.stream().filter(ball -> ball.active).count();
+                if (activeBalls == 0) {
+                    balls.forEach(ball -> {
+                            ball.active        = true;
+                            ball.bornTimestamp = Instant.now().getEpochSecond();
+                        });
+                }
+            } else {
+                level = 1;
+                startLevel(level);
+            }
+        });
+
+        laserPane.setOnMousePressed(e -> {
             if (running) {
                 if (movingPaddleOut) { return; }
                 final long activeBalls = balls.stream().filter(ball -> ball.active).count();
                 if (activeBalls > 0) {
-                        if (PaddleState.LASER == paddleState) { fire(paddle.bounds.centerX); }
-                    } else {
-                        balls.forEach(ball -> {
-                            ball.active        = true;
-                            ball.bornTimestamp = Instant.now().getEpochSecond();
-                        });
-                    }
-            } else {
-                level = 1;
-                startLevel(level);
+                    if (PaddleState.LASER == paddleState) { fire(paddle.bounds.centerX); }
+                }
             }
         });
 
@@ -852,7 +872,7 @@ public class Main extends Application {
             } else {
                 for (int i = 0; i < 6; i++) {
                     brdrCtx.drawImage(borderPartVerticalImg, 0, UPPER_INSET + i * 113 * Constants.SCALE_FACTOR);
-                    brdrCtx.drawImage(borderPartVerticalImg, WIDTH - 20, UPPER_INSET + i * 113 * Constants.SCALE_FACTOR);
+                    brdrCtx.drawImage(borderPartVerticalImg, WIDTH - 20 * Constants.SCALE_FACTOR, UPPER_INSET + i * 113 * Constants.SCALE_FACTOR);
                 }
             }
 
