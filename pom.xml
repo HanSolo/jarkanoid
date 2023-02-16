@@ -33,7 +33,7 @@
             <artifactId>javafx-media</artifactId>
             <version>${javafx.version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>com.gluonhq</groupId>
             <artifactId>charm-glisten</artifactId>
@@ -82,6 +82,11 @@
         </dependency>
         <dependency>
             <groupId>com.gluonhq.attach</groupId>
+            <artifactId>storage</artifactId>
+            <version>${attach.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.gluonhq.attach</groupId>
             <artifactId>audio</artifactId>
             <version>${attach.version}</version>
         </dependency>
@@ -123,6 +128,7 @@
                         <list>local-notifications</list>
                         <list>settings</list>
                         <list>statusbar</list>
+                        <list>storage</list>
                     </attachList>
                     <graalvmHome>/Library/Java/JavaVirtualMachines/gluon-graalvm/Contents/Home</graalvmHome>
                     <!--

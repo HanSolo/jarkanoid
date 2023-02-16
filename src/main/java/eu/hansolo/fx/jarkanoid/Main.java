@@ -144,12 +144,12 @@ public class Main extends Application {
     private Image                    openDoorMapImg;
     private Image                    blockShadowImg;
     private Image                    bonusBlockShadowImg;
-    private Audio                    gameStartSnd;
-    private Audio                    startLevelSnd;
-    private Audio                    ballPaddleSnd;
-    private Audio                    ballBlockSnd;
-    private Audio                    ballHardBlockSnd;
-    private Audio                    laserSnd;
+    private Optional<Audio>          gameStartSnd;
+    private Optional<Audio>          startLevelSnd;
+    private Optional<Audio>          ballPaddleSnd;
+    private Optional<Audio>          ballBlockSnd;
+    private Optional<Audio>          ballHardBlockSnd;
+    private Optional<Audio>          laserSnd;
     private Paddle                   paddle;
     private List<Ball>               balls;
     private List<Block>              blocks;
@@ -175,7 +175,6 @@ public class Main extends Application {
     private boolean                  showStartHint;
     private EventHandler<MouseEvent> mouseHandler;
     private StackPane                laserTouchArea;
-    private AudioService             audioService;
 
 
     // ******************** Methods *******************************************
@@ -197,7 +196,6 @@ public class Main extends Application {
         openDoor                 = new OpenDoor(WIDTH - 20 * Constants.SCALE_FACTOR, UPPER_INSET + 565 * Constants.SCALE_FACTOR);
         showStartHint            = true;
         laserTouchArea           = new StackPane();
-        audioService             = AudioService.create().orElse(null);
 
         lastTimerCall            = System.nanoTime();
         lastAnimCall             = System.nanoTime();
@@ -416,18 +414,6 @@ public class Main extends Application {
 
         playSound(gameStartSnd);
 
-        Optional<AudioService> optAudioService = AudioService.create();
-        if (optAudioService.isPresent()) {
-            pane.setBackground(new Background(new BackgroundFill(Color.GREEN, CornerRadii.EMPTY, Insets.EMPTY)));
-        } else {
-            pane.setBackground(new Background(new BackgroundFill(Color.RED, CornerRadii.EMPTY, Insets.EMPTY)));
-        }
-
-        AudioService.create().ifPresent(audio -> audio.loadMusic(getClass().getResource("game_start.mp3")).ifPresent(audio1 -> {
-            audio1.play();
-            audio1.dispose();
-        }));
-
         startScreen();
 
         timer.start();
@@ -485,13 +471,21 @@ public class Main extends Application {
     }
 
     private void loadSounds() {
-        if (null == audioService) { return; }
-        gameStartSnd     = audioService.loadMusic(getClass().getResource("game_start.mp3")).orElse(null);
-        startLevelSnd    = audioService.loadMusic(getClass().getResource("level_ready.mp3")).orElse(null);
-        ballPaddleSnd    = audioService.loadMusic(getClass().getResource("ball_paddle.mp3")).orElse(null);
-        ballBlockSnd     = audioService.loadMusic(getClass().getResource("ball_block.mp3")).orElse(null);
-        ballHardBlockSnd = audioService.loadMusic(getClass().getResource("ball_hard_block.mp3")).orElse(null);
-        laserSnd         = audioService.loadMusic(getClass().getResource("gun.mp3")).orElse(null);
+        gameStartSnd     = AudioService.create().map(audio -> audio.loadSound(getClass().getResource("game_start.mp3")).orElse(null));
+        startLevelSnd    = AudioService.create().map(audio -> audio.loadSound(getClass().getResource("level_ready.mp3")).orElse(null));
+        ballPaddleSnd    = AudioService.create().map(audio -> audio.loadSound(getClass().getResource("ball_paddle.mp3")).orElse(null));
+        laserSnd         = AudioService.create().map(audio -> audio.loadSound(getClass().getResource("gun.mp3")).orElse(null));
+        ballHardBlockSnd = AudioService.create().map(audio -> audio.loadSound(getClass().getResource("ball_hard_block.mp3")).orElse(null));
+        ballBlockSnd     = AudioService.create().map(audio -> audio.loadSound(getClass().getResource("ball_block.mp3")).orElse(null));
+    }
+
+    private void disposeSounds() {
+        gameStartSnd.ifPresent(Audio::dispose);
+        startLevelSnd.ifPresent(Audio::dispose);
+        ballPaddleSnd.ifPresent(Audio::dispose);
+        laserSnd.ifPresent(Audio::dispose);
+        ballHardBlockSnd.ifPresent(Audio::dispose);
+        ballBlockSnd.ifPresent(Audio::dispose);
     }
 
     private static double clamp(final double min, final double max, final double value) {
@@ -522,9 +516,10 @@ public class Main extends Application {
 
 
     // Play audio clips
-    private void playSound(final Audio audioClip) {
-        if (null == audioService || null == audioClip) { return; }
-        audioClip.play();
+    private void playSound(final Optional<Audio> audioClip) {
+        if (null == audioClip || audioClip.isEmpty()) { return; }
+        //audioClip.get().setVolume(Double.MAX_VALUE);
+        audioClip.get().play();
     }
 
 
