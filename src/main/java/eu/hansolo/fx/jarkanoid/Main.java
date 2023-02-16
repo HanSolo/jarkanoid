@@ -420,6 +420,7 @@ public class Main extends Application {
     }
 
     @Override public void stop() {
+        disposeSounds();
         Platform.exit();
         System.exit(0);
     }
@@ -471,12 +472,12 @@ public class Main extends Application {
     }
 
     private void loadSounds() {
-        gameStartSnd     = AudioService.create().map(audio -> audio.loadSound(getClass().getResource("game_start.mp3")).orElse(null));
-        startLevelSnd    = AudioService.create().map(audio -> audio.loadSound(getClass().getResource("level_ready.mp3")).orElse(null));
-        ballPaddleSnd    = AudioService.create().map(audio -> audio.loadSound(getClass().getResource("ball_paddle.mp3")).orElse(null));
-        laserSnd         = AudioService.create().map(audio -> audio.loadSound(getClass().getResource("gun.mp3")).orElse(null));
-        ballHardBlockSnd = AudioService.create().map(audio -> audio.loadSound(getClass().getResource("ball_hard_block.mp3")).orElse(null));
-        ballBlockSnd     = AudioService.create().map(audio -> audio.loadSound(getClass().getResource("ball_block.mp3")).orElse(null));
+        gameStartSnd     = AudioService.create().map(audio -> audio.loadMusic(getClass().getResource("game_start.mp3")).orElse(null));
+        startLevelSnd    = AudioService.create().map(audio -> audio.loadMusic(getClass().getResource("level_ready.mp3")).orElse(null));
+        ballPaddleSnd    = AudioService.create().map(audio -> audio.loadMusic(getClass().getResource("ball_paddle.mp3")).orElse(null));
+        laserSnd         = AudioService.create().map(audio -> audio.loadMusic(getClass().getResource("gun.mp3")).orElse(null));
+        ballHardBlockSnd = AudioService.create().map(audio -> audio.loadMusic(getClass().getResource("ball_hard_block.mp3")).orElse(null));
+        ballBlockSnd     = AudioService.create().map(audio -> audio.loadMusic(getClass().getResource("ball_block.mp3")).orElse(null));
     }
 
     private void disposeSounds() {
