@@ -1,5 +1,7 @@
 package eu.hansolo.fx.jarkanoid;
 
+import com.gluonhq.attach.audio.Audio;
+import com.gluonhq.attach.audio.AudioService;
 import eu.hansolo.fx.jarkanoid.Constants.BlockType;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
@@ -27,6 +29,7 @@ import javafx.stage.Stage;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
@@ -334,11 +337,12 @@ public class Main extends Application {
         gamePane.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
 
         final AnchorPane pane = new AnchorPane(gamePane, laserTouchArea);
+        pane.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
 
-        AnchorPane.setTopAnchor(gamePane, 0d);
+        AnchorPane.setTopAnchor(gamePane, 100d);
         AnchorPane.setLeftAnchor(gamePane, 0d);
 
-        AnchorPane.setTopAnchor(laserTouchArea, HEIGHT);
+        AnchorPane.setTopAnchor(laserTouchArea, 100 + HEIGHT);
         AnchorPane.setLeftAnchor(laserTouchArea, 0d);
 
         //final Scene     scene = new Scene(gamePane, WIDTH, HEIGHT);
@@ -412,6 +416,18 @@ public class Main extends Application {
 
         playSound(gameStartSnd);
 
+        Optional<AudioService> optAudioService = AudioService.create();
+        if (optAudioService.isPresent()) {
+            pane.setBackground(new Background(new BackgroundFill(Color.GREEN, CornerRadii.EMPTY, Insets.EMPTY)));
+        } else {
+            pane.setBackground(new Background(new BackgroundFill(Color.RED, CornerRadii.EMPTY, Insets.EMPTY)));
+        }
+
+        AudioService.create().ifPresent(audio -> audio.loadMusic(getClass().getResource("game_start.mp3")).ifPresent(audio1 -> {
+            audio1.play();
+            audio1.dispose();
+        }));
+
         startScreen();
 
         timer.start();
@@ -470,12 +486,12 @@ public class Main extends Application {
 
     private void loadSounds() {
         if (null == audioService) { return; }
-        gameStartSnd     = audioService.load(getClass().getResource("game_start.mp3").toExternalForm()).orElse(null);
-        startLevelSnd    = audioService.load(getClass().getResource("level_ready.mp3").toExternalForm()).orElse(null);
-        ballPaddleSnd    = audioService.load(getClass().getResource("ball_paddle.mp3").toExternalForm()).orElse(null);
-        ballBlockSnd     = audioService.load(getClass().getResource("ball_block.mp3").toExternalForm()).orElse(null);
-        ballHardBlockSnd = audioService.load(getClass().getResource("ball_hard_block.mp3").toExternalForm()).orElse(null);
-        laserSnd         = audioService.load(getClass().getResource("gun.mp3").toExternalForm()).orElse(null);
+        gameStartSnd     = audioService.loadMusic(getClass().getResource("game_start.mp3")).orElse(null);
+        startLevelSnd    = audioService.loadMusic(getClass().getResource("level_ready.mp3")).orElse(null);
+        ballPaddleSnd    = audioService.loadMusic(getClass().getResource("ball_paddle.mp3")).orElse(null);
+        ballBlockSnd     = audioService.loadMusic(getClass().getResource("ball_block.mp3")).orElse(null);
+        ballHardBlockSnd = audioService.loadMusic(getClass().getResource("ball_hard_block.mp3")).orElse(null);
+        laserSnd         = audioService.loadMusic(getClass().getResource("gun.mp3")).orElse(null);
     }
 
     private static double clamp(final double min, final double max, final double value) {

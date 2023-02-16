@@ -33,14 +33,7 @@
             <artifactId>javafx-media</artifactId>
             <version>${javafx.version}</version>
         </dependency>
-        <!--
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-swing</artifactId>
-            <version>${javafx.version}</version>
-        </dependency>
-        -->
-
+        
         <dependency>
             <groupId>com.gluonhq</groupId>
             <artifactId>charm-glisten</artifactId>
@@ -50,11 +43,6 @@
         <dependency>
             <groupId>com.gluonhq.attach</groupId>
             <artifactId>runtime-args</artifactId>
-            <version>${attach.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.gluonhq.attach</groupId>
-            <artifactId>audio</artifactId>
             <version>${attach.version}</version>
         </dependency>
         <dependency>
