@@ -45,36 +45,36 @@ public class Main extends Application {
         }
     }
     protected enum BonusType {
-        NONE,
         BONUS_C,  // Catch Ball      (lime)
         BONUS_D,  // 3-Balls         (cyan)
         BONUS_F,  // Wide            (dark blue)
         BONUS_L,  // Laser           (red)
         BONUS_S,  // Slow            (dark yellow)
         BONUS_B,  // Next Level      (magenta)
-        BONUS_P   // Additional life (gray)
+        BONUS_P;  // Additional life (gray)
     }
 
-    protected static final Random      RND                 = new Random();
-    protected static final double      WIDTH               = 560;
-    protected static final double      HEIGHT              = 740;
-    protected static final double      INSET               = 22;
-    protected static final double      UPPER_INSET         = 85;
-    protected static final double      PADDLE_OFFSET_Y     = 68;
-    protected static final double      PADDLE_SPEED        = 8;
-    protected static final double      TORPEDO_SPEED       = 12;
-    protected static final double      BALL_SPEED          = clamp(1, 5, PropertyManager.INSTANCE.getDouble(Constants.BALL_SPEED_KEY, 2));
-    protected static final double      BLOCK_WIDTH         = 38;
-    protected static final double      BLOCK_HEIGHT        = 20;
-    protected static final double      BLOCK_STEP_X        = 40;
-    protected static final double      BLOCK_STEP_Y        = 22;
-    protected static final double      BONUS_BLOCK_WIDTH   = 38;
-    protected static final double      BONUS_BLOCK_HEIGHT  = 18;
-    protected static final double      BALL_VX_INFLUENCE   = 0.75;
-    protected static final Font        SCORE_FONT          = Fonts.emulogic(20);
-    protected static final Color       HIGH_SCORE_RED      = Color.rgb(229, 2, 1);
-    protected static final Color       SCORE_WHITE         = Color.WHITE;
-    protected static final Color       TEXT_GRAY           = Color.rgb(216, 216, 216);
+    protected static final Random      RND                  = new Random();
+    protected static final double      WIDTH                = 560;
+    protected static final double      HEIGHT               = 740;
+    protected static final double      INSET                = 22;
+    protected static final double      UPPER_INSET          = 85;
+    protected static final double      PADDLE_OFFSET_Y      = 68;
+    protected static final double      PADDLE_SPEED         = 8;
+    protected static final double      TORPEDO_SPEED        = 12;
+    protected static final double      BALL_SPEED           = clamp(1, 5, PropertyManager.INSTANCE.getDouble(Constants.BALL_SPEED_KEY, 2));
+    protected static final double      BLOCK_WIDTH          = 38;
+    protected static final double      BLOCK_HEIGHT         = 20;
+    protected static final double      BLOCK_STEP_X         = 40;
+    protected static final double      BLOCK_STEP_Y         = 22;
+    protected static final double      BONUS_BLOCK_WIDTH    = 38;
+    protected static final double      BONUS_BLOCK_HEIGHT   = 18;
+    protected static final double      BALL_VX_INFLUENCE    = 0.75;
+    protected static final Font        SCORE_FONT           = Fonts.emulogic(20);
+    protected static final Color       HIGH_SCORE_RED       = Color.rgb(229, 2, 1);
+    protected static final Color       SCORE_WHITE          = Color.WHITE;
+    protected static final Color       TEXT_GRAY            = Color.rgb(216, 216, 216);
+    protected static final int         BONUS_BLOCK_INTERVAL = 20;
 
     private ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
@@ -165,7 +165,6 @@ public class Main extends Application {
     private boolean                  nextLevelDoorOpen;
     private double                   nextLevelDoorAlpha;
     private boolean                  movingPaddleOut;
-    private int                      noOfBonusBlockB;
     private OpenDoor                 openDoor;
     private boolean                  showStartHint;
     private int                      silverBlockMaxHits;
@@ -188,7 +187,6 @@ public class Main extends Application {
         nextLevelDoorOpen        = false;
         nextLevelDoorAlpha       = 1.0;
         movingPaddleOut          = false;
-        noOfBonusBlockB          = 0;
         openDoor                 = new OpenDoor(WIDTH - 20, UPPER_INSET + 565);
         showStartHint            = false;
         silverBlockMaxHits       = 2;
@@ -486,7 +484,6 @@ public class Main extends Application {
     // Start Level
     private void startLevel(final int level) {
         blockCounter       = 0;
-        noOfBonusBlockB    = 0;
         nextLevelDoorAlpha = 1.0;
         nextLevelDoorOpen  = false;
         movingPaddleOut    = false;
@@ -532,34 +529,22 @@ public class Main extends Application {
     private void setupBlocks(final int level) {
         blocks.clear();
         BlockType[][] level2 = Constants.LEVEL_MAP.get(level);
-        int bonusTypeCounter = 0;
         silverBlockMaxHits = level % 8 == 0 ? silverBlockMaxHits + 1 : silverBlockMaxHits;
         for (int iy = 0 ; iy < level2.length ; iy++) {
             for (int ix = 0 ; ix < level2[iy].length ; ix++) {
                 Block block;
                 final BlockType blockType = level2[iy][ix];
-                // Randomly add bonus blocks to each level
-                BonusType bonusType = bonusTypeCounter > 20 ? BonusType.values()[RND.nextInt(5)] : BonusType.NONE;
-                if (BonusType.NONE != bonusType) { bonusTypeCounter = 0; }
-                if (BonusType.BONUS_B == bonusType) {
-                    if (level < 5 || noOfBonusBlockB > 0) {
-                        bonusType = BonusType.NONE; // Open next level door only if level > 4
-                    } else {
-                        noOfBonusBlockB += 1;
-                    }
-                }
-                bonusTypeCounter++;
                 switch (blockType) {
-                    case GOLD -> block = new Block(goldBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 0, blockType.maxHits, BonusType.NONE, blockType);
-                    case GRAY -> block = new Block(grayBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 0, silverBlockMaxHits, BonusType.NONE, blockType);
-                    case WHIT -> block = new Block(whiteBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, bonusType, blockType);
-                    case ORNG -> block = new Block(orangeBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 60, blockType.maxHits, bonusType, blockType);
-                    case CYAN -> block = new Block(cyanBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 70, blockType.maxHits, bonusType, blockType);
-                    case LIME -> block = new Block(limeBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 80, blockType.maxHits, bonusType, blockType);
-                    case RUBY -> block = new Block(redBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 90, blockType.maxHits, bonusType, blockType);
-                    case BLUE -> block = new Block(blueBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 100, blockType.maxHits, bonusType, blockType);
-                    case MGNT -> block = new Block(magentaBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 110, blockType.maxHits, bonusType, blockType);
-                    case YLLW -> block = new Block(yellowBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 120, blockType.maxHits, bonusType, blockType);
+                    case GOLD -> block = new Block(goldBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 0, blockType.maxHits, blockType);
+                    case GRAY -> block = new Block(grayBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 0, silverBlockMaxHits, blockType);
+                    case WHIT -> block = new Block(whiteBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 10, blockType.maxHits, blockType);
+                    case ORNG -> block = new Block(orangeBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 60, blockType.maxHits, blockType);
+                    case CYAN -> block = new Block(cyanBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 70, blockType.maxHits, blockType);
+                    case LIME -> block = new Block(limeBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 80, blockType.maxHits, blockType);
+                    case RUBY -> block = new Block(redBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 90, blockType.maxHits, blockType);
+                    case BLUE -> block = new Block(blueBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 100, blockType.maxHits, blockType);
+                    case MGNT -> block = new Block(magentaBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 110, blockType.maxHits, blockType);
+                    case YLLW -> block = new Block(yellowBlockImg, INSET + ix * BLOCK_STEP_X, INSET + 110 + iy * BLOCK_STEP_Y, 120, blockType.maxHits, blockType);
                     default   -> block = null;
                 }
                 if (null == block) { continue; }
@@ -583,7 +568,6 @@ public class Main extends Application {
                             score += block.value;
                         }
                         torpedo.toBeRemoved = true;
-                        //playSound(explosionSnd);
                         break;
                     }
                 }
@@ -1022,19 +1006,17 @@ public class Main extends Application {
         public       int       value;
         public       int       hits;
         public final int       maxHits;
-        public final BonusType bonusType;
         public final BlockType blockType;
         public final Bounds    hitBounds;
 
 
         // ******************** Constructors **************************************
-        public Block(final Image image, final double x, final double y, final int value, final int maxHits, final BonusType bonusType, final BlockType blockType) {
+        public Block(final Image image, final double x, final double y, final int value, final int maxHits, final BlockType blockType) {
             super(image);
             this.x           = x;
             this.y           = y;
             this.value       = value;
             this.maxHits     = maxHits;
-            this.bonusType   = bonusType;
             this.blockType   = blockType;
             this.hits        = 0;
             this.width       = BLOCK_WIDTH;
@@ -1149,12 +1131,8 @@ public class Main extends Application {
                         case GRAY -> {
                             block.hits++;
                             if (block.hits == block.maxHits) {
-                                score += block.value;
                                 block.toBeRemoved = true;
                                 playSound(ballBlockSnd);
-                                if (block.bonusType != BonusType.NONE) {
-                                    bonusBlocks.add(new BonusBlock(block.x, block.y, block.bonusType));
-                                }
                             } else {
                                 playSound(ballHardBlockSnd);
                                 blinks.add(new Blink(block.bounds.minX, block.bounds.minY));
@@ -1167,8 +1145,8 @@ public class Main extends Application {
                                 blockCounter += 1;
                                 block.toBeRemoved = true;
                                 playSound(ballBlockSnd);
-                                if (block.bonusType != BonusType.NONE) {
-                                    bonusBlocks.add(new BonusBlock(block.x, block.y, block.bonusType));
+                                if (blockCounter % BONUS_BLOCK_INTERVAL == 0) {
+                                    bonusBlocks.add(new BonusBlock(block.x, block.y, BonusType.values()[RND.nextInt(BonusType.values().length)]));
                                 }
                             }
                         }
