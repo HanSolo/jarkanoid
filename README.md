@@ -36,17 +36,25 @@ in the main directory of the project. These files are in the format of Affinity 
 
 
 ### Bonus Blocks
-- C (color lime)        -> additional life (max 5)
+- C (color lime)        -> catch ball (for next ball)
 - D (color cyan)        -> additional balls (max 3)
 - F (color dark blue)   -> wide paddle (for 30 seconds)
 - L (color red)         -> laser paddle (for 30 seconds)
 - S (color dark yellow) -> slow down (for 30 seconds)
 - B (color magenta)     -> opens door to next level (for 5 seconds)
+- P (color gray)        -> additional life (max 5)
 
 ### Blocks
-- white, red, yellow, cyan, blue, orange, magenta -> 10 points per block
-- gray -> needs 2 hits to destroy it              -> 10 points
-- gold -> can't be destroyed
+- white    -> 50 points 
+- orange   -> 60 points 
+- cyan     -> 70 points 
+- lime     -> 80 points 
+- red      -> 90 points
+- blue     -> 100 points 
+- magenta  -> 110 points
+- yellow   -> 120 points
+- gray     -> needs 2 hits to destroy it (increasing by 1 ever 8 levels) -> 50 x level
+- gold     -> can't be destroyed
 
 ### Levels
 

@@ -5,7 +5,22 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2d6aeaeb-6ada-4a4d-9a78-f8000a455c07" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/block_map_bonus_b.afdesign" beforeDir="false" afterPath="$PROJECT_DIR$/resources/block_map_bonus_b.afdesign" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/block_map_bonus_c.afdesign" beforeDir="false" afterPath="$PROJECT_DIR$/resources/block_map_bonus_c.afdesign" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/block_map_bonus_d.afdesign" beforeDir="false" afterPath="$PROJECT_DIR$/resources/block_map_bonus_d.afdesign" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/block_map_bonus_f.afdesign" beforeDir="false" afterPath="$PROJECT_DIR$/resources/block_map_bonus_f.afdesign" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/block_map_bonus_l.afdesign" beforeDir="false" afterPath="$PROJECT_DIR$/resources/block_map_bonus_l.afdesign" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/block_map_bonus_s.afdesign" beforeDir="false" afterPath="$PROJECT_DIR$/resources/block_map_bonus_s.afdesign" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/paddlemap_gun.afdesign" beforeDir="false" afterPath="$PROJECT_DIR$/resources/paddlemap_gun.afdesign" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/eu/hansolo/fx/jarkanoid/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/eu/hansolo/fx/jarkanoid/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/eu/hansolo/fx/jarkanoid/block_map_bonus_b.png" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/eu/hansolo/fx/jarkanoid/block_map_bonus_b.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/eu/hansolo/fx/jarkanoid/block_map_bonus_c.png" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/eu/hansolo/fx/jarkanoid/block_map_bonus_c.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/eu/hansolo/fx/jarkanoid/block_map_bonus_d.png" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/eu/hansolo/fx/jarkanoid/block_map_bonus_d.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/eu/hansolo/fx/jarkanoid/block_map_bonus_f.png" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/eu/hansolo/fx/jarkanoid/block_map_bonus_f.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/eu/hansolo/fx/jarkanoid/block_map_bonus_l.png" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/eu/hansolo/fx/jarkanoid/block_map_bonus_l.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/eu/hansolo/fx/jarkanoid/block_map_bonus_s.png" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/eu/hansolo/fx/jarkanoid/block_map_bonus_s.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/eu/hansolo/fx/jarkanoid/paddlemap_gun.png" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/eu/hansolo/fx/jarkanoid/paddlemap_gun.png" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -38,21 +53,25 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/Users/hansolo/IntelliJ_Projects/jarkanoid&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.lookFeel&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_ADD_EXTERNAL_FILES": "true",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "last_opened_file_path": "/Users/hansolo/IntelliJ_Projects/jarkanoid",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "preferences.lookFeel",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
+  <component name="ReadonlyStatusHandler">
+    <option name="SHOW_DIALOG" value="false" />
+  </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -67,6 +86,7 @@
       <workItem from="1676675598273" duration="43000" />
       <workItem from="1676675647346" duration="23000" />
       <workItem from="1676715350622" duration="150000" />
+      <workItem from="1676731848572" duration="630000" />
     </task>
     <servers />
   </component>
