@@ -169,13 +169,14 @@ public class Main extends Application {
     private boolean                  showStartHint;
     private int                      silverBlockMaxHits;
     private int                      blockCounter;
+    private boolean                  stickyPaddle;
     private EventHandler<MouseEvent> mouseHandler;
 
 
     // ******************** Methods *******************************************
     @Override public void init() {
         running                  = false;
-        paddleState              = PaddleState.LASER;
+        paddleState              = PaddleState.STANDARD;
         highscore                = PropertyManager.INSTANCE.getLong(Constants.HIGHSCORE_KEY, 0);
         level                    = 1;
         blinks                   = new ArrayList<>();
@@ -191,6 +192,7 @@ public class Main extends Application {
         showStartHint            = false;
         silverBlockMaxHits       = 2;
         blockCounter             = 0;
+        stickyPaddle             = false;
 
         lastTimerCall            = System.nanoTime();
         lastAnimCall             = System.nanoTime();
@@ -340,6 +342,7 @@ public class Main extends Application {
                         if (activeBalls > 0) {
                             if (PaddleState.LASER == paddleState) { fire(paddle.bounds.centerX); }
                         } else {
+                            stickyPaddle       = false;
                             balls.forEach(ball -> {
                                 ball.active        = true;
                                 ball.bornTimestamp = Instant.now().getEpochSecond();
@@ -579,7 +582,7 @@ public class Main extends Application {
             if (bonusBlock.bounds.intersects(paddle.bounds)) {
                 bonusBlock.toBeRemoved = true;
                 switch (bonusBlock.bonusType) {
-                    case BONUS_C -> { /* Next hit the ball sticks to the paddle */ }
+                    case BONUS_C -> { stickyPaddle = true; }
                     case BONUS_D -> {
                         if (balls.size() == 1) {
                             Ball ball = balls.get(0);
@@ -1176,6 +1179,12 @@ public class Main extends Application {
 
             // Hit test ball with paddle
             if (bounds.intersects(paddle.bounds)) {
+                if (stickyPaddle) {
+                    this.x       = paddle.bounds.centerX;
+                    this.y       = paddle.bounds.minY - image.getHeight() * 0.5 - BALL_SPEED - 1;
+                    this.active  = false;
+                }
+
                 // Influence vX of ball if vX of paddle != 0
                 if (paddle.vX > 0) {
                     double speedXY = Math.sqrt(vX * vX + vY * vY);
