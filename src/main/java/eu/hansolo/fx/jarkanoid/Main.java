@@ -53,6 +53,9 @@ public class Main extends Application {
         BONUS_B,  // Next Level      (magenta)
         BONUS_P;  // Additional life (gray)
     }
+    protected enum EnemyType {
+        MOLECULE;
+    }
 
     protected static final Random      RND                  = new Random();
     protected static final double      WIDTH                = 560;
@@ -69,6 +72,8 @@ public class Main extends Application {
     protected static final double      BLOCK_STEP_Y         = 22;
     protected static final double      BONUS_BLOCK_WIDTH    = 38;
     protected static final double      BONUS_BLOCK_HEIGHT   = 18;
+    protected static final double      ENEMY_WIDTH          = 32;
+    protected static final double      ENEMY_HEIGHT         = 32;
     protected static final double      BALL_VX_INFLUENCE    = 0.75;
     protected static final Font        SCORE_FONT           = Fonts.emulogic(20);
     protected static final Color       HIGH_SCORE_RED       = Color.rgb(229, 2, 1);
@@ -84,6 +89,7 @@ public class Main extends Application {
     private long                     lastTimerCall;
     private long                     lastAnimCall;
     private long                     lastBonusAnimCall;
+    private long                     lastEnemyUpdateCall;
     private long                     lastResetCounterCall;
     private long                     lastNextLevelCounterCall;
     private Canvas                   bkgCanvas;
@@ -137,6 +143,7 @@ public class Main extends Application {
     private Image                    bonusBlockBMapImg;
     private Image                    bonusBlockPMapImg;
     private Image                    openDoorMapImg;
+    private Image                    moleculeMapImg;
     private Image                    blockShadowImg;
     private Image                    bonusBlockShadowImg;
     private AudioClip                gameStartSnd;
@@ -145,6 +152,7 @@ public class Main extends Application {
     private AudioClip                ballBlockSnd;
     private AudioClip                ballHardBlockSnd;
     private AudioClip                laserSnd;
+    private AudioClip                explosionSnd;
     private Paddle                   paddle;
     private List<Ball>               balls;
     private List<Block>              blocks;
@@ -170,6 +178,7 @@ public class Main extends Application {
     private int                      silverBlockMaxHits;
     private int                      blockCounter;
     private boolean                  stickyPaddle;
+    private List<Enemy>              enemies;
     private EventHandler<MouseEvent> mouseHandler;
 
 
@@ -197,6 +206,7 @@ public class Main extends Application {
         lastTimerCall            = System.nanoTime();
         lastAnimCall             = System.nanoTime();
         lastBonusAnimCall        = System.nanoTime();
+        lastEnemyUpdateCall      = System.nanoTime();
         lastResetCounterCall     = System.nanoTime();
         lastNextLevelCounterCall = System.nanoTime();
         timer                    = new AnimationTimer() {
@@ -237,6 +247,12 @@ public class Main extends Application {
                     if (now > lastBonusAnimCall + 50_000_000) {
                         bonusBlocks.forEach(bonusBlock -> bonusBlock.update());
                         lastBonusAnimCall = now;
+                    }
+
+                    // Animate enemies
+                    if (now > lastEnemyUpdateCall + 75_000_000) {
+                        enemies.forEach(enemy -> enemy.update());
+                        lastEnemyUpdateCall = now;
                     }
 
                     // Animation of paddle glow
@@ -320,6 +336,7 @@ public class Main extends Application {
         balls       = new CopyOnWriteArrayList<>();
         blocks      = new CopyOnWriteArrayList<>();
         bonusBlocks = new CopyOnWriteArrayList<>();
+        enemies     = new CopyOnWriteArrayList<>();
         torpedoes   = new CopyOnWriteArrayList<>();
         noOfLifes   = 3;
         score       = 0;
@@ -426,6 +443,7 @@ public class Main extends Application {
         bonusBlockBMapImg     = new Image(getClass().getResourceAsStream("block_map_bonus_b.png"), 190, 72, true, false);
         bonusBlockPMapImg     = new Image(getClass().getResourceAsStream("block_map_bonus_p.png"), 190, 72, true, false);
         openDoorMapImg        = new Image(getClass().getResourceAsStream("open_door_map.png"), 120, 71, true, false);
+        moleculeMapImg        = new Image(getClass().getResourceAsStream("molecule_map.png"), 256, 96, true, false);
         bonusBlockShadowImg   = new Image(getClass().getResourceAsStream("bonus_block_shadow.png"), 38, 18, true, false);
     }
 
@@ -436,6 +454,7 @@ public class Main extends Application {
         ballBlockSnd     = new AudioClip(getClass().getResource("ball_block.wav").toExternalForm());
         ballHardBlockSnd = new AudioClip(getClass().getResource("ball_hard_block.wav").toExternalForm());
         laserSnd         = new AudioClip(getClass().getResource("gun.wav").toExternalForm());
+        explosionSnd     = new AudioClip(getClass().getResource("explosion.wav").toExternalForm());
     }
 
     private static double clamp(final double min, final double max, final double value) {
@@ -469,6 +488,11 @@ public class Main extends Application {
     private void playSound(final AudioClip audioClip) { audioClip.play(); }
 
 
+    // Spawn enemy
+    private void spawnEnemy() {
+        enemies.add(new Enemy(WIDTH * 0.5, UPPER_INSET + 30, EnemyType.MOLECULE));
+    }
+
     // Re-Spawn Ball
     private void spawnBall() {
         if (balls.size() > 0) { return; }
@@ -500,6 +524,10 @@ public class Main extends Application {
         setupBlocks(level);
         bonusBlocks.clear();
         balls.clear();
+        enemies.clear();
+        for (int i = 0 ; i < 3 ; i++) {
+            spawnEnemy();
+        }
         spawnBall();
         if (!running) { running = true; }
         drawBackground(level);
@@ -708,6 +736,13 @@ public class Main extends Application {
         // Draw blinks
         blinks.forEach(blink -> ctx.drawImage(blinkMapImg, blink.countX * BLOCK_WIDTH, blink.countY * BLOCK_HEIGHT, BLOCK_WIDTH, BLOCK_HEIGHT, blink.x, blink.y, BLOCK_WIDTH, BLOCK_HEIGHT));
 
+        // Draw enemies
+        enemies.forEach(enemy -> {
+            switch(enemy.enemyType) {
+                case MOLECULE -> ctx.drawImage(moleculeMapImg, enemy.countX * ENEMY_WIDTH, enemy.countY * ENEMY_HEIGHT, ENEMY_WIDTH, ENEMY_HEIGHT, enemy.x, enemy.y, ENEMY_WIDTH, ENEMY_HEIGHT);
+            }
+        });
+
         // Draw ball(s)
         balls.forEach(ball -> {
             ball.update();
@@ -762,6 +797,7 @@ public class Main extends Application {
         blinks.removeIf(blink -> blink.toBeRemoved);
         blocks.removeIf(block -> block.toBeRemoved);
         bonusBlocks.removeIf(bonusBlock -> bonusBlock.toBeRemoved);
+        enemies.removeIf(enemy -> enemy.toBeRemoved);
         torpedoes.removeIf(torpedo -> torpedo.toBeRemoved);
 
         // Respawn ball and check for game over
@@ -1071,7 +1107,7 @@ public class Main extends Application {
                     countY = 0;
                 }
             }
-            this.bounds.set(this.x, this.y, paddleState.width, this.height);
+            this.bounds.set(this.x, this.y, this.width, this.height);
         }
     }
 
@@ -1177,6 +1213,33 @@ public class Main extends Application {
                 }
             }
 
+            // Hit test ball with enemies
+            for (Enemy enemy : enemies) {
+                boolean ballHitsEnemy = this.bounds.intersects(enemy.bounds);
+                if (ballHitsEnemy) {
+                    enemy.toBeRemoved = true;
+                    playSound(explosionSnd);
+                    if (bounds.centerX > enemy.bounds.minX && bounds.centerX < enemy.bounds.maxX) {
+                        // Top or Bottom hit
+                        vY = -vY;
+                    } else if (bounds.centerY > enemy.bounds.minY && bounds.centerY < enemy.bounds.maxY) {
+                        // Left or Right hit
+                        vX = -vX;
+                    } else {
+                        double dx = Math.abs(bounds.centerX - enemy.bounds.centerX) - enemy.bounds.width * 0.5;
+                        double dy = Math.abs(bounds.centerY - enemy.bounds.centerY) - enemy.bounds.height * 0.5;
+                        if (dx > dy) {
+                            // Left or Right hit
+                            vX = -vX;
+                        } else {
+                            // Top or Bottom hit
+                            vY = -vY;
+                        }
+                    }
+                    break;
+                }
+            }
+
             // Hit test ball with paddle
             if (bounds.intersects(paddle.bounds)) {
                 if (stickyPaddle) {
@@ -1249,6 +1312,56 @@ public class Main extends Application {
                     countY = 0;
                 }
             }
+        }
+    }
+
+    private class Enemy extends AnimatedSprite {
+        public EnemyType enemyType;
+        private double initialVx;
+
+
+        // ******************** Constructors **************************************
+        public Enemy(final double x, final double y, final EnemyType enemyType) {
+            super(x, y, 0, 0.75, 7, 2, 1.0);
+            this.initialVx   = RND.nextDouble() * 2.0;
+            this.vX          = RND.nextBoolean() ? initialVx : -initialVx;
+            this.enemyType   = enemyType;
+            this.width       = ENEMY_WIDTH;
+            this.height      = ENEMY_HEIGHT;
+            this.bounds.set(this.x - this.width * 0.5, this.y - this.height * 0.5, this.width, this.height);
+        }
+
+
+        // ******************** Methods *******************************************
+        @Override public void update() {
+            x += vX;
+            y += vY;
+
+            if (bounds.maxX > WIDTH - INSET) {
+                this.x  = WIDTH - INSET - this.width * 0.5;
+                this.vX = -initialVx;
+            }
+            if (bounds.minX < INSET) {
+                this.x  = INSET + this.width * 0.5;
+                this.vX = Math.abs(initialVx);
+            }
+            if (bounds.minY < UPPER_INSET) {
+                this.y  = UPPER_INSET + this.height;
+                this.vY = 0.75;
+            }
+
+            if (y > HEIGHT) {
+                toBeRemoved = true;
+            }
+            countX++;
+            if (countX == maxFrameX) {
+                countY++;
+                countX = 0;
+                if (countY == maxFrameY) {
+                    countY = 0;
+                }
+            }
+            this.bounds.set(this.x - this.width * 0.5, this.y - this.height * 0.5, this.width, this.height);
         }
     }
 
