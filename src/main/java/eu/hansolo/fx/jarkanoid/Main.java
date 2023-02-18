@@ -1131,6 +1131,8 @@ public class Main extends Application {
                         case GRAY -> {
                             block.hits++;
                             if (block.hits == block.maxHits) {
+                                score        += level * 50;
+                                blockCounter += 1;
                                 block.toBeRemoved = true;
                                 playSound(ballBlockSnd);
                             } else {
