@@ -195,7 +195,6 @@ public class Main extends Application {
     private double                   topLeftDoorAlpha;
     private double                   topRightDoorAlpha;
     private EventHandler<MouseEvent> mouseHandler;
-    private StackPane                laserTouchArea;
 
 
     // ******************** Methods *******************************************
@@ -215,7 +214,6 @@ public class Main extends Application {
         movingPaddleOut          = false;
         openDoor                 = new OpenDoor(WIDTH - 20 * Constants.SCALE_FACTOR, UPPER_INSET + 565 * Constants.SCALE_FACTOR);
         showStartHint            = true;
-        laserTouchArea           = new StackPane();
         silverBlockMaxHits       = 2;
         blockCounter             = 0;
         stickyPaddle             = false;
@@ -393,16 +391,19 @@ public class Main extends Application {
         final StackPane gamePane  = new StackPane(bkgCanvas, canvas, brdrCanvas);
         gamePane.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
 
-        final AnchorPane pane = new AnchorPane(gamePane, laserTouchArea);
+        final StackPane laserPane = new StackPane();
+        laserPane.setPrefHeight(100);
+
+        final AnchorPane pane = new AnchorPane(gamePane, laserPane);
         pane.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
 
         AnchorPane.setTopAnchor(gamePane, 100d);
         AnchorPane.setLeftAnchor(gamePane, 0d);
 
-        AnchorPane.setTopAnchor(laserTouchArea, 100 + HEIGHT);
-        AnchorPane.setLeftAnchor(laserTouchArea, 0d);
+        AnchorPane.setTopAnchor(laserPane, 100d + HEIGHT);
+        AnchorPane.setLeftAnchor(laserPane, 0d);
+        AnchorPane.setRightAnchor(laserPane, 0d);
 
-        //final Scene     scene = new Scene(gamePane, WIDTH, HEIGHT);
         final Scene     scene = new Scene(pane, WIDTH, 800);
 
         scene.setOnKeyPressed(e -> {
@@ -445,13 +446,11 @@ public class Main extends Application {
             }
         });
 
-        scene.setOnMousePressed(e -> {
+        canvas.setOnMousePressed(e -> {
             if (running) {
                 if (movingPaddleOut) { return; }
                 final long activeBalls = balls.stream().filter(ball -> ball.active).count();
-                if (activeBalls > 0) {
-                        if (PaddleState.LASER == paddleState) { fire(paddle.bounds.centerX); }
-                    } else {
+                if (activeBalls == 0) {
                         stickyPaddle = false;
                         balls.forEach(ball -> {
                             ball.active        = true;
@@ -464,8 +463,14 @@ public class Main extends Application {
             }
         });
 
-        laserTouchArea.setOnMousePressed(e -> {
-            if (PaddleState.LASER == paddleState) { fire(paddle.bounds.centerX); }
+        laserPane.setOnMousePressed(e -> {
+            if (running) {
+                if (movingPaddleOut) { return; }
+                final long activeBalls = balls.stream().filter(ball -> ball.active).count();
+                if (activeBalls > 0) {
+                    if (PaddleState.LASER == paddleState) { fire(paddle.bounds.centerX); }
+                }
+            }
         });
 
         stage.setTitle("JArkanoid");
