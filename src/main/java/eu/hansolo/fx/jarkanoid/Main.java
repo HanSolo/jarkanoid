@@ -6,6 +6,7 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
+import javafx.geometry.Pos;
 import javafx.geometry.VPos;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
@@ -183,6 +184,9 @@ public class Main extends Application {
     private boolean                  stickyPaddle;
     private List<Enemy>              enemies;
     private List<Explosion>          explosions;
+    private Pos                      enemySpawnPosition;
+    private double                   topLeftDoorAlpha;
+    private double                   topRightDoorAlpha;
     private EventHandler<MouseEvent> mouseHandler;
 
 
@@ -206,6 +210,9 @@ public class Main extends Application {
         silverBlockMaxHits       = 2;
         blockCounter             = 0;
         stickyPaddle             = false;
+        enemySpawnPosition       = Pos.CENTER;
+        topLeftDoorAlpha         = 1.0;
+        topRightDoorAlpha        = 1.0;
 
         lastOneSecondCheck       = System.nanoTime();
         lastTimerCall            = System.nanoTime();
@@ -217,9 +224,14 @@ public class Main extends Application {
                 if (running) {
                     // 1 second check
                     if (now > lastOneSecondCheck + 1_000_000_000) {
-                        // Spawn enemies every 10 seconds if less 5 enemies in the game
-                        if (enemies.size() < 5 && (Instant.now().getEpochSecond() - levelStartTime + 1) % 10 == 0) {
-                            spawnEnemy();
+                        // After 15 seconds in the level enemies will be spawned every 10 seconds if less 5 enemies in the game
+                        long levelPlayTime = Instant.now().getEpochSecond() - levelStartTime;
+                        if (levelPlayTime > 15 && enemies.size() < 5 && levelPlayTime % 10 == 0) {
+                            enemySpawnPosition = RND.nextBoolean() ? Pos.TOP_LEFT : Pos.TOP_RIGHT;
+                            switch(enemySpawnPosition) {
+                                case TOP_LEFT  -> topLeftDoorAlpha  = 0.99;
+                                case TOP_RIGHT -> topRightDoorAlpha = 0.99;
+                            }
                         }
 
                         if (paddleResetCounter > 0) {
@@ -246,9 +258,27 @@ public class Main extends Application {
                         lastOneSecondCheck = now;
                     }
 
-                    // Animate bonus blocks
+                    // Animate bonus blocks and top doors
                     if (now > lastBonusAnimCall + 50_000_000) {
+                        // Update bonus blocks
                         bonusBlocks.forEach(bonusBlock -> bonusBlock.update());
+
+                        // Fade out top doors
+                        if (topLeftDoorAlpha < 1) {
+                            topLeftDoorAlpha -= 0.1;
+                            if (topLeftDoorAlpha <= 0) {
+                                spawnEnemy(Pos.TOP_LEFT);
+                                topLeftDoorAlpha = 1;
+                            }
+                            drawBorder();
+                        } else if (topRightDoorAlpha < 1) {
+                            topRightDoorAlpha -= 0.1;
+                            if (topRightDoorAlpha <= 0) {
+                                spawnEnemy(Pos.TOP_RIGHT);
+                                topRightDoorAlpha = 1;
+                            }
+                            drawBorder();
+                        }
                         lastBonusAnimCall = now;
                     }
 
@@ -495,15 +525,13 @@ public class Main extends Application {
 
 
     // Spawn enemy
-    private void spawnEnemy() {
-        if (RND.nextBoolean()) {
-            // Upper left door
-            enemies.add(new Enemy(100 + topDoorImg.getWidth() * 0.5, UPPER_INSET, EnemyType.MOLECULE));
-        } else {
-            // Upper right door
-            enemies.add(new Enemy(WIDTH - 100 - topDoorImg.getWidth() * 0.5, UPPER_INSET + 30, EnemyType.MOLECULE));
+    private void spawnEnemy(final Pos position) {
+        switch (position) {
+            case TOP_LEFT  -> enemies.add(new Enemy(100 + topDoorImg.getWidth() * 0.5 - ENEMY_WIDTH * 0.5, UPPER_INSET, EnemyType.MOLECULE));
+            case TOP_RIGHT -> enemies.add(new Enemy(WIDTH - 100 - topDoorImg.getWidth() * 0.5 - ENEMY_WIDTH * 0.5, UPPER_INSET, EnemyType.MOLECULE));
         }
     }
+
 
     // Re-Spawn Ball
     private void spawnBall() {
@@ -838,8 +866,11 @@ public class Main extends Application {
     private void drawBorder() {
         brdrCtx.clearRect(0, 0, WIDTH, HEIGHT);
         if (running) {
+            // Draw top border
             brdrCtx.setFill(pipePatternFill);
-            brdrCtx.fillRect(17, 68, WIDTH - 34, 17);
+            brdrCtx.fillRect(17, 68, 83, 17);
+            brdrCtx.fillRect(100 + topDoorImg.getWidth(), 68, WIDTH - 200 - 2 * topDoorImg.getWidth(), 17);
+            brdrCtx.fillRect(WIDTH - 100, 68, 83, 17);
 
             // Draw vertical border
             brdrCtx.setFill(borderPatternFill);
@@ -851,6 +882,11 @@ public class Main extends Application {
                 brdrCtx.fillRect(WIDTH - 20, UPPER_INSET, 20, HEIGHT);
             }
 
+            // Draw border corners
+            brdrCtx.drawImage(ulCornerImg, 2.5, 67.5);
+            brdrCtx.drawImage(urCornerImg, WIDTH - urCornerImg.getWidth() - 2.5, 67.5);
+
+            // Draw next level door
             if (nextLevelDoorOpen) {
                 for (int i = 0 ; i < 6 ; i++) {
                     brdrCtx.drawImage(borderPartVerticalImg, 0, UPPER_INSET + i * 113);
@@ -875,13 +911,13 @@ public class Main extends Application {
                 }
             }
 
-            // Draw frame corners
-            brdrCtx.drawImage(ulCornerImg, 2.5, 67.5);
-            brdrCtx.drawImage(urCornerImg, WIDTH - urCornerImg.getWidth() - 2.5, 67.5);
-
             // Draw upper doors
+            brdrCtx.save();
+            brdrCtx.setGlobalAlpha(topLeftDoorAlpha);
             brdrCtx.drawImage(topDoorImg, 100, 65);
+            brdrCtx.setGlobalAlpha(topRightDoorAlpha);
             brdrCtx.drawImage(topDoorImg, WIDTH - 100 - topDoorImg.getWidth(), 65);
+            brdrCtx.restore();
         }
     }
 
@@ -1349,6 +1385,7 @@ public class Main extends Application {
             this.enemyType   = enemyType;
             this.width       = ENEMY_WIDTH;
             this.height      = ENEMY_HEIGHT;
+            this.radius      = Math.sqrt(ENEMY_HEIGHT * ENEMY_HEIGHT * 0.25 + ENEMY_WIDTH * ENEMY_WIDTH * 0.25);
             this.bounds.set(this.x - this.width * 0.5, this.y - this.height * 0.5, this.width, this.height);
         }
 
@@ -1375,8 +1412,8 @@ public class Main extends Application {
 
             // Hit test enemy with blocks
             for (Block block : blocks) {
-                boolean ballHitsBlock = this.bounds.intersects(block.hitBounds);
-                if (ballHitsBlock) {
+                boolean enemyHitsBlock = this.bounds.intersects(block.hitBounds);
+                if (enemyHitsBlock) {
                     if (bounds.centerX > block.hitBounds.minX && bounds.centerX < block.hitBounds.maxX) {
                         // Top or Bottom hit
                         vY = -vY;
@@ -1405,10 +1442,7 @@ public class Main extends Application {
                 playSound(explosionSnd);
             }
 
-
-            if (y > HEIGHT) {
-                toBeRemoved = true;
-            }
+            if (y > HEIGHT) { toBeRemoved = true; }
 
             countX++;
             if (countX == maxFrameX) {
