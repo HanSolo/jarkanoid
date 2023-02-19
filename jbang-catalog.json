@@ -1,0 +1,14 @@
+{
+  "catalogs": {},
+  "aliases": {
+    "jarkanoid": {
+      "script-ref": "https://github.com/HanSolo/jarkanoid/releases/download/17.0.7/jarkanoid-mac-x64-17.0.7.jar",
+      "dependencies": [
+        "org.openjfx:javafx-controls:18.0.2:${os.detected.jfxname}",
+        "org.openjfx:javafx-media:18.0.2:${os.detected.jfxname}"
+      ],
+      "java": "17"
+    }
+  },
+  "templates": {}
+}
