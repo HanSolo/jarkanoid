@@ -65,7 +65,7 @@ public class Main extends Application {
     protected static final double      PADDLE_OFFSET_Y      = 68;
     protected static final double      PADDLE_SPEED         = 8;
     protected static final double      TORPEDO_SPEED        = 12;
-    protected static final double      BALL_SPEED           = clamp(1, 5, PropertyManager.INSTANCE.getDouble(Constants.BALL_SPEED_KEY, 2));
+    protected static final double      BALL_SPEED           = clamp(1, 5, PropertyManager.INSTANCE.getDouble(Constants.BALL_SPEED_KEY, 3));
     protected static final double      BLOCK_WIDTH          = 38;
     protected static final double      BLOCK_HEIGHT         = 20;
     protected static final double      BLOCK_STEP_X         = 40;
@@ -74,6 +74,8 @@ public class Main extends Application {
     protected static final double      BONUS_BLOCK_HEIGHT   = 18;
     protected static final double      ENEMY_WIDTH          = 32;
     protected static final double      ENEMY_HEIGHT         = 32;
+    protected static final double      EXPLOSION_WIDTH      = 32;
+    protected static final double      EXPLOSION_HEIGHT     = 32;
     protected static final double      BALL_VX_INFLUENCE    = 0.75;
     protected static final Font        SCORE_FONT           = Fonts.emulogic(20);
     protected static final Color       HIGH_SCORE_RED       = Color.rgb(229, 2, 1);
@@ -146,6 +148,7 @@ public class Main extends Application {
     private Image                    moleculeMapImg;
     private Image                    blockShadowImg;
     private Image                    bonusBlockShadowImg;
+    private Image                    explosionMapImg;
     private AudioClip                gameStartSnd;
     private AudioClip                startLevelSnd;
     private AudioClip                ballPaddleSnd;
@@ -179,6 +182,7 @@ public class Main extends Application {
     private int                      blockCounter;
     private boolean                  stickyPaddle;
     private List<Enemy>              enemies;
+    private List<Explosion>          explosions;
     private EventHandler<MouseEvent> mouseHandler;
 
 
@@ -250,8 +254,9 @@ public class Main extends Application {
                     }
 
                     // Animate enemies
-                    if (now > lastEnemyUpdateCall + 75_000_000) {
+                    if (now > lastEnemyUpdateCall + 100_000_000) {
                         enemies.forEach(enemy -> enemy.update());
+                        explosions.forEach(explosion -> explosion.update());
                         lastEnemyUpdateCall = now;
                     }
 
@@ -337,6 +342,7 @@ public class Main extends Application {
         blocks      = new CopyOnWriteArrayList<>();
         bonusBlocks = new CopyOnWriteArrayList<>();
         enemies     = new CopyOnWriteArrayList<>();
+        explosions  = new CopyOnWriteArrayList<>();
         torpedoes   = new CopyOnWriteArrayList<>();
         noOfLifes   = 3;
         score       = 0;
@@ -444,6 +450,7 @@ public class Main extends Application {
         bonusBlockPMapImg     = new Image(getClass().getResourceAsStream("block_map_bonus_p.png"), 190, 72, true, false);
         openDoorMapImg        = new Image(getClass().getResourceAsStream("open_door_map.png"), 120, 71, true, false);
         moleculeMapImg        = new Image(getClass().getResourceAsStream("molecule_map.png"), 256, 96, true, false);
+        explosionMapImg       = new Image(getClass().getResourceAsStream("explosion_map.png"), 128, 128, true, false);
         bonusBlockShadowImg   = new Image(getClass().getResourceAsStream("bonus_block_shadow.png"), 38, 18, true, false);
     }
 
@@ -525,6 +532,7 @@ public class Main extends Application {
         bonusBlocks.clear();
         balls.clear();
         enemies.clear();
+        explosions.clear();
         for (int i = 0 ; i < 3 ; i++) {
             spawnEnemy();
         }
@@ -743,6 +751,9 @@ public class Main extends Application {
             }
         });
 
+        // Draw explosions
+        explosions.forEach(explosion -> ctx.drawImage(explosionMapImg, explosion.countX * EXPLOSION_WIDTH, explosion.countY * EXPLOSION_HEIGHT, EXPLOSION_WIDTH, EXPLOSION_HEIGHT, explosion.x, explosion.y, EXPLOSION_WIDTH, EXPLOSION_HEIGHT));
+
         // Draw ball(s)
         balls.forEach(ball -> {
             ball.update();
@@ -798,6 +809,7 @@ public class Main extends Application {
         blocks.removeIf(block -> block.toBeRemoved);
         bonusBlocks.removeIf(bonusBlock -> bonusBlock.toBeRemoved);
         enemies.removeIf(enemy -> enemy.toBeRemoved);
+        explosions.removeIf(explosion -> explosion.toBeRemoved);
         torpedoes.removeIf(torpedo -> torpedo.toBeRemoved);
 
         // Respawn ball and check for game over
@@ -972,7 +984,7 @@ public class Main extends Application {
 
         // ******************** Constructors **************************************
         public Paddle() {
-            super(WIDTH * 0.5 - paddleState.width * 0.5, HEIGHT - PADDLE_OFFSET_Y, 0, 0, 7, 7, 1.0);
+            super(WIDTH * 0.5 - paddleState.width * 0.5, HEIGHT - PADDLE_OFFSET_Y, 0, 0, 8, 8, 1.0);
             init();
         }
 
@@ -1021,7 +1033,7 @@ public class Main extends Application {
 
         // ******************** Constructors **************************************
         public Blink(final double x, final double y) {
-            super(x, y, 0, 0, 7, 2, 1.0);
+            super(x, y, 0, 0, 8, 3, 1.0);
         }
 
 
@@ -1085,7 +1097,7 @@ public class Main extends Application {
 
         // ******************** Constructors **************************************
         public BonusBlock(final double x, final double y, final BonusType bonusType) {
-            super(x, y, 0, 2 * BALL_SPEED, 4, 3, 1.0);
+            super(x, y, 0, 2 * BALL_SPEED, 5, 4, 1.0);
             this.bonusType   = bonusType;
             this.width       = BLOCK_WIDTH;
             this.height      = BLOCK_HEIGHT;
@@ -1218,6 +1230,7 @@ public class Main extends Application {
                 boolean ballHitsEnemy = this.bounds.intersects(enemy.bounds);
                 if (ballHitsEnemy) {
                     enemy.toBeRemoved = true;
+                    explosions.add(new Explosion(enemy.x, enemy.y, enemy.vX, enemy.vY, 1.0));
                     playSound(explosionSnd);
                     if (bounds.centerX > enemy.bounds.minX && bounds.centerX < enemy.bounds.maxX) {
                         // Top or Bottom hit
@@ -1322,8 +1335,8 @@ public class Main extends Application {
 
         // ******************** Constructors **************************************
         public Enemy(final double x, final double y, final EnemyType enemyType) {
-            super(x, y, 0, 0.75, 7, 2, 1.0);
-            this.initialVx   = RND.nextDouble() * 2.0;
+            super(x, y, 0, 3.0, 8, 3, 1.0);
+            this.initialVx   = RND.nextDouble() * 3.0;
             this.vX          = RND.nextBoolean() ? initialVx : -initialVx;
             this.enemyType   = enemyType;
             this.width       = ENEMY_WIDTH;
@@ -1338,21 +1351,57 @@ public class Main extends Application {
             y += vY;
 
             if (bounds.maxX > WIDTH - INSET) {
-                this.x  = WIDTH - INSET - this.width * 0.5;
+                this.x  = WIDTH - INSET - this.width;
                 this.vX = -initialVx;
             }
             if (bounds.minX < INSET) {
-                this.x  = INSET + this.width * 0.5;
+                this.x  = INSET;
                 this.vX = Math.abs(initialVx);
             }
             if (bounds.minY < UPPER_INSET) {
-                this.y  = UPPER_INSET + this.height;
-                this.vY = 0.75;
+                this.y  = UPPER_INSET;
+                this.vY = 3.0;
             }
+
+            this.bounds.set(this.x, this.y, this.width, this.height);
+
+            // Hit test enemy with blocks
+            for (Block block : blocks) {
+                boolean ballHitsBlock = this.bounds.intersects(block.hitBounds);
+                if (ballHitsBlock) {
+                    if (bounds.centerX > block.hitBounds.minX && bounds.centerX < block.hitBounds.maxX) {
+                        // Top or Bottom hit
+                        vY = -vY;
+                    } else if (bounds.centerY > block.hitBounds.minY && bounds.centerY < block.hitBounds.maxY) {
+                        // Left or Right hit
+                        vX = -vX;
+                    } else {
+                        double dx = Math.abs(bounds.centerX - block.bounds.centerX) - block.hitBounds.width * 0.5;
+                        double dy = Math.abs(bounds.centerY - block.bounds.centerY) - block.hitBounds.height * 0.5;
+                        if (dx > dy) {
+                            // Left or Right hit
+                            vX = -vX;
+                        } else {
+                            // Top or Bottom hit
+                            vY = -vY;
+                        }
+                    }
+                    break;
+                }
+            }
+
+            // Hit test enemy with paddle
+            if (bounds.intersects(paddle.bounds)) {
+                this.toBeRemoved = true;
+                explosions.add(new Explosion(this.x, this.y, this.vX, this.vY, 1.0));
+                playSound(explosionSnd);
+            }
+
 
             if (y > HEIGHT) {
                 toBeRemoved = true;
             }
+
             countX++;
             if (countX == maxFrameX) {
                 countY++;
@@ -1361,7 +1410,33 @@ public class Main extends Application {
                     countY = 0;
                 }
             }
-            this.bounds.set(this.x - this.width * 0.5, this.y - this.height * 0.5, this.width, this.height);
+        }
+    }
+
+    private class Explosion extends AnimatedSprite {
+
+        // ******************** Constructors **************************************
+        public Explosion(final double x, final double y, final double vX, final double vY, final double scale) {
+            super(x, y, vX, vY, 4, 4, scale);
+        }
+
+
+        // ******************** Methods *******************************************
+        @Override public void update() {
+            x += vX;
+            y += vY;
+
+            countX++;
+            if (countX == maxFrameX) {
+                countY++;
+                if (countX == maxFrameX && countY == maxFrameY) {
+                    toBeRemoved = true;
+                }
+                countX = 0;
+                if (countY == maxFrameY) {
+                    countY = 0;
+                }
+            }
         }
     }
 
