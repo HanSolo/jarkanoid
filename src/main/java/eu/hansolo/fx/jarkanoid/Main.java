@@ -1,11 +1,14 @@
 package eu.hansolo.fx.jarkanoid;
 
+//import com.gluonhq.attach.audio.Audio;
+//import com.gluonhq.attach.audio.AudioService;
 import eu.hansolo.fx.jarkanoid.Constants.BlockType;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
+import javafx.geometry.Pos;
 import javafx.geometry.Insets;
 import javafx.geometry.VPos;
 import javafx.scene.Scene;
@@ -18,7 +21,6 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.StackPane;
-//import javafx.scene.media.AudioClip;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.text.Font;
@@ -28,6 +30,7 @@ import javafx.stage.Stage;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+//import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
@@ -58,6 +61,9 @@ public class Main extends Application {
         BONUS_B,  // Next Level      (magenta)
         BONUS_P;  // Additional life (gray)
     }
+    protected enum EnemyType {
+        MOLECULE;
+    }
 
     protected static final Random      RND                  = new Random();
     protected static final double      WIDTH                = 390; //390; //560;
@@ -74,6 +80,10 @@ public class Main extends Application {
     protected static final double      BLOCK_STEP_Y         = 22 * Constants.SCALE_FACTOR;
     protected static final double      BONUS_BLOCK_WIDTH    = 38 * Constants.SCALE_FACTOR;
     protected static final double      BONUS_BLOCK_HEIGHT   = 18 * Constants.SCALE_FACTOR;
+    protected static final double      ENEMY_WIDTH          = 32 * Constants.SCALE_FACTOR;
+    protected static final double      ENEMY_HEIGHT         = 32 * Constants.SCALE_FACTOR;
+    protected static final double      EXPLOSION_WIDTH      = 32 * Constants.SCALE_FACTOR;
+    protected static final double      EXPLOSION_HEIGHT     = 32 * Constants.SCALE_FACTOR;
     protected static final double      BALL_VX_INFLUENCE    = 0.75;
     protected static final Font        SCORE_FONT           = Fonts.emulogic(20 * Constants.SCALE_FACTOR);
     protected static final Color       HIGH_SCORE_RED       = Color.rgb(229, 2, 1);
@@ -83,14 +93,15 @@ public class Main extends Application {
 
     private ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
-    private Instant                  startTime;
+    private Instant                  gameStartTime;
+    private long                     levelStartTime;
     private boolean                  running;
     private AnimationTimer           timer;
     private long                     lastTimerCall;
     private long                     lastAnimCall;
     private long                     lastBonusAnimCall;
-    private long                     lastResetCounterCall;
-    private long                     lastNextLevelCounterCall;
+    private long                     lastEnemyUpdateCall;
+    private long                     lastOneSecondCheck;
     private Canvas                   bkgCanvas;
     private GraphicsContext          bkgCtx;
     private Canvas                   canvas;
@@ -108,7 +119,7 @@ public class Main extends Application {
     private ImagePattern             borderPatternFill;
     private Image                    borderVerticalImg;
     private Image                    borderPartVerticalImg;
-    private Image                    topPartImg;
+    private Image                    topDoorImg;
     private Image                    ulCornerImg;
     private Image                    urCornerImg;
     private Image                    pipeImg;
@@ -142,14 +153,17 @@ public class Main extends Application {
     private Image                    bonusBlockBMapImg;
     private Image                    bonusBlockPMapImg;
     private Image                    openDoorMapImg;
+    private Image                    moleculeMapImg;
     private Image                    blockShadowImg;
     private Image                    bonusBlockShadowImg;
-    //private AudioClip                gameStartSnd;
-    //private AudioClip                startLevelSnd;
-    //private AudioClip                ballPaddleSnd;
-    //private AudioClip                ballBlockSnd;
-    //private AudioClip                ballHardBlockSnd;
-    //private AudioClip                laserSnd;
+    private Image                    explosionMapImg;
+    //private Optional<Audio>          gameStartSnd;
+    //private Optional<Audio>          startLevelSnd;
+    //private Optional<Audio>          ballPaddleSnd;
+    //private Optional<Audio>          ballBlockSnd;
+    //private Optional<Audio>          ballHardBlockSnd;
+    //private Optional<Audio>          laserSnd;
+    //private Optional<Audio>          explosionSnd;
     private Paddle                   paddle;
     private List<Ball>               balls;
     private List<Block>              blocks;
@@ -175,7 +189,13 @@ public class Main extends Application {
     private int                      silverBlockMaxHits;
     private int                      blockCounter;
     private boolean                  stickyPaddle;
+    private List<Enemy>              enemies;
+    private List<Explosion>          explosions;
+    private Pos                      enemySpawnPosition;
+    private double                   topLeftDoorAlpha;
+    private double                   topRightDoorAlpha;
     private EventHandler<MouseEvent> mouseHandler;
+    private StackPane                laserTouchArea;
 
 
     // ******************** Methods *******************************************
@@ -195,38 +215,47 @@ public class Main extends Application {
         movingPaddleOut          = false;
         openDoor                 = new OpenDoor(WIDTH - 20 * Constants.SCALE_FACTOR, UPPER_INSET + 565 * Constants.SCALE_FACTOR);
         showStartHint            = true;
+        laserTouchArea           = new StackPane();
         silverBlockMaxHits       = 2;
         blockCounter             = 0;
         stickyPaddle             = false;
+        enemySpawnPosition       = Pos.CENTER;
+        topLeftDoorAlpha         = 1.0;
+        topRightDoorAlpha        = 1.0;
 
+        lastOneSecondCheck       = System.nanoTime();
         lastTimerCall            = System.nanoTime();
         lastAnimCall             = System.nanoTime();
         lastBonusAnimCall        = System.nanoTime();
-        lastResetCounterCall     = System.nanoTime();
-        lastNextLevelCounterCall = System.nanoTime();
+        lastEnemyUpdateCall      = System.nanoTime();
         timer                    = new AnimationTimer() {
             @Override public void handle(final long now) {
                 if (running) {
-                    // Decrease reset counter
-                    if (now > lastResetCounterCall + 1_000_000_000) {
+
+                    // 1 second check
+                    if (now > lastOneSecondCheck + 1_000_000_000) {
+                        // After 15 seconds in the level enemies will be spawned every 10 seconds if less 5 enemies in the game
+                        long levelPlayTime = Instant.now().getEpochSecond() - levelStartTime;
+                        if (levelPlayTime > 15 && enemies.size() < 5 && levelPlayTime % 10 == 0) {
+                            enemySpawnPosition = RND.nextBoolean() ? Pos.TOP_LEFT : Pos.TOP_RIGHT;
+                            switch(enemySpawnPosition) {
+                                case TOP_LEFT : topLeftDoorAlpha  = 0.99; break;
+                                case TOP_RIGHT: topRightDoorAlpha = 0.99; break;
+                            }
+                        }
+
                         if (paddleResetCounter > 0) {
                             paddleResetCounter--;
-                            lastResetCounterCall = now;
                             if (paddleResetCounter == 0) {
                                 paddleState = PaddleState.STANDARD;
                             }
                         }
                         if (speedResetCounter > 0) {
                             speedResetCounter--;
-                            lastResetCounterCall = now;
                             if (speedResetCounter == 0) {
                                 ballSpeed = BALL_SPEED;
                             }
                         }
-                    }
-
-                    // Next level counter
-                    if (now > lastNextLevelCounterCall + 1_000_000_000) {
                         if (nextLevelDoorCounter > 0) {
                             nextLevelDoorCounter--;
                             if (nextLevelDoorCounter == 0 && !movingPaddleOut) {
@@ -234,14 +263,40 @@ public class Main extends Application {
                                 nextLevelDoorOpen  = false;
                                 drawBorder();
                             }
-                            lastNextLevelCounterCall = now;
                         }
+
+                        lastOneSecondCheck = now;
                     }
 
-                    // Animate bonus blocks
+                    // Animate bonus blocks and top doors
                     if (now > lastBonusAnimCall + 50_000_000) {
+                        // Update bonus blocks
                         bonusBlocks.forEach(bonusBlock -> bonusBlock.update());
+
+                        // Fade out top doors
+                        if (topLeftDoorAlpha < 1) {
+                            topLeftDoorAlpha -= 0.1;
+                            if (topLeftDoorAlpha <= 0) {
+                                spawnEnemy(Pos.TOP_LEFT);
+                                topLeftDoorAlpha = 1;
+                            }
+                            drawBorder();
+                        } else if (topRightDoorAlpha < 1) {
+                            topRightDoorAlpha -= 0.1;
+                            if (topRightDoorAlpha <= 0) {
+                                spawnEnemy(Pos.TOP_RIGHT);
+                                topRightDoorAlpha = 1;
+                            }
+                            drawBorder();
+                        }
                         lastBonusAnimCall = now;
+                    }
+
+                    // Animate enemies
+                    if (now > lastEnemyUpdateCall + 100_000_000) {
+                        enemies.forEach(enemy -> enemy.update());
+                        explosions.forEach(explosion -> explosion.update());
+                        lastEnemyUpdateCall = now;
                     }
 
                     // Animation of paddle glow
@@ -325,13 +380,15 @@ public class Main extends Application {
         balls       = new CopyOnWriteArrayList<>();
         blocks      = new CopyOnWriteArrayList<>();
         bonusBlocks = new CopyOnWriteArrayList<>();
+        enemies     = new CopyOnWriteArrayList<>();
+        explosions  = new CopyOnWriteArrayList<>();
         torpedoes   = new CopyOnWriteArrayList<>();
         noOfLifes   = 3;
         score       = 0;
     }
 
     @Override public void start(final Stage stage) {
-        startTime = Instant.now();
+        gameStartTime = Instant.now();
 
         final StackPane gamePane  = new StackPane(bkgCanvas, canvas, brdrCanvas);
         gamePane.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
@@ -341,8 +398,10 @@ public class Main extends Application {
 
         final AnchorPane pane = new AnchorPane(gamePane, laserPane);
         pane.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
+
         AnchorPane.setTopAnchor(gamePane, 100d);
         AnchorPane.setLeftAnchor(gamePane, 0d);
+
         AnchorPane.setTopAnchor(laserPane, 100d + HEIGHT);
         AnchorPane.setLeftAnchor(laserPane, 0d);
         AnchorPane.setRightAnchor(laserPane, 0d);
@@ -376,7 +435,7 @@ public class Main extends Application {
                 }
             } else {
                 // Block for the first 8 seconds to give it some time to play the game start song
-                if (Instant.now().getEpochSecond() - startTime.getEpochSecond() > 8) {
+                if (Instant.now().getEpochSecond() - gameStartTime.getEpochSecond() > 8) {
                     level = 1;
                     startLevel(level);
                 }
@@ -429,6 +488,7 @@ public class Main extends Application {
     }
 
     @Override public void stop() {
+        disposeSounds();
         Platform.exit();
         System.exit(0);
     }
@@ -443,11 +503,11 @@ public class Main extends Application {
         bkgPatternImgGreen    = new Image(getClass().getResourceAsStream("backgroundPattern_green.png"), 68 * Constants.SCALE_FACTOR, 117 * Constants.SCALE_FACTOR, true, false);
         borderVerticalImg     = new Image(getClass().getResourceAsStream("borderVertical.png"), 20 * Constants.SCALE_FACTOR, 113 * Constants.SCALE_FACTOR, true, false);
         borderPartVerticalImg = new Image(getClass().getResourceAsStream("borderPartVertical.png"), 20 * Constants.SCALE_FACTOR, 71 * Constants.SCALE_FACTOR, true, false);
-        topPartImg            = new Image(getClass().getResourceAsStream("topPart.png"), 64 * Constants.SCALE_FACTOR, 23 * Constants.SCALE_FACTOR, true, false);
+        topDoorImg            = new Image(getClass().getResourceAsStream("topDoor.png"), 64 * Constants.SCALE_FACTOR, 23 * Constants.SCALE_FACTOR, true, false);
         ulCornerImg           = new Image(getClass().getResourceAsStream("upperLeftCorner.png"), 15 * Constants.SCALE_FACTOR, 20 * Constants.SCALE_FACTOR, true, false);
         urCornerImg           = new Image(getClass().getResourceAsStream("upperRightCorner.png"), 15 * Constants.SCALE_FACTOR, 20 * Constants.SCALE_FACTOR, true, false);
         pipeImg               = new Image(getClass().getResourceAsStream("pipe.png"), 5 * Constants.SCALE_FACTOR, 17 * Constants.SCALE_FACTOR, true, false);
-        paddleMapStdImg       = new Image(getClass().getResourceAsStream("paddlemap_std.png"), 640 * Constants.SCALE_FACTOR, 176 * Constants.SCALE_FACTOR, true, false);
+        paddleMapStdImg       = new Image(getClass().getResourceAsStream("paddlemap_std.png"), 640 * Constants.SCALE_FACTOR, 176 * Constants.SCALE_FACTOR, false, false);
         paddleMapWideImg      = new Image(getClass().getResourceAsStream("paddlemap_wide.png"), 960 * Constants.SCALE_FACTOR, 176 * Constants.SCALE_FACTOR, false, false);
         paddleMapGunImg       = new Image(getClass().getResourceAsStream("paddlemap_gun.png"), 640 * Constants.SCALE_FACTOR, 176 * Constants.SCALE_FACTOR, false, false);
         blinkMapImg           = new Image(getClass().getResourceAsStream("blink_map.png"), 304 * Constants.SCALE_FACTOR, 60 * Constants.SCALE_FACTOR, false, false);
@@ -477,16 +537,28 @@ public class Main extends Application {
         bonusBlockBMapImg     = new Image(getClass().getResourceAsStream("block_map_bonus_b.png"), 190 * Constants.SCALE_FACTOR, 72 * Constants.SCALE_FACTOR, true, false);
         bonusBlockPMapImg     = new Image(getClass().getResourceAsStream("block_map_bonus_p.png"), 190 * Constants.SCALE_FACTOR, 72 * Constants.SCALE_FACTOR, true, false);
         openDoorMapImg        = new Image(getClass().getResourceAsStream("open_door_map.png"), 120 * Constants.SCALE_FACTOR, 71 * Constants.SCALE_FACTOR, true, false);
+        moleculeMapImg        = new Image(getClass().getResourceAsStream("molecule_map.png"), 256 * Constants.SCALE_FACTOR, 96 * Constants.SCALE_FACTOR, true, false);
+        explosionMapImg       = new Image(getClass().getResourceAsStream("explosion_map.png"), 128 * Constants.SCALE_FACTOR, 128 * Constants.SCALE_FACTOR, true, false);
         bonusBlockShadowImg   = new Image(getClass().getResourceAsStream("bonus_block_shadow.png"), 38 * Constants.SCALE_FACTOR, 18 * Constants.SCALE_FACTOR, true, false);
     }
 
     private void loadSounds() {
-        //gameStartSnd     = new AudioClip(getClass().getResource("game_start.wav").toExternalForm());
-        //startLevelSnd    = new AudioClip(getClass().getResource("level_ready.wav").toExternalForm());
-        //ballPaddleSnd    = new AudioClip(getClass().getResource("ball_paddle.wav").toExternalForm());
-        //ballBlockSnd     = new AudioClip(getClass().getResource("ball_block.wav").toExternalForm());
-        //ballHardBlockSnd = new AudioClip(getClass().getResource("ball_hard_block.wav").toExternalForm());
-        //laserSnd         = new AudioClip(getClass().getResource("gun.wav").toExternalForm());
+        //gameStartSnd     = AudioService.create().map(audio -> audio.loadSound(getClass().getResource("game_start.mp3")).orElse(null));
+        //startLevelSnd    = AudioService.create().map(audio -> audio.loadSound(getClass().getResource("level_ready.mp3")).orElse(null));
+        //ballPaddleSnd    = AudioService.create().map(audio -> audio.loadSound(getClass().getResource("ball_paddle.mp3")).orElse(null));
+        //laserSnd         = AudioService.create().map(audio -> audio.loadSound(getClass().getResource("gun.mp3")).orElse(null));
+        //ballHardBlockSnd = AudioService.create().map(audio -> audio.loadSound(getClass().getResource("ball_hard_block.mp3")).orElse(null));
+        //ballBlockSnd     = AudioService.create().map(audio -> audio.loadSound(getClass().getResource("ball_block.mp3")).orElse(null));
+        //explosionSnd     = AudioService.create().map(audio -> audio.loadSound(getClass().getResource("explosion.mp3")).orElse(null));
+    }
+
+    private void disposeSounds() {
+        //gameStartSnd.ifPresent(Audio::dispose);
+        //startLevelSnd.ifPresent(Audio::dispose);
+        //ballPaddleSnd.ifPresent(Audio::dispose);
+        //laserSnd.ifPresent(Audio::dispose);
+        //ballHardBlockSnd.ifPresent(Audio::dispose);
+        //ballBlockSnd.ifPresent(Audio::dispose);
     }
 
     private static double clamp(final double min, final double max, final double value) {
@@ -517,7 +589,20 @@ public class Main extends Application {
 
 
     // Play audio clips
-    //private void playSound(final AudioClip audioClip) { audioClip.play(); }
+    //private void playSound(final Optional<Audio> audioClip) {
+    //    if (null == audioClip || audioClip.isEmpty()) { return; }
+        //audioClip.get().setVolume(Double.MAX_VALUE);
+    //    audioClip.get().play();
+    //}
+
+
+    // Spawn enemy
+    private void spawnEnemy(final Pos position) {
+        switch (position) {
+            case TOP_LEFT : enemies.add(new Enemy(100 * Constants.SCALE_FACTOR + topDoorImg.getWidth() * 0.5 - ENEMY_WIDTH * 0.5, UPPER_INSET, EnemyType.MOLECULE)); break;
+            case TOP_RIGHT: enemies.add(new Enemy(WIDTH - 100 * Constants.SCALE_FACTOR - topDoorImg.getWidth() * 0.5 - ENEMY_WIDTH * 0.5, UPPER_INSET, EnemyType.MOLECULE)); break;
+        }
+    }
 
 
     // Re-Spawn Ball
@@ -537,6 +622,7 @@ public class Main extends Application {
 
     // Start Level
     private void startLevel(final int level) {
+        levelStartTime     = Instant.now().getEpochSecond();
         blockCounter       = 0;
         nextLevelDoorAlpha = 1.0;
         nextLevelDoorOpen  = false;
@@ -551,6 +637,8 @@ public class Main extends Application {
         setupBlocks(level);
         bonusBlocks.clear();
         balls.clear();
+        enemies.clear();
+        explosions.clear();
         spawnBall();
         if (!running) { running = true; }
         drawBackground(level);
@@ -580,6 +668,8 @@ public class Main extends Application {
         paddleState = PaddleState.STANDARD;
     }
 
+
+    // Setup blocks for given level
     private void setupBlocks(final int level) {
         blocks.clear();
         BlockType[][] level2 = Constants.LEVEL_MAP.get(level);
@@ -763,6 +853,16 @@ public class Main extends Application {
         // Draw blinks
         blinks.forEach(blink -> ctx.drawImage(blinkMapImg, blink.countX * BLOCK_WIDTH, blink.countY * BLOCK_HEIGHT, BLOCK_WIDTH, BLOCK_HEIGHT, blink.x, blink.y, BLOCK_WIDTH, BLOCK_HEIGHT));
 
+        // Draw enemies
+        enemies.forEach(enemy -> {
+            switch(enemy.enemyType) {
+                case MOLECULE: ctx.drawImage(moleculeMapImg, enemy.countX * ENEMY_WIDTH, enemy.countY * ENEMY_HEIGHT, ENEMY_WIDTH, ENEMY_HEIGHT, enemy.x, enemy.y, ENEMY_WIDTH, ENEMY_HEIGHT); break;
+            }
+        });
+
+        // Draw explosions
+        explosions.forEach(explosion -> ctx.drawImage(explosionMapImg, explosion.countX * EXPLOSION_WIDTH, explosion.countY * EXPLOSION_HEIGHT, EXPLOSION_WIDTH, EXPLOSION_HEIGHT, explosion.x, explosion.y, EXPLOSION_WIDTH, EXPLOSION_HEIGHT));
+
         // Draw ball(s)
         balls.forEach(ball -> {
             ball.update();
@@ -817,6 +917,8 @@ public class Main extends Application {
         blinks.removeIf(blink -> blink.toBeRemoved);
         blocks.removeIf(block -> block.toBeRemoved);
         bonusBlocks.removeIf(bonusBlock -> bonusBlock.toBeRemoved);
+        enemies.removeIf(enemy -> enemy.toBeRemoved);
+        explosions.removeIf(explosion -> explosion.toBeRemoved);
         torpedoes.removeIf(torpedo -> torpedo.toBeRemoved);
 
         // Respawn ball and check for game over
@@ -840,8 +942,11 @@ public class Main extends Application {
     private void drawBorder() {
         brdrCtx.clearRect(0, 0, WIDTH, HEIGHT);
         if (running) {
+            // Draw top border
             brdrCtx.setFill(pipePatternFill);
-            brdrCtx.fillRect(17 * Constants.SCALE_FACTOR, 68 * Constants.SCALE_FACTOR, WIDTH - 34 * Constants.SCALE_FACTOR, 17 * Constants.SCALE_FACTOR);
+            brdrCtx.fillRect(17 * Constants.SCALE_FACTOR, 68 * Constants.SCALE_FACTOR, 83 * Constants.SCALE_FACTOR, 17 * Constants.SCALE_FACTOR);
+            brdrCtx.fillRect(100 * Constants.SCALE_FACTOR + topDoorImg.getWidth(), 68 * Constants.SCALE_FACTOR, WIDTH - 200 * Constants.SCALE_FACTOR - 2 * topDoorImg.getWidth(), 17 * Constants.SCALE_FACTOR);
+            brdrCtx.fillRect(WIDTH - 100 * Constants.SCALE_FACTOR, 68 * Constants.SCALE_FACTOR, 83 * Constants.SCALE_FACTOR, 17 * Constants.SCALE_FACTOR);
 
             // Draw vertical border
             brdrCtx.setFill(borderPatternFill);
@@ -853,6 +958,11 @@ public class Main extends Application {
                 brdrCtx.fillRect(WIDTH - 20 * Constants.SCALE_FACTOR, UPPER_INSET, 20 * Constants.SCALE_FACTOR, HEIGHT);
             }
 
+            // Draw border corners
+            brdrCtx.drawImage(ulCornerImg, 2.5 * Constants.SCALE_FACTOR, 67.5 * Constants.SCALE_FACTOR);
+            brdrCtx.drawImage(urCornerImg, WIDTH - urCornerImg.getWidth() - 2.5 * Constants.SCALE_FACTOR, 67.5 * Constants.SCALE_FACTOR);
+
+            // Draw next level door
             if (nextLevelDoorOpen) {
                 for (int i = 0 ; i < 6 ; i++) {
                     brdrCtx.drawImage(borderPartVerticalImg, 0, UPPER_INSET + i * 113 * Constants.SCALE_FACTOR);
@@ -877,10 +987,13 @@ public class Main extends Application {
                 }
             }
 
-            brdrCtx.drawImage(ulCornerImg, 2.5 * Constants.SCALE_FACTOR, 67.5 * Constants.SCALE_FACTOR);
-            brdrCtx.drawImage(urCornerImg, WIDTH - urCornerImg.getWidth() - 2.5 * Constants.SCALE_FACTOR, 67.5 * Constants.SCALE_FACTOR);
-            brdrCtx.drawImage(topPartImg, 100 * Constants.SCALE_FACTOR, 65 * Constants.SCALE_FACTOR);
-            brdrCtx.drawImage(topPartImg, WIDTH - 100 * Constants.SCALE_FACTOR - topPartImg.getWidth(), 65 * Constants.SCALE_FACTOR);
+            // Draw upper doors
+            brdrCtx.save();
+            brdrCtx.setGlobalAlpha(topLeftDoorAlpha);
+            brdrCtx.drawImage(topDoorImg, 100 * Constants.SCALE_FACTOR, 65 * Constants.SCALE_FACTOR);
+            brdrCtx.setGlobalAlpha(topRightDoorAlpha);
+            brdrCtx.drawImage(topDoorImg, WIDTH - 100 * Constants.SCALE_FACTOR - topDoorImg.getWidth(), 65 * Constants.SCALE_FACTOR);
+            brdrCtx.restore();
         }
     }
 
@@ -991,7 +1104,7 @@ public class Main extends Application {
 
         // ******************** Constructors **************************************
         public Paddle() {
-            super(WIDTH * 0.5 - paddleState.width * 0.5, HEIGHT - PADDLE_OFFSET_Y, 0, 0, 7, 7, 1.0);
+            super(WIDTH * 0.5 - paddleState.width * 0.5, HEIGHT - PADDLE_OFFSET_Y, 0, 0, 8, 8, 1.0);
             init();
         }
 
@@ -1040,7 +1153,7 @@ public class Main extends Application {
 
         // ******************** Constructors **************************************
         public Blink(final double x, final double y) {
-            super(x, y, 0, 0, 7, 2, 1.0);
+            super(x, y, 0, 0, 8, 3, 1.0);
         }
 
 
@@ -1104,7 +1217,7 @@ public class Main extends Application {
 
         // ******************** Constructors **************************************
         public BonusBlock(final double x, final double y, final BonusType bonusType) {
-            super(x, y, 0, 2 * BALL_SPEED, 4, 3, 1.0);
+            super(x, y, 0, 2 * BALL_SPEED, 5, 4, 1.0);
             this.bonusType   = bonusType;
             this.width       = BLOCK_WIDTH;
             this.height      = BLOCK_HEIGHT;
@@ -1126,7 +1239,7 @@ public class Main extends Application {
                     countY = 0;
                 }
             }
-            this.bounds.set(this.x, this.y, paddleState.width, this.height);
+            this.bounds.set(this.x, this.y, this.width, this.height);
         }
     }
 
@@ -1232,6 +1345,34 @@ public class Main extends Application {
                 }
             }
 
+            // Hit test ball with enemies
+            for (Enemy enemy : enemies) {
+                boolean ballHitsEnemy = this.bounds.intersects(enemy.bounds);
+                if (ballHitsEnemy) {
+                    enemy.toBeRemoved = true;
+                    explosions.add(new Explosion(enemy.x, enemy.y, enemy.vX, enemy.vY, 1.0));
+                    //playSound(explosionSnd);
+                    if (bounds.centerX > enemy.bounds.minX && bounds.centerX < enemy.bounds.maxX) {
+                        // Top or Bottom hit
+                        vY = -vY;
+                    } else if (bounds.centerY > enemy.bounds.minY && bounds.centerY < enemy.bounds.maxY) {
+                        // Left or Right hit
+                        vX = -vX;
+                    } else {
+                        double dx = Math.abs(bounds.centerX - enemy.bounds.centerX) - enemy.bounds.width * 0.5;
+                        double dy = Math.abs(bounds.centerY - enemy.bounds.centerY) - enemy.bounds.height * 0.5;
+                        if (dx > dy) {
+                            // Left or Right hit
+                            vX = -vX;
+                        } else {
+                            // Top or Bottom hit
+                            vY = -vY;
+                        }
+                    }
+                    break;
+                }
+            }
+
             // Hit test ball with paddle
             if (bounds.intersects(paddle.bounds)) {
                 if (stickyPaddle) {
@@ -1299,6 +1440,116 @@ public class Main extends Application {
             countX++;
             if (countX == maxFrameX) {
                 countY++;
+                countX = 0;
+                if (countY == maxFrameY) {
+                    countY = 0;
+                }
+            }
+        }
+    }
+
+    private class Enemy extends AnimatedSprite {
+        public EnemyType enemyType;
+        private double initialVx;
+
+
+        // ******************** Constructors **************************************
+        public Enemy(final double x, final double y, final EnemyType enemyType) {
+            super(x, y, 0, 3.0, 8, 3, 1.0);
+            this.initialVx   = RND.nextDouble() * 3.0;
+            this.vX          = RND.nextBoolean() ? initialVx : -initialVx;
+            this.enemyType   = enemyType;
+            this.width       = ENEMY_WIDTH;
+            this.height      = ENEMY_HEIGHT;
+            this.radius      = Math.sqrt(ENEMY_HEIGHT * ENEMY_HEIGHT * 0.25 + ENEMY_WIDTH * ENEMY_WIDTH * 0.25);
+            this.bounds.set(this.x - this.width * 0.5, this.y - this.height * 0.5, this.width, this.height);
+        }
+
+
+        // ******************** Methods *******************************************
+        @Override public void update() {
+            x += vX;
+            y += vY;
+
+            if (bounds.maxX > WIDTH - INSET) {
+                this.x  = WIDTH - INSET - this.width;
+                this.vX = -initialVx;
+            }
+            if (bounds.minX < INSET) {
+                this.x  = INSET;
+                this.vX = Math.abs(initialVx);
+            }
+            if (bounds.minY < UPPER_INSET) {
+                this.y  = UPPER_INSET;
+                this.vY = 3.0;
+            }
+
+            this.bounds.set(this.x, this.y, this.width, this.height);
+
+            // Hit test enemy with blocks
+            for (Block block : blocks) {
+                boolean enemyHitsBlock = this.bounds.intersects(block.hitBounds);
+                if (enemyHitsBlock) {
+                    if (bounds.centerX > block.hitBounds.minX && bounds.centerX < block.hitBounds.maxX) {
+                        // Top or Bottom hit
+                        vY = -vY;
+                    } else if (bounds.centerY > block.hitBounds.minY && bounds.centerY < block.hitBounds.maxY) {
+                        // Left or Right hit
+                        vX = -vX;
+                    } else {
+                        double dx = Math.abs(bounds.centerX - block.bounds.centerX) - block.hitBounds.width * 0.5;
+                        double dy = Math.abs(bounds.centerY - block.bounds.centerY) - block.hitBounds.height * 0.5;
+                        if (dx > dy) {
+                            // Left or Right hit
+                            vX = -vX;
+                        } else {
+                            // Top or Bottom hit
+                            vY = -vY;
+                        }
+                    }
+                    break;
+                }
+            }
+
+            // Hit test enemy with paddle
+            if (bounds.intersects(paddle.bounds)) {
+                this.toBeRemoved = true;
+                explosions.add(new Explosion(this.x, this.y, this.vX, this.vY, 1.0));
+                //playSound(explosionSnd);
+            }
+
+            if (y > HEIGHT) { toBeRemoved = true; }
+
+            countX++;
+            if (countX == maxFrameX) {
+                countY++;
+                countX = 0;
+                if (countY == maxFrameY) {
+                    countY = 0;
+                }
+            }
+        }
+    }
+
+    private class Explosion extends AnimatedSprite {
+
+        // ******************** Constructors **************************************
+        public Explosion(final double x, final double y, final double vX, final double vY, final double scale) {
+            super(x, y, vX, vY, 4, 4, scale);
+        }
+
+
+        // ******************** Methods *******************************************
+        @Override public void update() {
+            x += vX;
+            y += vY;
+
+            countX++;
+            if (countX == maxFrameX) {
+                countY++;
+                if (countX == maxFrameX && countY == maxFrameY) {
+                    toBeRemoved = true;
+                }
                 countX = 0;
                 if (countY == maxFrameY) {
                     countY = 0;
