@@ -85,15 +85,15 @@ public class Main extends Application {
 
     private ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
-    private Instant                  startTime;
+    private Instant                  gameStartTime;
+    private long                     levelStartTime;
     private boolean                  running;
     private AnimationTimer           timer;
     private long                     lastTimerCall;
     private long                     lastAnimCall;
     private long                     lastBonusAnimCall;
     private long                     lastEnemyUpdateCall;
-    private long                     lastResetCounterCall;
-    private long                     lastNextLevelCounterCall;
+    private long                     lastOneSecondCheck;
     private Canvas                   bkgCanvas;
     private GraphicsContext          bkgCtx;
     private Canvas                   canvas;
@@ -111,7 +111,7 @@ public class Main extends Application {
     private ImagePattern             borderPatternFill;
     private Image                    borderVerticalImg;
     private Image                    borderPartVerticalImg;
-    private Image                    topPartImg;
+    private Image                    topDoorImg;
     private Image                    ulCornerImg;
     private Image                    urCornerImg;
     private Image                    pipeImg;
@@ -207,35 +207,33 @@ public class Main extends Application {
         blockCounter             = 0;
         stickyPaddle             = false;
 
+        lastOneSecondCheck       = System.nanoTime();
         lastTimerCall            = System.nanoTime();
         lastAnimCall             = System.nanoTime();
         lastBonusAnimCall        = System.nanoTime();
         lastEnemyUpdateCall      = System.nanoTime();
-        lastResetCounterCall     = System.nanoTime();
-        lastNextLevelCounterCall = System.nanoTime();
         timer                    = new AnimationTimer() {
             @Override public void handle(final long now) {
                 if (running) {
-                    // Decrease reset counter
-                    if (now > lastResetCounterCall + 1_000_000_000) {
+                    // 1 second check
+                    if (now > lastOneSecondCheck + 1_000_000_000) {
+                        // Spawn enemies every 10 seconds if less 5 enemies in the game
+                        if (enemies.size() < 5 && (Instant.now().getEpochSecond() - levelStartTime + 1) % 10 == 0) {
+                            spawnEnemy();
+                        }
+
                         if (paddleResetCounter > 0) {
                             paddleResetCounter--;
-                            lastResetCounterCall = now;
                             if (paddleResetCounter == 0) {
                                 paddleState = PaddleState.STANDARD;
                             }
                         }
                         if (speedResetCounter > 0) {
                             speedResetCounter--;
-                            lastResetCounterCall = now;
                             if (speedResetCounter == 0) {
                                 ballSpeed = BALL_SPEED;
                             }
                         }
-                    }
-
-                    // Next level counter
-                    if (now > lastNextLevelCounterCall + 1_000_000_000) {
                         if (nextLevelDoorCounter > 0) {
                             nextLevelDoorCounter--;
                             if (nextLevelDoorCounter == 0 && !movingPaddleOut) {
@@ -243,8 +241,9 @@ public class Main extends Application {
                                 nextLevelDoorOpen  = false;
                                 drawBorder();
                             }
-                            lastNextLevelCounterCall = now;
                         }
+
+                        lastOneSecondCheck = now;
                     }
 
                     // Animate bonus blocks
@@ -286,7 +285,7 @@ public class Main extends Application {
                         }
                     }
                 } else {
-                    if (!showStartHint && Instant.now().getEpochSecond() - startTime.getEpochSecond() > 8) {
+                    if (!showStartHint && Instant.now().getEpochSecond() - gameStartTime.getEpochSecond() > 8) {
                         showStartHint = true;
                         startScreen();
                     }
@@ -349,7 +348,7 @@ public class Main extends Application {
     }
 
     @Override public void start(final Stage stage) {
-        startTime = Instant.now();
+        gameStartTime = Instant.now();
 
         final StackPane pane  = new StackPane(bkgCanvas, canvas, brdrCanvas);
         final Scene     scene = new Scene(pane, WIDTH, HEIGHT);
@@ -375,7 +374,7 @@ public class Main extends Application {
                 }
             } else {
                 // Block for the first 8 seconds to give it some time to play the game start song
-                if (Instant.now().getEpochSecond() - startTime.getEpochSecond() > 8) {
+                if (Instant.now().getEpochSecond() - gameStartTime.getEpochSecond() > 8) {
                     level = 1;
                     startLevel(level);
                 }
@@ -415,7 +414,7 @@ public class Main extends Application {
         bkgPatternImgGreen    = new Image(getClass().getResourceAsStream("backgroundPattern_green.png"), 68, 117, true, false);
         borderVerticalImg     = new Image(getClass().getResourceAsStream("borderVertical.png"), 20, 113, true, false);
         borderPartVerticalImg = new Image(getClass().getResourceAsStream("borderPartVertical.png"), 20, 71, true, false);
-        topPartImg            = new Image(getClass().getResourceAsStream("topPart.png"), 64, 23, true, false);
+        topDoorImg            = new Image(getClass().getResourceAsStream("topDoor.png"), 64, 23, true, false);
         ulCornerImg           = new Image(getClass().getResourceAsStream("upperLeftCorner.png"), 15, 20, true, false);
         urCornerImg           = new Image(getClass().getResourceAsStream("upperRightCorner.png"), 15, 20, true, false);
         pipeImg               = new Image(getClass().getResourceAsStream("pipe.png"), 5, 17, true, false);
@@ -497,7 +496,13 @@ public class Main extends Application {
 
     // Spawn enemy
     private void spawnEnemy() {
-        enemies.add(new Enemy(WIDTH * 0.5, UPPER_INSET + 30, EnemyType.MOLECULE));
+        if (RND.nextBoolean()) {
+            // Upper left door
+            enemies.add(new Enemy(100 + topDoorImg.getWidth() * 0.5, UPPER_INSET, EnemyType.MOLECULE));
+        } else {
+            // Upper right door
+            enemies.add(new Enemy(WIDTH - 100 - topDoorImg.getWidth() * 0.5, UPPER_INSET + 30, EnemyType.MOLECULE));
+        }
     }
 
     // Re-Spawn Ball
@@ -517,6 +522,7 @@ public class Main extends Application {
 
     // Start Level
     private void startLevel(final int level) {
+        levelStartTime     = Instant.now().getEpochSecond();
         blockCounter       = 0;
         nextLevelDoorAlpha = 1.0;
         nextLevelDoorOpen  = false;
@@ -533,9 +539,6 @@ public class Main extends Application {
         balls.clear();
         enemies.clear();
         explosions.clear();
-        for (int i = 0 ; i < 3 ; i++) {
-            spawnEnemy();
-        }
         spawnBall();
         if (!running) { running = true; }
         drawBackground(level);
@@ -565,6 +568,8 @@ public class Main extends Application {
         paddleState = PaddleState.STANDARD;
     }
 
+
+    // Setup blocks for given level
     private void setupBlocks(final int level) {
         blocks.clear();
         BlockType[][] level2 = Constants.LEVEL_MAP.get(level);
@@ -870,10 +875,13 @@ public class Main extends Application {
                 }
             }
 
+            // Draw frame corners
             brdrCtx.drawImage(ulCornerImg, 2.5, 67.5);
             brdrCtx.drawImage(urCornerImg, WIDTH - urCornerImg.getWidth() - 2.5, 67.5);
-            brdrCtx.drawImage(topPartImg, 100, 65);
-            brdrCtx.drawImage(topPartImg, WIDTH - 100 - topPartImg.getWidth(), 65);
+
+            // Draw upper doors
+            brdrCtx.drawImage(topDoorImg, 100, 65);
+            brdrCtx.drawImage(topDoorImg, WIDTH - 100 - topDoorImg.getWidth(), 65);
         }
     }
 
