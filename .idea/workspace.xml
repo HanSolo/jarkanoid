@@ -5,13 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e329de08-a326-4233-82ec-10404f5c2334" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/blink_map.afdesign" beforeDir="false" afterPath="$PROJECT_DIR$/resources/blink_map.afdesign" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/topPart.afdesign" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/eu/hansolo/fx/jarkanoid/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/eu/hansolo/fx/jarkanoid/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/eu/hansolo/fx/jarkanoid/blink_map.png" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/eu/hansolo/fx/jarkanoid/blink_map.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/eu/hansolo/fx/jarkanoid/topPart.png" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -51,6 +47,7 @@
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
     "settings.editor.selected.configurable": "project.propCompiler",
     "vue.rearranger.settings.migration": "true"
   }
@@ -63,7 +60,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1676802300455</updated>
-      <workItem from="1676802301605" duration="760000" />
+      <workItem from="1676802301605" duration="2581000" />
     </task>
     <servers />
   </component>
