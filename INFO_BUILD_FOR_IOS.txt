@@ -4,7 +4,7 @@ You need to make your iOS device a developer device by enabling the Developer Mo
 https://developer.apple.com/documentation/xcode/enabling-developer-mode-on-a-device
 
 Make sure you have an adhoc wildcard provisioning profile created to be able to install it.
-You can create that at https://developer.apple.com/account under Certificates, Identifiers & Profiles.
+You can create that at https://developer.apple.com/account/resources/certificates/list.
 
 Download and install the latest Gluon GraalVM version from: https://github.com/gluonhq/graal/releases
 
