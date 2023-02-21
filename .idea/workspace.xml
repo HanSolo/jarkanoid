@@ -5,7 +5,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e329de08-a326-4233-82ec-10404f5c2334" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/INFO_BUILD_FOR_IOS.txt" beforeDir="false" afterPath="$PROJECT_DIR$/INFO_BUILD_FOR_IOS.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/backgroundPattern.afdesign" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/eu/hansolo/fx/jarkanoid/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/eu/hansolo/fx/jarkanoid/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/module-info.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/module-info.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/eu/hansolo/fx/jarkanoid/backgroundPattern_blue.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/eu/hansolo/fx/jarkanoid/backgroundPattern_green.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/eu/hansolo/fx/jarkanoid/backgroundPattern_red.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/eu/hansolo/fx/jarkanoid/molecules.png" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
