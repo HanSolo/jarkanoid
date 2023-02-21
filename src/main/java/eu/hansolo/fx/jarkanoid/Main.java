@@ -110,12 +110,14 @@ public class Main extends Application {
     private GraphicsContext          brdrCtx;
     private Image                    logoImg;
     private Image                    copyrightImg;
-    private Image                    bkgPatternImgBlue;
-    private Image                    bkgPatternImgRed;
-    private Image                    bkgPatternImgGreen;
-    private ImagePattern             bkgPatternFillBlue;
-    private ImagePattern             bkgPatternFillRed;
-    private ImagePattern             bkgPatternFillGreen;
+    private Image                    bkgPatternImg1;
+    private Image                    bkgPatternImg2;
+    private Image                    bkgPatternImg3;
+    private Image                    bkgPatternImg4;
+    private ImagePattern             bkgPatternFill1;
+    private ImagePattern             bkgPatternFill2;
+    private ImagePattern             bkgPatternFill3;
+    private ImagePattern             bkgPatternFill4;
     private ImagePattern             borderPatternFill;
     private Image                    borderVerticalImg;
     private Image                    borderPartVerticalImg;
@@ -164,6 +166,7 @@ public class Main extends Application {
     //private Optional<Audio>          ballHardBlockSnd;
     //private Optional<Audio>          laserSnd;
     //private Optional<Audio>          explosionSnd;
+    //private Optional<Audio>          gameOverSnd;
     private Paddle                   paddle;
     private List<Ball>               balls;
     private List<Block>              blocks;
@@ -231,7 +234,6 @@ public class Main extends Application {
         timer                    = new AnimationTimer() {
             @Override public void handle(final long now) {
                 if (running) {
-
                     // 1 second check
                     if (now > lastOneSecondCheck + 1_000_000_000) {
                         // After 15 seconds in the level enemies will be spawned every 10 seconds if less 5 enemies in the game
@@ -366,11 +368,12 @@ public class Main extends Application {
         // Load all sounds
         //loadSounds();
 
-        bkgPatternFillBlue  = new ImagePattern(bkgPatternImgBlue, 0, 0, 68 * Constants.SCALE_FACTOR, 117 * Constants.SCALE_FACTOR, false);
-        bkgPatternFillRed   = new ImagePattern(bkgPatternImgRed, 0, 0, 68 * Constants.SCALE_FACTOR, 117 * Constants.SCALE_FACTOR, false);
-        bkgPatternFillGreen = new ImagePattern(bkgPatternImgGreen, 0, 0, 68 * Constants.SCALE_FACTOR, 117 * Constants.SCALE_FACTOR, false);
-        borderPatternFill   = new ImagePattern(borderVerticalImg, 0, 0, 20 * Constants.SCALE_FACTOR, 113 * Constants.SCALE_FACTOR, false);
-        pipePatternFill     = new ImagePattern(pipeImg, 0, 0, 5 * Constants.SCALE_FACTOR, 17 * Constants.SCALE_FACTOR, false);
+        bkgPatternFill1   = new ImagePattern(bkgPatternImg1, 0, 0, 68 * Constants.SCALE_FACTOR, 117 * Constants.SCALE_FACTOR, false);
+        bkgPatternFill2   = new ImagePattern(bkgPatternImg2, 0, 0, 64 * Constants.SCALE_FACTOR, 64 * Constants.SCALE_FACTOR, false);
+        bkgPatternFill3   = new ImagePattern(bkgPatternImg3, 0, 0, 64 * Constants.SCALE_FACTOR, 64 * Constants.SCALE_FACTOR, false);
+        bkgPatternFill4   = new ImagePattern(bkgPatternImg4, 0, 0, 64 * Constants.SCALE_FACTOR, 64 * Constants.SCALE_FACTOR, false);
+        borderPatternFill = new ImagePattern(borderVerticalImg, 0, 0, 20 * Constants.SCALE_FACTOR, 113 * Constants.SCALE_FACTOR, false);
+        pipePatternFill   = new ImagePattern(pipeImg, 0, 0, 5 * Constants.SCALE_FACTOR, 17 * Constants.SCALE_FACTOR, false);
 
 
         // Initialize paddles
@@ -498,9 +501,10 @@ public class Main extends Application {
     private void loadImages() {
         logoImg               = new Image(getClass().getResourceAsStream("jarkanoid_logo.png"), 460 * Constants.SCALE_FACTOR, 118 * Constants.SCALE_FACTOR, true, false);
         copyrightImg          = new Image(getClass().getResourceAsStream("copyright.png"), 458 * Constants.SCALE_FACTOR, 115 * Constants.SCALE_FACTOR, true, false);
-        bkgPatternImgBlue     = new Image(getClass().getResourceAsStream("backgroundPattern_blue.png"), 68 * Constants.SCALE_FACTOR, 117 * Constants.SCALE_FACTOR, true, false);
-        bkgPatternImgRed      = new Image(getClass().getResourceAsStream("backgroundPattern_red.png"), 68 * Constants.SCALE_FACTOR, 117 * Constants.SCALE_FACTOR, true, false);
-        bkgPatternImgGreen    = new Image(getClass().getResourceAsStream("backgroundPattern_green.png"), 68 * Constants.SCALE_FACTOR, 117 * Constants.SCALE_FACTOR, true, false);
+        bkgPatternImg1        = new Image(getClass().getResourceAsStream("backgroundPattern_1.png"), 68 * Constants.SCALE_FACTOR, 117 * Constants.SCALE_FACTOR, true, false);
+        bkgPatternImg2        = new Image(getClass().getResourceAsStream("backgroundPattern_2.png"), 64 * Constants.SCALE_FACTOR, 64 * Constants.SCALE_FACTOR, true, false);
+        bkgPatternImg3        = new Image(getClass().getResourceAsStream("backgroundPattern_3.png"), 64 * Constants.SCALE_FACTOR, 64 * Constants.SCALE_FACTOR, true, false);
+        bkgPatternImg4        = new Image(getClass().getResourceAsStream("backgroundPattern_4.png"), 64 * Constants.SCALE_FACTOR, 64 * Constants.SCALE_FACTOR, true, false);
         borderVerticalImg     = new Image(getClass().getResourceAsStream("borderVertical.png"), 20 * Constants.SCALE_FACTOR, 113 * Constants.SCALE_FACTOR, true, false);
         borderPartVerticalImg = new Image(getClass().getResourceAsStream("borderPartVertical.png"), 20 * Constants.SCALE_FACTOR, 71 * Constants.SCALE_FACTOR, true, false);
         topDoorImg            = new Image(getClass().getResourceAsStream("topDoor.png"), 64 * Constants.SCALE_FACTOR, 23 * Constants.SCALE_FACTOR, true, false);
@@ -546,19 +550,22 @@ public class Main extends Application {
         //gameStartSnd     = AudioService.create().map(audio -> audio.loadSound(getClass().getResource("game_start.mp3")).orElse(null));
         //startLevelSnd    = AudioService.create().map(audio -> audio.loadSound(getClass().getResource("level_ready.mp3")).orElse(null));
         //ballPaddleSnd    = AudioService.create().map(audio -> audio.loadSound(getClass().getResource("ball_paddle.mp3")).orElse(null));
-        //laserSnd         = AudioService.create().map(audio -> audio.loadSound(getClass().getResource("gun.mp3")).orElse(null));
-        //ballHardBlockSnd = AudioService.create().map(audio -> audio.loadSound(getClass().getResource("ball_hard_block.mp3")).orElse(null));
         //ballBlockSnd     = AudioService.create().map(audio -> audio.loadSound(getClass().getResource("ball_block.mp3")).orElse(null));
+        //ballHardBlockSnd = AudioService.create().map(audio -> audio.loadSound(getClass().getResource("ball_hard_block.mp3")).orElse(null));
+        //laserSnd         = AudioService.create().map(audio -> audio.loadSound(getClass().getResource("gun.mp3")).orElse(null));                
         //explosionSnd     = AudioService.create().map(audio -> audio.loadSound(getClass().getResource("explosion.mp3")).orElse(null));
+        //gameOverSnd      = AudioService.create().map(audio -> audio.loadSound(getClass().getResource("game_over.mp3")).orElse(null));
     }
 
     private void disposeSounds() {
         //gameStartSnd.ifPresent(Audio::dispose);
         //startLevelSnd.ifPresent(Audio::dispose);
         //ballPaddleSnd.ifPresent(Audio::dispose);
-        //laserSnd.ifPresent(Audio::dispose);
-        //ballHardBlockSnd.ifPresent(Audio::dispose);
         //ballBlockSnd.ifPresent(Audio::dispose);
+        //ballHardBlockSnd.ifPresent(Audio::dispose);
+        //explosionSnd.ifPresent(Audion::dispose);
+        //laserSnd.ifPresent(Audio::dispose);
+        //gameOverSnd.ifPresent(Audio::dispose);
     }
 
     private static double clamp(final double min, final double max, final double value) {
@@ -651,6 +658,8 @@ public class Main extends Application {
     // Game Over
     private void gameOver() {
         executor.schedule(() -> startScreen(), 5, TimeUnit.SECONDS);
+
+        //playSound(gameOverSnd);
 
         running = false;
         balls.clear();
@@ -770,12 +779,14 @@ public class Main extends Application {
 
         if (running) {
             // Use background pattern related to level
-            if (level % 3 == 0) {
-                bkgCtx.setFill(bkgPatternFillGreen);
+            if (level % 4 == 0) {
+                bkgCtx.setFill(bkgPatternFill4);
+            } else if (level % 3 == 0) {
+                bkgCtx.setFill(bkgPatternFill3);
             } else if (level % 2 == 0) {
-                bkgCtx.setFill(bkgPatternFillRed);
+                bkgCtx.setFill(bkgPatternFill2);
             } else {
-                bkgCtx.setFill(bkgPatternFillBlue);
+                bkgCtx.setFill(bkgPatternFill1);
             }
             bkgCtx.fillRect(0, UPPER_INSET, WIDTH, HEIGHT);
 
