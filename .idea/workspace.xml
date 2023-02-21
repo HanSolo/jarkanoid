@@ -6,13 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="13790e6f-0827-47d3-b349-eef902661cde" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build_app_linux.sh" beforeDir="false" afterPath="$PROJECT_DIR$/build_app_linux.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build_app_macos.sh" beforeDir="false" afterPath="$PROJECT_DIR$/build_app_macos.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build_app_windows.bat" beforeDir="false" afterPath="$PROJECT_DIR$/build_app_windows.bat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/gradle.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/eu/hansolo/fx/jarkanoid/Constants.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/eu/hansolo/fx/jarkanoid/Constants.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/eu/hansolo/fx/jarkanoid/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/eu/hansolo/fx/jarkanoid/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/eu/hansolo/fx/jarkanoid/PropertyManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/eu/hansolo/fx/jarkanoid/PropertyManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -52,19 +46,20 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "settings.editor.selected.configurable": "project.propCompiler",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;project.propCompiler&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -75,7 +70,8 @@
       <updated>1676982283561</updated>
       <workItem from="1676982284591" duration="284000" />
       <workItem from="1676984727538" duration="105000" />
-      <workItem from="1677000775317" duration="584000" />
+      <workItem from="1677000775317" duration="771000" />
+      <workItem from="1677001600815" duration="229000" />
     </task>
     <servers />
   </component>

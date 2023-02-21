@@ -16,7 +16,15 @@ in the main directory of the project. These files are in the format of Affinity 
 
 ### Settings
 - The game will create a properties file in your user folder named jarkanoid.properties
-- You can set the default ball speed in that file to values between 1 and 5. (2 recommended for M1 Macs, 3 for all other machines)
+- You can set the default ball speed in that file to values between 0.1 and 10. (2 recommended for M1 Macs, 3 for x64 machines and 5-7 for aarch64 Raspberry Pi)
+
+e.g. `/home/YOUR_USERNAME/jarkanoid.properties`
+```properties
+highscore=0
+ball_speed=3.0
+bonus_block_speed=3.0
+enemy_speed=3.0
+```
 
 ### Gameplay
 - Space key to start the game or shoot (when laser paddle)
