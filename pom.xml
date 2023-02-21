@@ -33,11 +33,6 @@
             <artifactId>javafx-media</artifactId>
             <version>${javafx.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-swing</artifactId>
-            <version>${javafx.version}</version>
-        </dependency>
 
         <dependency>
             <groupId>com.gluonhq</groupId>
@@ -48,16 +43,6 @@
         <dependency>
             <groupId>com.gluonhq.attach</groupId>
             <artifactId>runtime-args</artifactId>
-            <version>${attach.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.gluonhq.attach</groupId>
-            <artifactId>audio</artifactId>
-            <version>${attach.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.gluonhq.attach</groupId>
-            <artifactId>storage</artifactId>
             <version>${attach.version}</version>
         </dependency>
         <dependency>
@@ -95,6 +80,16 @@
             <artifactId>util</artifactId>
             <version>${attach.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.gluonhq.attach</groupId>
+            <artifactId>storage</artifactId>
+            <version>${attach.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.gluonhq.attach</groupId>
+            <artifactId>audio</artifactId>
+            <version>${attach.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -120,6 +115,10 @@
                 <configuration>
                     <target>${gluonfx.target}</target>
                     <mainClass>${main.class}</mainClass>
+                    <resourcesList>
+                        <list>.*\\.wav$</list>
+                        <list>.*\\.mp3$</list>
+                    </resourcesList>
                     <attachList>
                         <list>runtime-args</list>
                         <list>audio</list>

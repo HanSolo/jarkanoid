@@ -198,7 +198,6 @@ public class Main extends Application {
     private double                   topLeftDoorAlpha;
     private double                   topRightDoorAlpha;
     private EventHandler<MouseEvent> mouseHandler;
-    private StackPane                laserTouchArea;
 
 
     // ******************** Methods *******************************************
@@ -218,7 +217,6 @@ public class Main extends Application {
         movingPaddleOut          = false;
         openDoor                 = new OpenDoor(WIDTH - 20 * Constants.SCALE_FACTOR, UPPER_INSET + 565 * Constants.SCALE_FACTOR);
         showStartHint            = true;
-        laserTouchArea           = new StackPane();
         silverBlockMaxHits       = 2;
         blockCounter             = 0;
         stickyPaddle             = false;
@@ -563,7 +561,7 @@ public class Main extends Application {
         //ballPaddleSnd.ifPresent(Audio::dispose);
         //ballBlockSnd.ifPresent(Audio::dispose);
         //ballHardBlockSnd.ifPresent(Audio::dispose);
-        //explosionSnd.ifPresent(Audion::dispose);
+        //explosionSnd.ifPresent(Audio::dispose);
         //laserSnd.ifPresent(Audio::dispose);
         //gameOverSnd.ifPresent(Audio::dispose);
     }
@@ -598,7 +596,6 @@ public class Main extends Application {
     // Play audio clips
     //private void playSound(final Optional<Audio> audioClip) {
     //    if (null == audioClip || audioClip.isEmpty()) { return; }
-        //audioClip.get().setVolume(Double.MAX_VALUE);
     //    audioClip.get().play();
     //}
 

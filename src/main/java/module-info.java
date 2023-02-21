@@ -4,8 +4,9 @@ module eu.hansolo.fx.jarkanoid {
     requires javafx.base;
     requires javafx.graphics;
     requires javafx.controls;
-    requires javafx.swing;
     requires javafx.media;
+
+    //requires com.gluonhq.attach.audio;
 
     exports eu.hansolo.fx.jarkanoid;
 }
