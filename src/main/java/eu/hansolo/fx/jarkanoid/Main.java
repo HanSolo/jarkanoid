@@ -159,6 +159,7 @@ public class Main extends Application {
     private AudioClip                ballHardBlockSnd;
     private AudioClip                laserSnd;
     private AudioClip                explosionSnd;
+    private AudioClip                gameOverSnd;
     private Paddle                   paddle;
     private List<Ball>               balls;
     private List<Block>              blocks;
@@ -495,6 +496,7 @@ public class Main extends Application {
         ballHardBlockSnd = new AudioClip(getClass().getResource("ball_hard_block.wav").toExternalForm());
         laserSnd         = new AudioClip(getClass().getResource("gun.wav").toExternalForm());
         explosionSnd     = new AudioClip(getClass().getResource("explosion.wav").toExternalForm());
+        gameOverSnd      = new AudioClip(getClass().getResource("game_over.wav").toExternalForm());
     }
 
     private static double clamp(final double min, final double max, final double value) {
@@ -583,6 +585,8 @@ public class Main extends Application {
     // Game Over
     private void gameOver() {
         executor.schedule(() -> startScreen(), 5, TimeUnit.SECONDS);
+
+        playSound(gameOverSnd);
 
         running = false;
         balls.clear();
