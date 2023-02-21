@@ -66,7 +66,9 @@ public class Main extends Application {
     protected static final double      PADDLE_OFFSET_Y      = 68;
     protected static final double      PADDLE_SPEED         = 8;
     protected static final double      TORPEDO_SPEED        = 12;
-    protected static final double      BALL_SPEED           = clamp(1, 5, PropertyManager.INSTANCE.getDouble(Constants.BALL_SPEED_KEY, 3));
+    protected static final double      BALL_SPEED           = clamp(0.1, 10, PropertyManager.INSTANCE.getDouble(Constants.BALL_SPEED_KEY, 3));
+    protected static final double      BONUS_BLOCK_SPEED    = clamp(0.1, 5, PropertyManager.INSTANCE.getDouble(Constants.BONUS_BLOCK_SPEED_KEY, 3));
+    protected static final double      ENEMY_SPEED          = clamp(0.1, 5, PropertyManager.INSTANCE.getDouble(Constants.ENEMY_SPEED_KEY, 3));
     protected static final double      BLOCK_WIDTH          = 38;
     protected static final double      BLOCK_HEIGHT         = 20;
     protected static final double      BLOCK_STEP_X         = 40;
@@ -1151,7 +1153,7 @@ public class Main extends Application {
 
         // ******************** Constructors **************************************
         public BonusBlock(final double x, final double y, final BonusType bonusType) {
-            super(x, y, 0, 2 * BALL_SPEED, 5, 4, 1.0);
+            super(x, y, 0, BONUS_BLOCK_SPEED, 5, 4, 1.0);
             this.bonusType   = bonusType;
             this.width       = BLOCK_WIDTH;
             this.height      = BLOCK_HEIGHT;
@@ -1389,8 +1391,8 @@ public class Main extends Application {
 
         // ******************** Constructors **************************************
         public Enemy(final double x, final double y, final EnemyType enemyType) {
-            super(x, y, 0, 3.0, 8, 3, 1.0);
-            this.initialVx   = RND.nextDouble() * 3.0;
+            super(x, y, 0, ENEMY_SPEED, 8, 3, 1.0);
+            this.initialVx   = RND.nextDouble() * ENEMY_SPEED;
             this.vX          = RND.nextBoolean() ? initialVx : -initialVx;
             this.enemyType   = enemyType;
             this.width       = ENEMY_WIDTH;
