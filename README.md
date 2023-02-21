@@ -1,5 +1,7 @@
 ## JArkanoid
 
+[![Github all releases](https://img.shields.io/github/downloads/HanSolo/jarkanoid/total.svg)](https://GitHub.com/HanSolo/jarkanoid/releases/)
+
 JArkanoid is a simple clone of the game Arkanoid from 1986 by Taito written in JavaFX.
 
 The game contains 32 levels and is only missing the last level at the moment.
