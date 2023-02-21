@@ -103,12 +103,14 @@ public class Main extends Application {
     private GraphicsContext          brdrCtx;
     private Image                    logoImg;
     private Image                    copyrightImg;
-    private Image                    bkgPatternImgBlue;
-    private Image                    bkgPatternImgRed;
-    private Image                    bkgPatternImgGreen;
-    private ImagePattern             bkgPatternFillBlue;
-    private ImagePattern             bkgPatternFillRed;
-    private ImagePattern             bkgPatternFillGreen;
+    private Image                    bkgPatternImg1;
+    private Image                    bkgPatternImg2;
+    private Image                    bkgPatternImg3;
+    private Image                    bkgPatternImg4;
+    private ImagePattern             bkgPatternFill1;
+    private ImagePattern             bkgPatternFill2;
+    private ImagePattern             bkgPatternFill3;
+    private ImagePattern             bkgPatternFill4;
     private ImagePattern             borderPatternFill;
     private Image                    borderVerticalImg;
     private Image                    borderPartVerticalImg;
@@ -356,11 +358,12 @@ public class Main extends Application {
         // Load all sounds
         loadSounds();
 
-        bkgPatternFillBlue  = new ImagePattern(bkgPatternImgBlue, 0, 0, 68, 117, false);
-        bkgPatternFillRed   = new ImagePattern(bkgPatternImgRed, 0, 0, 68, 117, false);
-        bkgPatternFillGreen = new ImagePattern(bkgPatternImgGreen, 0, 0, 68, 117, false);
-        borderPatternFill   = new ImagePattern(borderVerticalImg, 0, 0, 20, 113, false);
-        pipePatternFill     = new ImagePattern(pipeImg, 0, 0, 5, 17, false);
+        bkgPatternFill1   = new ImagePattern(bkgPatternImg1, 0, 0, 68, 117, false);
+        bkgPatternFill2   = new ImagePattern(bkgPatternImg2, 0, 0, 64, 64, false);
+        bkgPatternFill3   = new ImagePattern(bkgPatternImg3, 0, 0, 64, 64, false);
+        bkgPatternFill4   = new ImagePattern(bkgPatternImg4, 0, 0, 64, 64, false);
+        borderPatternFill = new ImagePattern(borderVerticalImg, 0, 0, 20, 113, false);
+        pipePatternFill   = new ImagePattern(pipeImg, 0, 0, 5, 17, false);
 
 
         // Initialize paddles
@@ -439,9 +442,10 @@ public class Main extends Application {
     private void loadImages() {
         logoImg               = new Image(getClass().getResourceAsStream("jarkanoid_logo.png"), 460, 118, true, false);
         copyrightImg          = new Image(getClass().getResourceAsStream("copyright.png"), 458, 115, true, false);
-        bkgPatternImgBlue     = new Image(getClass().getResourceAsStream("backgroundPattern_blue.png"), 68, 117, true, false);
-        bkgPatternImgRed      = new Image(getClass().getResourceAsStream("backgroundPattern_red.png"), 68, 117, true, false);
-        bkgPatternImgGreen    = new Image(getClass().getResourceAsStream("backgroundPattern_green.png"), 68, 117, true, false);
+        bkgPatternImg1        = new Image(getClass().getResourceAsStream("backgroundPattern_1.png"), 68, 117, true, false);
+        bkgPatternImg2        = new Image(getClass().getResourceAsStream("backgroundPattern_2.png"), 64, 64, true, false);
+        bkgPatternImg3        = new Image(getClass().getResourceAsStream("backgroundPattern_3.png"), 64, 64, true, false);
+        bkgPatternImg4        = new Image(getClass().getResourceAsStream("backgroundPattern_4.png"), 64, 64, true, false);
         borderVerticalImg     = new Image(getClass().getResourceAsStream("borderVertical.png"), 20, 113, true, false);
         borderPartVerticalImg = new Image(getClass().getResourceAsStream("borderPartVertical.png"), 20, 71, true, false);
         topDoorImg            = new Image(getClass().getResourceAsStream("topDoor.png"), 64, 23, true, false);
@@ -694,12 +698,14 @@ public class Main extends Application {
 
         if (running) {
             // Use background pattern related to level
-            if (level % 3 == 0) {
-                bkgCtx.setFill(bkgPatternFillGreen);
+            if (level % 4 == 0) {
+                bkgCtx.setFill(bkgPatternFill4);
+            } else if (level % 3 == 0) {
+                bkgCtx.setFill(bkgPatternFill3);
             } else if (level % 2 == 0) {
-                bkgCtx.setFill(bkgPatternFillRed);
+                bkgCtx.setFill(bkgPatternFill2);
             } else {
-                bkgCtx.setFill(bkgPatternFillBlue);
+                bkgCtx.setFill(bkgPatternFill1);
             }
             bkgCtx.fillRect(0, UPPER_INSET, WIDTH, HEIGHT);
 
