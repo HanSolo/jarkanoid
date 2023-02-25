@@ -5,8 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="13790e6f-0827-47d3-b349-eef902661cde" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/eu/hansolo/fx/jarkanoid/FIFO.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/blink_map.afdesign" beforeDir="false" afterPath="$PROJECT_DIR$/resources/blink_map.afdesign" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/eu/hansolo/fx/jarkanoid/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/eu/hansolo/fx/jarkanoid/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/eu/hansolo/fx/jarkanoid/blink_map.png" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/eu/hansolo/fx/jarkanoid/blink_map.png" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -21,6 +25,9 @@
   <component name="ExternalProjectsManager">
     <system id="GRADLE">
       <state>
+        <task path="$PROJECT_DIR$">
+          <activation />
+        </task>
         <projects_view>
           <tree_state>
             <expand>
@@ -28,12 +35,30 @@
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
                 <item name="jarkanoid" type="f1a62948:ProjectNode" />
               </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="jarkanoid" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="jarkanoid" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+                <item name="other" type="c8890929:TasksNode$1" />
+              </path>
             </expand>
             <select />
           </tree_state>
         </projects_view>
       </state>
     </system>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
   </component>
   <component name="MacroExpansionManager">
     <option name="directoryName" value="zkj3t0ds" />
@@ -50,6 +75,7 @@
   &quot;keyToString&quot;: {
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
     &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
@@ -60,6 +86,48 @@
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
+  <component name="RunManager" selected="Gradle.jarkanoid [Main]">
+    <configuration name="Test" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="eu.hansolo.fx.jarkanoid.Test" />
+      <module name="jarkanoid.main" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="eu.hansolo.fx.jarkanoid.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="jarkanoid [Main]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="Main" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Gradle.jarkanoid [Main]" />
+        <item itemvalue="Application.Test" />
+      </list>
+    </recent_temporary>
+  </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -71,7 +139,19 @@
       <workItem from="1676982284591" duration="284000" />
       <workItem from="1676984727538" duration="105000" />
       <workItem from="1677000775317" duration="771000" />
-      <workItem from="1677001600815" duration="229000" />
+      <workItem from="1677001600815" duration="314000" />
+      <workItem from="1677050228669" duration="13242000" />
+      <workItem from="1677077562274" duration="598000" />
+      <workItem from="1677080733773" duration="341000" />
+      <workItem from="1677136879200" duration="28000" />
+      <workItem from="1677147143917" duration="1000" />
+      <workItem from="1677163181246" duration="5504000" />
+      <workItem from="1677222895143" duration="4470000" />
+      <workItem from="1677235419562" duration="15000" />
+      <workItem from="1677238295610" duration="1290000" />
+      <workItem from="1677263216061" duration="122000" />
+      <workItem from="1677271847954" duration="8000" />
+      <workItem from="1677337845008" duration="316000" />
     </task>
     <servers />
   </component>

@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
 
 
 public class Main extends Application {
-    protected enum PaddleState {
+    private enum PaddleState {
         STANDARD(80, 22),
         WIDE(120, 22),
         LASER(80, 22);
@@ -45,7 +45,7 @@ public class Main extends Application {
             this.height = height;
         }
     }
-    protected enum BonusType {
+    private enum BonusType {
         BONUS_C,  // Catch Ball      (lime)
         BONUS_D,  // 3-Balls         (cyan)
         BONUS_F,  // Wide            (dark blue)
@@ -54,37 +54,37 @@ public class Main extends Application {
         BONUS_B,  // Next Level      (magenta)
         BONUS_P;  // Additional life (gray)
     }
-    protected enum EnemyType {
+    private enum EnemyType {
         MOLECULE;
     }
 
-    protected static final Random      RND                  = new Random();
-    protected static final double      WIDTH                = 560;
-    protected static final double      HEIGHT               = 740;
-    protected static final double      INSET                = 22;
-    protected static final double      UPPER_INSET          = 85;
-    protected static final double      PADDLE_OFFSET_Y      = 68;
-    protected static final double      PADDLE_SPEED         = 8;
-    protected static final double      TORPEDO_SPEED        = 12;
-    protected static final double      BALL_SPEED           = clamp(0.1, 10, PropertyManager.INSTANCE.getDouble(Constants.BALL_SPEED_KEY, 3));
-    protected static final double      BONUS_BLOCK_SPEED    = clamp(0.1, 5, PropertyManager.INSTANCE.getDouble(Constants.BONUS_BLOCK_SPEED_KEY, 3));
-    protected static final double      ENEMY_SPEED          = clamp(0.1, 5, PropertyManager.INSTANCE.getDouble(Constants.ENEMY_SPEED_KEY, 3));
-    protected static final double      BLOCK_WIDTH          = 38;
-    protected static final double      BLOCK_HEIGHT         = 20;
-    protected static final double      BLOCK_STEP_X         = 40;
-    protected static final double      BLOCK_STEP_Y         = 22;
-    protected static final double      BONUS_BLOCK_WIDTH    = 38;
-    protected static final double      BONUS_BLOCK_HEIGHT   = 18;
-    protected static final double      ENEMY_WIDTH          = 32;
-    protected static final double      ENEMY_HEIGHT         = 32;
-    protected static final double      EXPLOSION_WIDTH      = 32;
-    protected static final double      EXPLOSION_HEIGHT     = 32;
-    protected static final double      BALL_VX_INFLUENCE    = 0.75;
-    protected static final Font        SCORE_FONT           = Fonts.emulogic(20);
-    protected static final Color       HIGH_SCORE_RED       = Color.rgb(229, 2, 1);
-    protected static final Color       SCORE_WHITE          = Color.WHITE;
-    protected static final Color       TEXT_GRAY            = Color.rgb(216, 216, 216);
-    protected static final int         BONUS_BLOCK_INTERVAL = 20;
+    private static final Random      RND                  = new Random();
+    private static final double      WIDTH                = 560;
+    private static final double      HEIGHT               = 740;
+    private static final double      INSET                = 22;
+    private static final double      UPPER_INSET          = 85;
+    private static final double      PADDLE_OFFSET_Y      = 68;
+    private static final double      PADDLE_SPEED         = 8;
+    private static final double      TORPEDO_SPEED        = 12;
+    private static final double      BALL_SPEED           = clamp(0.1, 10, PropertyManager.INSTANCE.getDouble(Constants.BALL_SPEED_KEY, 3));
+    private static final double      BONUS_BLOCK_SPEED    = clamp(0.1, 5, PropertyManager.INSTANCE.getDouble(Constants.BONUS_BLOCK_SPEED_KEY, 3));
+    private static final double      ENEMY_SPEED          = clamp(0.1, 5, PropertyManager.INSTANCE.getDouble(Constants.ENEMY_SPEED_KEY, 3));
+    private static final double      BLOCK_WIDTH          = 38;
+    private static final double      BLOCK_HEIGHT         = 20;
+    private static final double      BLOCK_STEP_X         = 40;
+    private static final double      BLOCK_STEP_Y         = 22;
+    private static final double      BONUS_BLOCK_WIDTH    = 38;
+    private static final double      BONUS_BLOCK_HEIGHT   = 18;
+    private static final double      ENEMY_WIDTH          = 32;
+    private static final double      ENEMY_HEIGHT         = 32;
+    private static final double      EXPLOSION_WIDTH      = 32;
+    private static final double      EXPLOSION_HEIGHT     = 32;
+    private static final double      BALL_VX_INFLUENCE    = 0.75;
+    private static final Font        SCORE_FONT           = Fonts.emulogic(20);
+    private static final Color       HIGH_SCORE_RED       = Color.rgb(229, 2, 1);
+    private static final Color       SCORE_WHITE          = Color.WHITE;
+    private static final Color       TEXT_GRAY            = Color.rgb(216, 216, 216);
+    private static final int         BONUS_BLOCK_INTERVAL = 20;
 
     private ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
@@ -192,13 +192,14 @@ public class Main extends Application {
     private Pos                      enemySpawnPosition;
     private double                   topLeftDoorAlpha;
     private double                   topRightDoorAlpha;
+    private FIFO<Block>              blockFifo;
     private EventHandler<MouseEvent> mouseHandler;
 
 
     // ******************** Methods *******************************************
     @Override public void init() {
         running                  = false;
-        paddleState              = PaddleState.STANDARD;
+        paddleState              = PaddleState.LASER;
         highscore                = PropertyManager.INSTANCE.getLong(Constants.HIGHSCORE_KEY, 0);
         level                    = 1;
         blinks                   = new ArrayList<>();
@@ -218,6 +219,7 @@ public class Main extends Application {
         enemySpawnPosition       = Pos.CENTER;
         topLeftDoorAlpha         = 1.0;
         topRightDoorAlpha        = 1.0;
+        blockFifo                = new FIFO<>(9);
 
         lastOneSecondCheck       = System.nanoTime();
         lastTimerCall            = System.nanoTime();
@@ -373,14 +375,14 @@ public class Main extends Application {
         paddle = new Paddle();
 
         // Initialize level
-        balls       = new CopyOnWriteArrayList<>();
-        blocks      = new CopyOnWriteArrayList<>();
-        bonusBlocks = new CopyOnWriteArrayList<>();
-        enemies     = new CopyOnWriteArrayList<>();
-        explosions  = new CopyOnWriteArrayList<>();
-        torpedoes   = new CopyOnWriteArrayList<>();
-        noOfLifes   = 3;
-        score       = 0;
+        balls        = new CopyOnWriteArrayList<>();
+        blocks       = new CopyOnWriteArrayList<>();
+        bonusBlocks  = new CopyOnWriteArrayList<>();
+        enemies      = new CopyOnWriteArrayList<>();
+        explosions   = new CopyOnWriteArrayList<>();
+        torpedoes    = new CopyOnWriteArrayList<>();
+        noOfLifes    = 3;
+        score        = 0;
     }
 
     @Override public void start(final Stage stage) {
@@ -638,11 +640,10 @@ public class Main extends Application {
 
     // ******************** HitTests ******************************************
     private void hitTests() {
-        // torpedo hits
-        for (Block block : blocks) {
+        // torpedo hits block or enemy
+        for (Torpedo torpedo : torpedoes) {
             if (PaddleState.LASER == paddleState) {
-                for (Torpedo torpedo : torpedoes) {
-                    // Torpedo - Block
+                for (Block block : blocks) {
                     if (block.bounds.intersects(torpedo.bounds)) {
                         block.hits++;
                         if (block.hits == block.maxHits) {
@@ -650,6 +651,15 @@ public class Main extends Application {
                             score += block.value;
                         }
                         torpedo.toBeRemoved = true;
+                        break;
+                    }
+                }
+                for (Enemy enemy : enemies) {
+                    if (enemy.bounds.intersects(torpedo.bounds)) {
+                        enemy.toBeRemoved   = true;
+                        torpedo.toBeRemoved = true;
+                        explosions.add(new Explosion(enemy.x, enemy.y, enemy.vX, enemy.vY, 1.0));
+                        playSound(explosionSnd);
                         break;
                     }
                 }
@@ -1114,7 +1124,6 @@ public class Main extends Application {
         public       int       hits;
         public final int       maxHits;
         public final BlockType blockType;
-        public final Bounds    hitBounds;
 
 
         // ******************** Constructors **************************************
@@ -1129,7 +1138,6 @@ public class Main extends Application {
             this.width       = BLOCK_WIDTH;
             this.height      = BLOCK_HEIGHT;
             this.bounds.set(x, y, width, height);
-            this.hitBounds   = new Bounds(x - 3, y - 3, width + 6, height + 6);
             init();
         }
 
@@ -1145,6 +1153,15 @@ public class Main extends Application {
         }
 
         @Override public void update() { }
+
+        @Override public String toString() { return new StringBuilder().append(blockType).append("(").append(x).append(",").append(y).append(")").toString(); }
+
+        public boolean equals(final Block other) {
+            return this.blockType == other.blockType &&
+                   this.x         == other.x &&
+                   this.y         == other.y &&
+                   this.value     == other.value;
+        }
     }
 
     private class BonusBlock extends AnimatedSprite {
@@ -1228,7 +1245,7 @@ public class Main extends Application {
 
             // Hit test ball with blocks
             for (Block block : blocks) {
-                boolean ballHitsBlock = this.bounds.intersects(block.hitBounds);
+                boolean ballHitsBlock = this.bounds.intersects(block.bounds);
                 if (ballHitsBlock) {
                     switch (block.blockType) {
                         case GOLD -> {
@@ -1260,15 +1277,15 @@ public class Main extends Application {
                             }
                         }
                     }
-                    if (bounds.centerX > block.hitBounds.minX && bounds.centerX < block.hitBounds.maxX) {
+                    if (bounds.centerX > block.bounds.minX && bounds.centerX < block.bounds.maxX) {
                         // Top or Bottom hit
                         vY = -vY;
-                    } else if (bounds.centerY > block.hitBounds.minY && bounds.centerY < block.hitBounds.maxY) {
+                    } else if (bounds.centerY > block.bounds.minY && bounds.centerY < block.bounds.maxY) {
                         // Left or Right hit
                         vX = -vX;
                     } else {
-                        double dx = Math.abs(bounds.centerX - block.bounds.centerX) - block.hitBounds.width * 0.5;
-                        double dy = Math.abs(bounds.centerY - block.bounds.centerY) - block.hitBounds.height * 0.5;
+                        double dx = Math.abs(bounds.centerX - block.bounds.centerX) - block.bounds.width * 0.5;
+                        double dy = Math.abs(bounds.centerY - block.bounds.centerY) - block.bounds.height * 0.5;
                         if (dx > dy) {
                             // Left or Right hit
                             vX = -vX;
@@ -1277,7 +1294,16 @@ public class Main extends Application {
                             vY = -vY;
                         }
                     }
-                    break;
+                    blockFifo.add(block);
+                    // Checking for bounds
+                    final List<Block> items = blockFifo.getItems();
+                    if (items.size() == 9) {
+                        if (items.get(0).equals(items.get(6)) && items.get(1).equals(items.get(5)) && items.get(1).equals(items.get(7)) && items.get(2).equals(items.get(4)) && items.get(2).equals(items.get(8))) {
+                            this.vX += 0.1;
+                        } else if (items.get(0).equals(items.get(8)) && items.get(1).equals(items.get(7)) && items.get(2).equals(items.get(6)) && items.get(3).equals(items.get(5))) {
+                            this.vX += 0.1;
+                        }
+                    }
                 }
             }
 
@@ -1424,17 +1450,17 @@ public class Main extends Application {
 
             // Hit test enemy with blocks
             for (Block block : blocks) {
-                boolean enemyHitsBlock = this.bounds.intersects(block.hitBounds);
+                boolean enemyHitsBlock = this.bounds.intersects(block.bounds);
                 if (enemyHitsBlock) {
-                    if (bounds.centerX > block.hitBounds.minX && bounds.centerX < block.hitBounds.maxX) {
+                    if (bounds.centerX > block.bounds.minX && bounds.centerX < block.bounds.maxX) {
                         // Top or Bottom hit
                         vY = -vY;
-                    } else if (bounds.centerY > block.hitBounds.minY && bounds.centerY < block.hitBounds.maxY) {
+                    } else if (bounds.centerY > block.bounds.minY && bounds.centerY < block.bounds.maxY) {
                         // Left or Right hit
                         vX = -vX;
                     } else {
-                        double dx = Math.abs(bounds.centerX - block.bounds.centerX) - block.hitBounds.width * 0.5;
-                        double dy = Math.abs(bounds.centerY - block.bounds.centerY) - block.hitBounds.height * 0.5;
+                        double dx = Math.abs(bounds.centerX - block.bounds.centerX) - block.bounds.width * 0.5;
+                        double dy = Math.abs(bounds.centerY - block.bounds.centerY) - block.bounds.height * 0.5;
                         if (dx > dy) {
                             // Left or Right hit
                             vX = -vX;
