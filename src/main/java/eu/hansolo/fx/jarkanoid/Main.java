@@ -199,7 +199,7 @@ public class Main extends Application {
     // ******************** Methods *******************************************
     @Override public void init() {
         running                  = false;
-        paddleState              = PaddleState.LASER;
+        paddleState              = PaddleState.STANDARD;
         highscore                = PropertyManager.INSTANCE.getLong(Constants.HIGHSCORE_KEY, 0);
         level                    = 1;
         blinks                   = new ArrayList<>();
