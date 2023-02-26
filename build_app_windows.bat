@@ -1,8 +1,8 @@
 @ECHO OFF
 
 set JAVA_VERSION=17
-set MAIN_JAR=jarkanoid-17.0.13.jar
-set APP_VERSION=17.0.13
+set MAIN_JAR=jarkanoid-17.0.15.jar
+set APP_VERSION=17.0.15
 
 rem ------ SETUP DIRECTORIES AND FILES ----------------------------------------
 rem Remove previously generated java runtime and installers. Copy all required
