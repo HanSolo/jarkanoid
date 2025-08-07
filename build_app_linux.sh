@@ -97,8 +97,12 @@ done
 # ------ CHECKSUM FILE --------------------------------------------------------
 arch_name="$(uname -m)"
 
+# ------ CHECKSUM FILE --------------------------------------------------------
+arch_name="$(uname -m)"
+
 if [ "${arch_name}" = "aarch64" ]; then
     sha256sum "build/installer/jarkanoid_$APP_VERSION-1_arm64.deb" > "build/installer/jarkanoid_$APP_VERSION-1_arm64.deb.sha256"
+    sha256sum "build/installer/jarkanoid-$APP_VERSION-1.aarch64.rpm" > "build/installer/jarkanoid_$APP_VERSION-1.aarch64.rpm.sha256"
 else
     sha256sum "build/installer/jarkanoid_${APP_VERSION}-1_amd64.deb" > "build/installer/jarkanoid_${APP_VERSION}-1_amd64.deb.sha256"
     sha256sum "build/installer/jarkanoid-${APP_VERSION}-1.x86_64.rpm" > "build/installer/jarkanoid-${APP_VERSION}-1.x86_64.rpm.sha256"
