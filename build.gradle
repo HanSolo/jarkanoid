@@ -8,7 +8,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'com.google.gradle:osdetector-gradle-plugin:1.7.1'
+        classpath 'com.google.gradle:osdetector-gradle-plugin:1.7.3'
         classpath 'org.javamodularity:moduleplugin:1.8.12'
     }
 }
@@ -16,7 +16,7 @@ buildscript {
 plugins {
     id 'java-library'
     id 'application'
-    id 'com.google.osdetector'           version '1.7.1'
+    id 'com.google.osdetector'           version '1.7.3'
     id 'org.javamodularity.moduleplugin' version '1.8.12'
     id 'net.nemerosa.versioning'         version '3.0.0'
 }
@@ -49,7 +49,7 @@ ext {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: '*.jar')
-    implementation 'com.google.gradle:osdetector-gradle-plugin:1.7.1'
+    implementation 'com.google.gradle:osdetector-gradle-plugin:1.7.3'
     implementation "org.openjfx:javafx-base:${javafxVersion}:${platform}"
     implementation "org.openjfx:javafx-graphics:${javafxVersion}:${platform}"
     implementation "org.openjfx:javafx-controls:${javafxVersion}:${platform}"
@@ -57,13 +57,14 @@ dependencies {
 }
 
 
-application.mainModule = 'eu.hansolo.fx.jarkanoid'
-mainClassName          = 'eu.hansolo.fx.jarkanoid.Launcher'
 description            = 'Arkanoid clone written in JavaFX'
 
+application {
+    mainModule = 'eu.hansolo.fx.jarkanoid'
+    mainClass  = 'eu.hansolo.fx.jarkanoid.Launcher'
+}
 
 jar {
-
     from {
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
         configurations.runtimeClasspath.collect {  it.isDirectory() ? it : zipTree(it)  }
@@ -96,7 +97,7 @@ jar {
 
 
 // start the from gradle
-task Main(type: JavaExec) {
+tasks.register('Main', JavaExec) {
     mainClass = "eu.hansolo.fx.jarkanoid.Launcher"
     classpath = sourceSets.main.runtimeClasspath
 }
